@@ -1,0 +1,9 @@
+Alias /myemsl/status /var/www/myemsl/status
+
+<Directory /var/www/myemsl/status>
+	Options Indexes FollowSymLinks MultiViews
+	AllowOverride None
+	Order deny,allow
+	include @WEBAUTH_STORAGE@
+	Require valid-user
+</Directory>

@@ -1,0 +1,89 @@
+#!/usr/bin/python
+
+import os
+import sys
+import time
+import errno
+import subprocess
+from optparse import OptionParser
+from myemsl.getconfig import getconfig
+from myemsl.inoutage import in_outage
+
+def perform(umount, check, verbose):
+	res = 0
+	try:
+		dir = "/usr/libexec/myemsl/mount.d"
+		for script in sorted(os.listdir(dir), reverse=umount):
+			cmd = "%s/%s" %(dir, script)
+			if umount:
+				cmd += " -u"
+			if check:
+				cmd += " -c"
+			tres = os.system(cmd)
+			if tres != 0:
+				if verbose:
+					print >> sys.stderr, "command %s failed with return code %d" %(cmd, tres)
+				res = tres >> 8
+				if not umount:
+					break
+	except OSError, e:
+		if e.errno != errno.ENOENT:
+			raise
+	return res
+
+def outage_perform(verbose, timeout=None):
+	res = 0
+	try:
+		if timeout:
+			os.environ[('myemsl_outage_timeout').upper()] = timeout
+		dir = "/usr/libexec/myemsl/outage.d"
+		for script in sorted(os.listdir(dir), reverse=False):
+			cmd = "%s/%s" %(dir, script)
+			cmd += " -c"
+			tres = os.system(cmd)
+			if tres != 0:
+				if verbose:
+					print >> sys.stderr, "command %s failed with return code %d" %(cmd, tres)
+				res = tres >> 8
+				break
+	except OSError, e:
+		if e.errno != errno.ENOENT:
+			raise
+	return res
+
+def main():
+	os.chdir('/')
+	res = 0
+	config = getconfig()
+	parser = OptionParser()
+	parser.add_option("-u", "--umount", dest="umount", default=False, action='store_true', help="Unmount instead of mount.")
+	parser.add_option("-c", "--check", dest="check", default=False, action='store_true', help="Check mounts.")
+	parser.add_option("-v", "--verbose", dest="verbose", default=False, action='store_true', help="Be verbose.")
+	parser.add_option("-t", "--timeout", dest="timeout", default=None, help="Timeout Option.")
+	(options, args) = parser.parse_args()
+	if options.umount and options.check:
+		print >> sys.stderr, "You must specify only one of -c or -u"
+		sys.exit(1)
+	for section in config.sections():
+		for item in config.items(section):
+			os.environ[("%s_%s_%s" %('myemsl', section, item[0])).upper()] = item[1]
+	if options.umount:
+		if not in_outage(['storage', 'myemsl']):
+			print >> sys.stderr, "Cowardly refusing to unmount when no outage is defined."
+			sys.exit(1)
+		res = outage_perform(options.verbose, options.timeout)
+		if res != 0:
+			print >> sys.stderr, "Failed to drain node."
+			sys.exit(1)
+	res = perform(options.umount, options.check, options.verbose)
+	if not (options.umount or options.check): #If mounting
+		if res == 0: #Mount ok, check
+			res = perform(False, True, options.verbose)
+		if res != 0: #Checks failed. Unmount
+			tres = perform(True, False, options.verbose)
+			if tres != 0:
+				print >> sys.stderr, "System really messed up. Couldn't even unmount."
+	return res
+
+if __name__ == '__main__':
+	sys.exit(main())

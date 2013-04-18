@@ -1,0 +1,69 @@
+#! /bin/bash
+### BEGIN INIT INFO
+# Provides:          myemsl_elasticsearch
+# Required-Start:    $all
+# Required-Stop:     $all
+# Default-Start:
+# Default-Stop:      0 1 6
+# Short-Description: Starts myemsl elasticsearch
+# chkconfig: - 80 15
+# Description: MyEMSL Elasticsearch
+### END INIT INFO
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+# Pull in sysconfig settings
+[ -f /etc/sysconfig/myemsl_elasticsearch ] && . /etc/sysconfig/myemsl_elasticsearch
+
+RETVAL=0
+prog="myemsl_elasticsearch"
+
+PID_FILE=/var/run/myemsl_elasticsearch.pid
+
+start() {
+	MYEMSL_UNIX_USER=`myemsl_getunixuser`
+	status -p $PID_FILE $prog >/dev/null
+	RETVAL=$?
+	[ "$RETVAL" = 0 ] && return 0
+	/usr/bin/service-poke-server -p $PID_FILE -D -f /var/tmp/myemsl_elasticsearch -i /usr/share/myemsl/elasticsearch-service-poke.ini
+	[ "$?" != 0 ] && return 1
+	chown "$MYEMSL_UNIX_USER".apache /var/tmp/myemsl_elasticsearch
+	chmod 660 /var/tmp/myemsl_elasticsearch
+	touch /var/lock/subsys/myemsl_elasticsearch
+	return 0
+}
+
+stop() {
+	if [ -n "`pidfileofproc $prog`" ] ; then
+	    killproc -p $PID_FILE $prog >/dev/null
+	else
+	    return 1
+	fi
+	RETVAL=$?
+	[ "$RETVAL" = 0 ] && rm -f /var/lock/subsys/myemsl_elasticsearch
+}
+
+case "$1" in
+	start)
+		start
+		;;
+	stop)
+		stop
+		;;
+	status)
+		status -p ${PID_FILE} $prog
+		RETVAL=$?
+		;;
+	restart|force-reload)
+		stop
+		start
+		;;
+	*)
+		N=/etc/init.d/${NAME}
+		echo "Usage: $N {start|stop|restart|force-reload}" >&2
+		RETVAL=2
+		;;
+esac
+
+exit $RETVAL

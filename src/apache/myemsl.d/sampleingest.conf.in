@@ -1,0 +1,13 @@
+Alias /myemsl/sample-ingest /var/www/myemsl/sample-ingest
+
+<Directory /var/www/myemsl/sample-ingest>
+    AllowOverride All
+    Options Indexes FollowSymLinks MultiViews Includes
+    Order deny,allow
+    include @WEBAUTH_STORAGE@
+    Require valid-user
+    DirectoryIndex index.html index.psp
+    AddHandler mod_python .psp .psp_
+    PythonHandler mod_python.psp
+</Directory>
+

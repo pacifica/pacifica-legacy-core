@@ -1,0 +1,59 @@
+#!/usr/bin/python
+
+import os, sys
+from nntplib import NNTP
+import libxml2
+import subprocess
+import bsddb
+from optparse import OptionParser
+
+parser = OptionParser(description="MyEMSL Notifier")
+
+parser.add_option('--statedb', dest='statedb', default='/var/state/myemsl-notify.db', type=str, help='location of the statedb')
+parser.add_option('--script', dest='script', type=str, help='script to run on matches')
+parser.add_option('--server', dest='server', default='a3.emsl.pnl.gov', type=str, help='the nntp server')
+parser.add_option('--group', dest='group', default='local.myemsl.incoming.notifications', type=str, help='the nntp news group to listen on')
+parser.add_option('--xpath', dest='xpath', type=str, help='xpath to match')
+
+(options, args) = parser.parse_args()
+
+if options.xpath == None:
+	print "xpath argument not defined"
+	sys.exit(-1)
+if options.script == None:
+	print "script to run not defined"
+	sys.exit(-1)
+
+_continue = True
+
+db = bsddb.btopen(options.statedb, 'c')
+s = NNTP(options.server)
+
+while _continue:
+
+	resp, count, first, last, name = s.group(options.group)
+	for message in range(int(first), int(last)+1):
+		if str(message) in db and db[str(message)] == 'Read':
+			continue
+		if str(message) in db and db[str(message)] == 'Failed':
+			continue
+		resp, number, id = s.stat(str(message))
+		resp, number, id, _list = s.body(id)
+		try:
+			doc = libxml2.parseDoc("\n".join(_list))
+		except:
+			print "Failed to parse xml document"
+			db[str(message)] = "Failed"
+			continue
+		if doc.xpathEval(options.xpath):
+			print "Execing script"
+			p = subprocess.Popen([options.script], shell=True, stdin=subprocess.PIPE)
+			p.stdin.write("\n".join(_list) + "\n")
+			p.stdin.flush()
+			p.stdin.close()
+			if p.wait() != 0:
+				print "There was an error in the script"
+		else:
+			print "xpath didn't match anything in document"
+		db[str(message)] = "Read";
+s.quit()

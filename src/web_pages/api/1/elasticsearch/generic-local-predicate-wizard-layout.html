@@ -1,0 +1,125 @@
+<div id="myemsl_data_type_wizard" title="Meta Data Attribute Wizard">
+	<form id="demoForm" method="post" action="json.html" class="bbq">
+		<div id="fieldWrapper">
+			<div class="step" id="first">
+				Please enter a short description of what this piece of metadata describes:
+				<br/>
+				<input type="text" name="short_description" size="80"/>
+				<hr/>
+				Please enter a text description of what this piece of metadata describes:
+				<br/>
+				<textarea name="description" rows="4" cols="80"></textarea>
+				<hr/>
+				<input type="checkbox" id="multiple" name="multiple" value="multiple"></input><span class="checkbox_text">Can this metadata be applied more then once to the same item with different values?</span><span class="checkbox_help">For example, if you were creating a metadata item for "birthday", you would never have a person with more then one value for "birthday".</span>
+			</div>
+			<div id="two" class="step">
+				Is the metadata value one of a predetermined number of things?
+				<ul class="myemsl_predicate_wizard_no_bullet">
+					<li><input checked="checked" type="radio" name="endedness" value="enumerated" class="link"></input><span class="radio_text">Predetermined number of things</span><span class="radio_help">The user applying this metadata will be asked to enter one of a list of things. Some exapmples: [True or False], [Yes, No, or Maybe], or [A, B, C, ..., Z]</span></li>
+					<li><input type="radio" name="endedness" value="openended" class="link"></input><span class="radio_text">Open ended value</span><span class="radio_help">An openended value is something that is not in a predefined list. Use openended values for storing data like the number 73.25 or the text "Some text about science."</span></li>
+				</ul>
+			</div>
+			<div id="openended" class="step">
+				Select basic data type:
+				<ul class="myemsl_predicate_wizard_no_bullet">
+					<li><input checked="checked" type="radio" name="type_question" value="number"></input><span class="radio_text">A number</span></li>
+					<li><input type="radio" name="type_question" value="string"></input><span class="radio_text">Text</span></li>
+					<li><input type="radio" name="type_question" value="time"></input><span class="radio_text">A date and/or time</span></li>
+					<li><input type="radio" name="type_question" value="uri"></input><span class="radio_text">A website address</span></li>
+				</ul>
+				<input type="hidden" name="step_next_openended" value="done" class="link required"/>
+			</div>
+			<div id="number" class="step">
+				Please enter what the default unit of measure will be, if any.
+				<br />
+				<ul class="myemsl_predicate_wizard_no_bullet">
+					<input id="number_default_class"></input>
+				</ul>
+				<input type="hidden" name="step_next_number" value="done" class="link required type_merge"/>
+			</div>
+			<div id="done" class="step submit_step">
+				<p>Short description: <span class="result_short_description"></span></p>
+				<p>Long description: <span class="result_long_description"></span></p>
+				<p>Multiple: <span class="result_multiple"></span></p>
+				<p>Endedness: <span class="result_endedness"></span></p>
+				<p>Fetch: <span class="result_fetch"></span></p>
+				<span class="result_number_class">
+					<p>Number Class Default: <span class="result_number_class_default"></span></p>
+					<p>Number Class Type: <span class="result_number_class_type"></span></p>
+				</span>
+				<table class="result_values">
+				</table>
+			</div>
+			<div id="time" class="step">
+				Which fields to do you want to store:
+				<ul class="myemsl_predicate_wizard_no_bullet">
+					<li><input checked="checked" type="checkbox" name="date_year"></input><span class="checkbox_text">Year</span></li>
+					<li><input checked="checked" type="checkbox" name="date_month"></input><span class="checkbox_text">Month</span></li>
+					<li><input checked="checked" type="checkbox" name="date_day"></input><span class="checkbox_text">Day</span></li>
+					<li><input checked="checked" type="checkbox" name="date_hour"></input><span class="checkbox_text">Hour</span></li>
+					<li><input checked="checked" type="checkbox" name="date_minute"></input><span class="checkbox_text">Minute</span></li>
+					<li><input checked="checked" type="checkbox" name="date_second"></input><span class="checkbox_text">Second</span></li>
+				</ul>
+				<input type="hidden" name="step_next_time" value="done" class="link required type_merge"/>
+			</div>
+			<div id="string" class="step">
+				<ul class="myemsl_predicate_wizard_no_bullet">
+					<li><input type="checkbox" name="case_sensitive"></input><span class="checkbox_text">Is the text case sensitive?</span></li>
+					<li><input checked="checked" type="checkbox" name="common_splitting"></input><span class="checkbox_text">For searching, should the system attempt to split the text up into searchable words?</span></li>
+				</ul>
+				<input type="hidden" name="step_next_string" value="done" class="link required type_merge"/>
+			</div>
+			<div id="enumerated" class="step">
+				<ul class="myemsl_predicate_wizard_no_bullet">
+					<li><input checked="checked" type="radio" name="enum_fetch" value="bool"></input><span class="radio_text">Is the value a True/False value?</span></li>
+					<li><input type="radio" name="enum_fetch" value="enum_fetch_download"></input><span class="radio_text">Can the values be downloaded automattically from a website URL?</span></li>
+					<li><input type="radio" name="enum_fetch" value="enum_fetch_manual"></input><span class="radio_text">Enter the valid values manually</span></li>
+					<input type="hidden" name="step_next_enumerated" value="done" class="link required"/>
+				</ul>
+			</div>
+			<div id="enum_fetch_download" class="step">
+				<p>URL to fetch the data from: <input style="width:100%;" type="text" name="database_url"></input></p>
+				<hr />
+				<p>Please provide how long in between each attempt the system makes to refresh values from the provided URL in hours.</p>
+				<table width="100%">
+					<tr>
+						<td>Minimum amount of time<input class="textbox_help_target" type="text" size="10" name="enum_fetch_download_min" value="0"/><span class="textbox_help">This value will specify the minimum amount of time that the system will use to decide when to refresh values from the URL in hours. If the value is 0, the system could decide to always download the list on every request. Setting it greater then one ensures that the value is cached for at minimum the specified number of hours.</span></td>
+						<td>Requested time<input class="textbox_help_target" type="text" size="10" name="enum_fetch_download_req" value="24"/><span class="textbox_help">This value specifies how often you recommend the system downloads the valid values from the server. Setting it to 0 means that the system will never refresh once it is downloaded for the first time. For non zero values, the value is only a recommendation and the system can choose to do it at a more opertune rate.</td>
+					</tr>
+				</table>
+				<input type="hidden" name="step_next_enum_fetch_download" value="done" class="link required"/>
+			</div>
+			<div id="enum_fetch_form" class="step">
+				<div class="myemsl_predicate_wizard_center_container">
+					<div>
+						<table id="form_container" class="myemsl_predicate_wizard_enum_entry">
+							<tr>
+								<td>Text to show user when selecting</td>
+								<td>Value to give the system when selected</td>
+								<td></td>
+							</tr>
+							<tr>
+								<td><input type="text" name="form_text_value_0" class="text_value myemsl_predicate_wizard_form_user_value"/></td>
+								<td><input type="text" name="form_value_0" class="value myemsl_predicate_wizard_form_system_value"></td>
+								<td></td>
+							</tr>
+							<tr>
+								<td><input type="text" name="form_text_value_1" class="text_value myemsl_predicate_wizard_form_user_value"/></td>
+								<td><input type="text" name="form_value_1" class="value myemsl_predicate_wizard_form_system_value"></td>
+								<td></td>
+							</tr>
+						</table>
+						<span class="myemsl_predicate_wizard_form_item_add">Add another row</span>
+					</div>
+				</div>
+				<input type="hidden" name="step_next_enum_fetch_manually" value="done" class="link required"/>
+			</div>
+			<div id="nevergethere" class="step">
+			</div>
+		</div>
+		<div class="myemsl_predicate_wizard_navigation"> 							
+			<input class="navigation_button" id="back" value="Back" type="reset" />
+			<input class="navigation_button" id="next" value="Next" type="submit" />
+		</div>
+	</form>
+</div>

@@ -1,0 +1,12 @@
+<html>
+<body>
+<p>There is a special ElasticSearch endpoint available at:</p>
+<pre>/myemsl/elasticsearch/simple_items</pre>
+
+<p>It accepts any query that ElasticSearch does. HTTP Post the query document like you would to a regular ElasticSearch _search url. The query language is documented <a href="http://www.elasticsearch.org/guide/reference/query-dsl/">here</a></p>
+
+<p>In addition, this service ensures that all data returned from ElasticSearch honors permissions.</p>
+
+<p>An additional feature is that for any query, you may get a MyEMSL Auth token for all the results by adding an 'auth' get variable to the endpoint url. The token will come back in the result JSON document under the key 'myemsl_auth_token' if there are any items that match.</p>
+</body>
+</html>

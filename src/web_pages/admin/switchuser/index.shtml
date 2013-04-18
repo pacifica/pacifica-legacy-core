@@ -1,0 +1,39 @@
+<!--#include virtual="/myemsl/brand/brand_header.inc"-->
+		<script type="text/javascript" src="/myemsl/api/1/jquery-ui.min.js"></script>
+		<script type="text/javascript" src="/myemsl/api/1/json2.js"></script>
+		<script type="text/javascript" src="/myemsl/api/1/myemsl-search-pager-helper.js"></script>
+		<script type="text/javascript" src="/myemsl/api/1/myemsl-search-pager.js"></script>
+		<link rel="stylesheet" href="/myemsl/api/1/css/ui-lightness/jquery-ui.min.css" type="text/css" media="all"></link>
+		<style TYPE="text/css">
+		</style>
+		<script type="text/javascript">
+function myemsl_admin_switch_user(user_name, ok, error) {
+	if(ok === undefined) {
+		ok = function() {};
+	}
+	if(error === undefined) {
+		error = function() {};
+	}
+	var ajx = $.ajax({
+//FIXME get from services...
+		url: "/myemsl/api/1/admin/switchuser/" + user_name,
+		type: 'POST',
+		processData: false,
+		success: ok,
+		error: error
+	});
+	return ajx;
+}
+
+$(function() {
+	$('.submit').button({
+		icons: {
+			primary: "ui-icon-refresh"
+		}
+	}).click(function() {alert("hi")});
+});
+		</script>
+	<!--#include virtual="/myemsl/brand/brand_middle.inc"-->
+		<input type="text" class="username" />
+		<button class="submit">Change User</button>
+<!--#include virtual="/myemsl/brand/brand_footer.inc"-->

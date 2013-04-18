@@ -1,0 +1,13 @@
+<!--#include virtual="/myemsl/brand/brand_header.inc"-->
+	<title>MyEMSL Error</title>
+<!--#include virtual="/myemsl/brand/brand_middle.inc"-->
+<div id="main">
+       
+	<p>You are seeing this page because MyEMSL has no EUS information for your account.</p>
+	<p>This information is created automatically by the EUS on your first successful login to the EUS and synchronized with MyEMSL once every 24 hours.</p>
+	<ul>
+		<li>If you have never logged in to the EUS and are seeing this page, you must login <a href="http://eusi.emsl.pnl.gov" target="_blank">here</a> to the EUS system from within the PNNL network.</li>
+		<li>Please wait 24 hours after successful fist login to the EUS for the information to synchronize.</li>
+	</ul>
+</div>
+<!--#include virtual="/myemsl/brand/brand_footer.inc"-->

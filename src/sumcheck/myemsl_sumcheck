@@ -1,0 +1,8 @@
+#!/bin/bash
+USER=`myemsl_getunixuser`
+if [ "x$USER" == "x" ]
+then
+	echo Failed to get user.
+	exit 1
+fi
+su - $USER -s /usr/libexec/myemsl/sumcheck/sumcheck

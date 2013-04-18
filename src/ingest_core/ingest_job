@@ -1,0 +1,217 @@
+#!/bin/env python
+
+import os
+import re
+import sys
+import stat
+import simplejson
+import pg
+import pgdb
+import time
+import errno
+import pycurl
+import socket
+import pipes
+import nntplib
+import tempfile
+import StringIO
+from optparse import OptionParser
+from myemsl.dbconnect import myemsldb_connect
+from myemsl.getconfig import getconfig
+config = getconfig()
+
+from myemsl.dbconnect import do_sql_insert as do_sql
+from myemsl.dbconnect import do_sql_select as do_sql_select
+from myemsl.logging import getLogger
+
+import myemsl.util
+import myemsl.ingest
+import myemsl.archive
+
+logger = getLogger('myemsl.ingest_core.ingest_job')
+
+parser = OptionParser()
+parser.add_option("-u", "--username", dest="username", help="Username")
+parser.add_option("-t", "--transaction", dest="transaction", help="Transaction Number")
+parser.add_option("-b", "--bundle", dest="bundle", help="Bundle to process")
+parser.add_option("-d", "--unbundledir", dest="unbundledir", help="Bundle extraction directory")
+parser.add_option("-p", "--prefix", dest="prefix", help="MyEMSL Prefix", default="/myemsl")
+parser.add_option("-j", "--jobid", dest="jobid", help="JobID")
+parser.add_option("-i", "--step", dest="step", help="step we are operating", default=0, type=int)
+parser.add_option("-m", "--timing", dest="timingfile", help="Timing file", default="/tmp/timing")
+
+(options, args) = parser.parse_args()
+timingfile = open(options.timingfile+"."+str(options.jobid), 'a')
+timingfile.write("ingest_job:s:%s\n" %(time.time()))
+
+unbundledir = options.unbundledir
+transaction = int(options.transaction)
+os.chdir(unbundledir)
+
+archive = myemsl.archive.ArchiveReader()
+timingfile.write("ingest_job_verify:s:%s\n" %(time.time()))
+try:
+	archive.open(options.bundle)
+except myemsl.Archive.ArchiveException, e:
+	myemsl.ingest.update_state(options.jobid, options.step, 'ERROR', 'Bad bundle type')
+	sys.exit(2)
+myemsl.ingest.update_state(options.jobid, options.step, 'SUCCESS', 'completed')
+options.step+=1
+
+timingfile.write("ingest_job_metadata_process:s:%s\n" %(time.time()))
+metadata = None
+major_version = 1
+
+#Currently always run. pass metadata file through from post for version 2.0 uploads in the future.
+if not metadata:
+	he = archive.next_header()
+	while he:
+		name = he.pathname()
+		if name[0] == '/':
+			name = name[1:]
+		elif name.startswith('./'):
+			name = name[len('./'):]
+		if name != 'metadata.txt':
+			archive.data_skip()
+		else:
+#FIXME decide what to do with metadata.txt files.
+			metadatadir = unbundledir.replace('bundle', 'metadata')
+			metadatafile = open(metadatadir + '/metadata.txt', 'w')
+			d = archive.read_data()
+			while(len(d) > 0):
+				metadatafile.write(d)
+				d = archive.read_data()
+			metadatafile.close()
+			metadata = simplejson.load(open("%s/metadata.txt" %(metadatadir), "r"))
+			break
+		he = archive.next_header()
+	if not metadata:
+		myemsl.ingest.update_state(options.jobid, options.step, 'ERROR', 'no metadata')
+		sys.exit(-1)
+
+	archive = myemsl.archive.ArchiveReader()
+	archive.open(options.bundle)
+
+timingfile.write("ingest_job_metadata_process:e:%s\n" %(time.time()))
+timingfile.write("ingest_job_extract:s:%s\n" %(time.time()))
+
+he = archive.next_header()
+while he:
+	name = he.pathname()
+	if name[0] == '/':
+		name = name[1:]
+	elif name.startswith('./'):
+		name = name[len('./'):]
+	is_data = False
+	if major_version > 1 or ('version' in metadata and metadata['version'].startswith('1.2.')):
+		if name.startswith('data/'):
+			name = name[len('data/'):]
+			is_data = True
+	else:
+		if name != 'metadata.txt':
+			is_data = True
+	if not is_data:
+		archive.data_skip()
+	else:
+		#FIXME upload here instead
+		filename = os.path.normpath(name)
+		if filename.startswith('../'):
+			myemsl.ingest.update_state(options.jobid, options.step, 'ERROR', 'Bad filename in archive. ../')
+			sys.exit(-1)
+
+		file = myemsl.util.try_open_create(filename, priv=False)
+#FIXME verify filename is in metadata
+#FIXME verify file size against metadata.
+#FIXME can probably cheeply verify checksum here too.
+		d = archive.read_data()
+		while(len(d) > 0):
+			file.write(d)
+			d = archive.read_data()
+		file.close()
+	he = archive.next_header()
+
+timingfile.write("ingest_job_extract:e:%s\n" %(time.time()))
+
+myemsl.ingest.update_state(options.jobid, options.step, 'SUCCESS', 'completed')
+options.step+=1
+
+#FIXME all of this can go away once the extract is posting the data.
+sql = ''
+d = []
+f = []
+for (root, dirs, files) in os.walk("."):
+	if root == '.':
+		d += ["%s" %(i) for i in dirs]
+		f += [("%s" %(i),os.lstat(i).st_size) for i in files]
+	else:
+		root = root[2:]
+		d += ["%s/%s" %(root, i) for i in dirs]
+		f += [("%s/%s" %(root, i),os.lstat("%s/%s" %(root, i)).st_size) for i in files]
+mygid = os.getgid()
+myuid = os.getuid()
+for i in d:
+#	os.chown(i, myuid, mygid)
+#FIXME Close off later
+#	os.chmod(i, stat.S_IRUSR | stat.S_IXUSR)
+	os.chmod(i, stat.S_IRUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
+	subdir = i.rsplit('/', 1)
+	if len(subdir) < 2:
+		name = subdir[0]
+		subdir = ''
+	else:
+		name = subdir[1]
+		subdir = subdir[0]
+print f
+for i,size in f:
+#	os.chown(i, myuid, mygid)
+#FIXME Close off later, fix exe's.
+#	os.chmod(i, stat.S_IRUSR)
+	os.chmod(i, stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH)
+
+#FIXME this should just commit. Need to be putting in objects as extracting above.
+try:
+	myemsl.ingest.ingest_metadata(metadata, f, options.username, transaction)
+except Exception, e:
+	myemsl.ingest.update_state(options.jobid, options.step, 'ERROR', str(e))
+	sys.exit(-1)
+
+timingfile.write("ingest_job_metadata_upload:e:%s\n" %(time.time()))
+try:
+	from myemsl.callcurl import call_curl
+	timingfile.write("ingest_job_metadata_notify:s:%s\n" %(time.time()))
+	data = call_curl(
+		"%s/%s" %(config.get('notification', 'base_url'), transaction),
+		capath=None,
+		cainfo='/etc/myemsl/keys/server/local.crt',
+		sslcert='/etc/myemsl/keys/server/local.pem',
+		sslcerttype='PEM',
+		insecure=config.get('webservice', 'ssl_verify_peer') != 'False'
+	)
+	if data != 'OK':
+		raise Exception(data)
+except Exception, e:
+	logger.error("Problem with posting notification. %s", e)
+	myemsl.ingest.update_state(options.jobid, options.step, 'ERROR', 'Unable to post notifications.')
+	sys.exit(-1)
+timingfile.write("ingest_job_metadata_notify:e:%s\n" %(time.time()))
+print "Transaction: %i" %(transaction)
+#print "Proposal Transaction: %i" %(proptransaction)
+myemsl.ingest.update_state(options.jobid, options.step, 'SUCCESS', 'completed')
+timingfile.write("ingest_job:e:%s\n" %(time.time()))
+timingfile.close()
+
+#FIXME This is a perfect candidate for service-poke.
+(bfdesc, bfname) = tempfile.mkstemp()
+os.write(bfdesc, "#!/bin/sh\n")
+os.write(bfdesc, "#SBATCH -o /dev/null\n")
+os.write(bfdesc, "#SBATCH -e /dev/null\n")
+os.write(bfdesc, "srun -n 1 find /tmp -maxdepth 1 -name 'output.[0-9]*' -exec rm -f {} \\;\n")
+os.write(bfdesc, "srun -n 1 find /tmp -maxdepth 1 -name 'error.[0-9]*' -exec rm -f {} \\;\n")
+os.close(bfdesc)
+if os.system("/usr/bin/sbatch "+bfname) != 0:
+	myemsl.ingest.update_state(options.jobid, options.step, 'ERROR', 'submitting cleanup job.')
+        sys.exit(-1)
+
+os.unlink(bfname)
+
+sys.exit(0)

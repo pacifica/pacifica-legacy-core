@@ -1,0 +1,35 @@
+#!/bin/bash
+
+if [ "x$1" = "x-u" ]
+then
+	scontrol update nodename=localhost state=idle
+	exit $?
+elif [ "x$1" = "x-d" ]
+then
+	scontrol update nodename=localhost state=drain reason="$MYEMSL_OUTAGE_MESSAGE"
+	exit $?
+elif [ "x$1" = "x-c" ]
+then
+	while true
+	do
+		awk '{if($1 == "drain"){exit(1)}}' <(sinfo -n localhost -o "%t" --noheader);
+		if [ $? -eq 1 ]
+		then
+			exit 0
+			break
+		fi
+		sleep 1
+		if [ "x$MYEMSL_OUTAGE_TIMEOUT" != "x" ]
+		then
+			if [ $MYEMSL_OUTAGE_TIMEOUT -gt 0 ]
+			then
+				MYEMSL_OUTAGE_TIMEOUT=$((MYEMSL_OUTAGE_TIMEOUT-1))
+			else
+				exit 1
+			fi
+		fi
+	done
+else
+	echo Unknown command
+	exit -1
+fi

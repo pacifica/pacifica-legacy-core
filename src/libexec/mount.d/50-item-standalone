@@ -1,0 +1,21 @@
+#!/bin/bash
+
+MPT=/srv/myemsl-item
+
+MYEMSL_APACHE_USER=apache
+
+if [ "x$1" = "x-u" ]
+then
+	umount "$MPT"
+	exit $?
+elif [ "x$1" = "x-c" ]
+then
+	su "$MYEMSL_APACHE_USER" -s /bin/bash -c 'ls "'$MPT'" > /dev/null 2>&1'
+	exit $?
+else
+	umask 077
+	mkdir -p "$MPT"
+	chown "$MYEMSL_APACHE_USER"."$MYEMSL_APACHE_USER" "$MPT"
+	mount --bind /srv/myemsl-ingest "$MPT"
+	exit $?
+fi

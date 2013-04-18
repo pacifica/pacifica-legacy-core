@@ -1,0 +1,24 @@
+## This file is an email template used to generate emails 
+##
+## This is a comment and will not appear in the final email.
+##
+## Variables:
+## 
+## cartLink - Link to the cart
+##
+## To use a variable, put a dollar sign in front of it:
+## $cartLink
+##
+The data you requested from MyEMSL is now available.
+
+The data link will be available for the next 24 hours.
+
+If you are on a Mac or a machine running Unix/Linux, you can procede to the download link. No additional software is required.
+
+If you are running Windows, you will need to have WinZip or 7zip installed to extract. You can download your choice of tools here:
+WinZip: http://www.winzip.com/
+7Zip: http://www.7-zip.org/
+
+Please use the following link to download your data:
+$cartLink
+

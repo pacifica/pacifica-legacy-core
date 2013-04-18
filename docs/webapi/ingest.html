@@ -1,0 +1,34 @@
+<html>
+<body>
+<p>The following services are defined for ingesting data into the MyEMSL system.</p>
+
+<p>Preallocate:</p>
+<p>A get request to the "preallocate" service will return a text document in a line based "Key: Value" format.</p>
+
+<p>The following are expected values from a preallocate:</p>
+<ul>
+	<li>"Error: <Error message>". The preallocate request failed due to the specified reason.</li>
+	<li>"Outage: <Outage message>". The preallocate request could not happen due to an outage.</li>
+	<li>"Server: <server>". Subsequent operations should be performed on the named server.</li>
+	<li>"Location: <path>". The unique filename you should use when uploading.</li>
+</ul>
+
+<p>A typical response looks like:</p>
+<pre>Server: ingest.my.emsl.pnl.gov
+Location: /myemsl/staging/39822/MYEMSL_qpzU4N</pre>
+
+<p>The file location on the server returned from the preallocate request can be accessed using the webdav protocol to upload data. It must be in the MyEMSL bundle format.</p>
+
+<p>Once a bundle has been uploaded to the specified server/location, the uploader should call the Finish service.</p>
+
+<p>Finish:</p>
+<p>To start the process of ingesting a bundle, you should make a web request to "/myemsl/cgi-bin/finish" with the location value for the bundle appended. For example "http://ingest.my.emsl.pnl.gov/myemsl/cgi-bin/finish/myemsl/staging/39822/MYEMSL_qpzU4N". The service will return a text document in a line based "Key: Value" format. The following are expected values:</p>
+<ul>
+	<li>"Error: <Error message>". The request failed due to the specified reason.</li>
+	<li>"Outage: <Outage message>". The request could not happen due to an outage.</li>
+	<li>"Status: <url>". The status of the upload can be tracked using status service at the specified url.</li>
+</ul>
+
+<p>Status:</p>
+<p>Upload status can be tracked with the status URL returned by the finish service. To track the status of the ingest in a human readable way, simply view the url is your browser. To programmatically access the data, append "/xml" to the status url. It is not considered safe to delete your local copy of the data until all step's have status "SUCCESS". A status of "UNKNOWN" is expected when that step has not been processed yet. Any other status is an error and the appropriate error message will be set in message.</p>
+

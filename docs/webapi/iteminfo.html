@@ -1,0 +1,21 @@
+<html>
+<body>
+<p>Every file uploaded to MyEMSL gets a unique itemid. You can retrieve the itemid from the query system. To find out more information about a particular item, you can use the iteminfo service. To do so, append the itemid and the string "/xml" to the "iteminfo" service url and perform a get request.</p>
+
+<p>The resulting format will resemble:</p>
+<pre>&lt;?xml version="1.0"?&gt;
+&lt;myemsl&gt;
+   &lt;itemid&gt;46&lt;/itemid&gt;
+   &lt;type&gt;file&lt;/type&gt;
+   &lt;filename&gt;Clean Phenakite_001.tif&lt;/filename&gt;
+   &lt;size&gt;976172&lt;/size&gt;
+   &lt;verified&gt;False&lt;/verified&gt;
+   &lt;aged&gt;False&lt;/aged&gt;
+   &lt;submitter first="Joe" last="Bob" id="39822"/&gt;
+   &lt;stime&gt;2011-07-28 15:54:26.655496&lt;/stime&gt;
+   &lt;checksum&gt;
+      &lt;sha1&gt;70f6f6bbb67203eaaf305625a177270f229ac43a&lt;/sha1&gt;
+   &lt;/checksum&gt;
+&lt;/myemsl&gt;</pre>
+</body>
+</html>

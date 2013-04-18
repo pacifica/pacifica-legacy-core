@@ -1,0 +1,12 @@
+#!/bin/bash
+
+USER=$1
+NAME=$2
+
+cat > echo /etc/yum.repos.d/myemsl-$NAME.repo <<EOF
+[myemsl-$NAME]
+name=myemsl-$NAME
+baseurl=http://10.0.0.1/~$USER/$NAME
+enabled=1
+gpgcheck=0
+EOF

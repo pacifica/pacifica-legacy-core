@@ -1,0 +1,75 @@
+#!/usr/bin/python
+
+import sys
+import time
+import base64
+import select
+import traceback
+import simplejson as json
+import myemsl.util
+import myemsl.token
+import myemsl.callcurl
+import myemsl.getservices
+
+def return_entry(res):
+	sys.stdout.write(base64.b64encode(json.dumps(res)))
+	sys.stdout.write('\n')
+	sys.stdout.flush()
+
+class _ReportFirstGoodRead:
+	def __init__(self):
+		self.seen = False
+	def bytescb(self, count):
+		if self.seen == False:
+			return_entry({'first_read': True})
+			self.seen = True
+
+def process_item(entry, services):
+	cart_id = entry['cart_id']
+	item_id = entry['item_id']
+	fullfile = entry['fullfile']
+	token = myemsl.token.simple_items_token_gen([item_id], duration=60)
+#FIXME Update foo/bar when uuids become part of the protocol.
+	url = "%sfoo/bar/%s/0" %(services['item'], item_id)
+	url = url.encode('utf-8')
+	return_entry({'log': "Starting processing: %s %s %s %s %s" %(cart_id, item_id, fullfile, url, token)})
+	try:
+#FIXME make this configurable somehow.
+		myemsl.callcurl.call_curl(url, method="DOWNLOAD", auth="bearer", token=token, filename=fullfile, bytesrecieved=_ReportFirstGoodRead().bytescb, insecure=True)
+		return_entry({'done':True})
+	except myemsl.callcurl.CurlException, e:
+		try:
+			return_entry({'error':True, 'http_code':e.http_code, 'log': 'Curl exception. Error code %i' %(e.http_code)})
+		except:
+			time.sleep(1)
+			pass
+	except Exception, e:
+		try:
+			return_entry({'error':True, 'http_code':501, 'log': 'Unknown exception: URL: %s %s Exception: %s' %(url, type(url), traceback.format_exc())})
+		except:
+			sys.exit(-1)
+		time.sleep(10)
+
+def main():
+	services = myemsl.getservices.getservices()
+	fd = sys.stdin.fileno()
+	alldata = ''
+	while True:
+		(rlist, wlist, xlist) = select.select([fd], [], [])
+		sys.stderr.write("Data available.\n")
+		data = myemsl.util.readlines_nonblocking(fd, alldata)
+		alldata = data['rest']
+		sys.stderr.write('numlines: %s\n' %(len(data['lines'])))
+		for line in data['lines']:
+			try:
+				j = json.loads(base64.b64decode(line))
+				str(process_item(j, services))
+			except Exception, e:
+#FIXME remove
+				sys.stderr.write("Line: |%s| %s\n" %(line, e))
+		if data['eof']:
+			sys.stderr.write("Shutting down.")
+			sys.exit(0)
+
+if __name__ == '__main__':
+	main()

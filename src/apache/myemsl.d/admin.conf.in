@@ -1,0 +1,24 @@
+<Location /myemsl/api/1/admin/switchuser>
+	Options Indexes FollowSymLinks MultiViews
+	Order deny,allow
+	<LimitExcept GET POST DELETE>
+		deny from all
+	</LimitExcept>
+	SetHandler mod_python
+	PythonInterpreter main_interpreter
+	PythonHandler myemsl.handler.admin.switchuser
+</Location>
+
+Alias /myemsl/admin/switchuser "/var/www/myemsl/admin/switchuser"
+<Directory /var/www/myemsl/admin/switchuser>
+	Options Indexes FollowSymLinks MultiViews Includes
+	Order deny,allow
+	DirectoryIndex index.html index.php index.shtml
+	<LimitExcept GET POST DELETE>
+		deny from all
+	</LimitExcept>
+	AddType text/html .shtml
+	AddHandler server-parsed .shtml
+	include @WEBAUTH_MYEMSL@
+	Require valid-user
+</Directory>

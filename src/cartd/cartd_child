@@ -1,0 +1,276 @@
+#!/usr/bin/python
+
+import os
+import sys
+import time
+import errno
+import fcntl
+import base64
+import select
+import signal
+import logging
+import threading
+import traceback
+import subprocess
+import servicepoke
+import myemsl.cart
+import myemsl.token
+import myemsl.callcurl
+import simplejson as json
+from myemsl.getconfig import getconfig
+from myemsl.dbconnect import myemsldb_connect
+from myemsl.dbconnect import do_sql_select
+from myemsl.dbconnect import do_sql_insert
+
+from myemsl.logging import getLogger
+from myemsl.util import readlines_nonblocking
+from myemsl.util import try_mkdir
+
+class Worker:
+	def __init__(self, stdin, stdout, subprocess):
+		self.stdin = stdin
+		self.stdout = stdout
+		self.subprocess = subprocess
+		self.rest = ''
+		self.time = 0
+		self.work_item = None
+
+class Master:
+	def cart_item2hash(self, cart_id, item_id):
+		return myemsl.cart.cart_item2hash(cart_id, item_id)
+	def work_item2hash(self, work_item):
+		if not work_item:
+			return None
+		return self.cart_item2hash(work_item['cart_id'], work_item['item_id'])
+	def __init__(self, sigpipe, cartd_basedir, cartd_readydir, cartd_pendingdir):
+		myemsl.logging.configLogger('cartd')
+		self.logger = getLogger('myemsl.cartd.download')
+		self.sigpipe = sigpipe
+		self.select_rlist = [sigpipe]
+		self.select_rlist2worker = {}
+		self.busy_workers = []
+		self.free_workers = []
+		self.todo = []
+		self.potential_done = {}
+		self.cartd_basedir = cartd_basedir
+		self.cartd_readydir = cartd_readydir + '/'
+		self.cartd_pendingdir = cartd_pendingdir + '/'
+	def spawn_worker(self):
+		p = subprocess.Popen(['/usr/libexec/myemsl/cartd_worker'], shell=False, stderr=None, stdout=subprocess.PIPE, stdin=subprocess.PIPE, close_fds=True)
+		worker = Worker(p.stdin, p.stdout, p)
+		fileno = p.stdout.fileno()
+		self.select_rlist.append(fileno)
+		self.select_rlist2worker[fileno] = worker
+		self.free_workers.append(worker)
+	def reschedule(self):
+		self.logger.info("Worker count: Busy(%s) Free(%s)" %(len(self.busy_workers), len(self.free_workers)))
+		self.todo = []
+		self.potential_done = {}
+		carts_to_cancel = []
+		rows = do_sql_select('select cart_id from myemsl.cart as c where c.state = \'download_expiring\'', myemsl_schema_versions=['1.7'])
+		for row in rows:
+			carts_to_cancel.append(row[0])
+			self.logger.info("Cart %s marked for expiration." %(row[0]))
+		if len(carts_to_cancel) > 0:
+			carts_to_cancel = dict([(i, True) for i in carts_to_cancel])
+			for worker in self.busy_workers:
+				if worker.work_item:
+					self.logger.debug("%s|%s" %(worker.work_item, carts_to_cancel))
+					
+					cart_id = worker.work_item['cart_id']
+					if cart_id in carts_to_cancel:
+						worker.work_item = None
+						os.kill(worker.subprocess.pid, signal.SIGKILL)
+						self.logger.info("Killed woker %s for expiring cart %s." %(worker.subprocess.pid, cart_id))
+			self.logger.debug("Marking as expiring %s" %(carts_to_cancel.keys()))
+			for cart_id in carts_to_cancel.keys():
+				do_sql_insert('update myemsl.cart set state=\'expiring\' where cart_id=%(cart_id)i and state=\'download_expiring\'', 0, myemsl_schema_versions=['1.7'], params={'cart_id':cart_id})
+			self.process2_poke()
+		workers_already_processing = dict([(self.work_item2hash(worker.work_item), True) for worker in self.busy_workers])
+		rows = do_sql_select('select ci.cart_id, item_id, items from myemsl.cart_items as ci, myemsl.cart as c where ci.cart_id = c.cart_id and c.state = \'downloading\'', myemsl_schema_versions=['1.6'])
+		for row in rows:
+			hash = self.cart_item2hash(row[0], row[1])
+			if not hash in workers_already_processing:
+				self.todo.insert(0, {'cart_id': row[0], 'item_id': row[1], 'items':row[2]})
+		self.logger.debug('recalculating...')
+		self.logger.debug(self.todo)
+		self.logger.debug('done')
+	def removeWorker(self, worker):
+		try:
+			self.busy_workers.remove(worker)
+		except ValueError, e:
+			pass
+		try:
+			self.free_workers.remove(worker)
+		except ValueError, e:
+			pass
+	def workItemRecover(self, worker):
+		if worker.work_item != None:
+			self.todo.append(worker.work_item)
+			worker.work_item = None
+
+	def process2_poke(self):
+#FIXME make configurable
+		res = servicepoke.poke('/var/tmp/myemsl_cartd', 'cart_process2', 1)
+	def run(self):
+		for i in range(16):
+			self.spawn_worker()
+		while(True):
+#FIXME set timeout based on what fds need to be watched.
+			(rlist, wlist, xlist) = select.select(self.select_rlist, [], [], 10)
+			if self.sigpipe in rlist:
+				data = readlines_nonblocking(self.sigpipe)
+				if data['eof']:
+					self.logger.info("signal pipe EOF. Exiting.")
+					for worker in self.busy_workers:
+						os.kill(worker.subprocess.pid, signal.SIGKILL)
+					sys.exit(0)
+				try:
+					self.reschedule()
+				except Exception, e:
+					self.logger.exception("Unknown exception happened. Logging...")
+					raise
+			try:
+				for rfd in rlist:
+					if rfd != self.sigpipe:
+						worker = self.select_rlist2worker[rfd]
+						data = readlines_nonblocking(rfd, worker.rest)
+						worker.rest = data['rest']
+						for line in data['lines']:
+							try:
+								entry = json.loads(base64.b64decode(line))
+								if 'log' in entry:
+									level = logging.DEBUG
+									if 'loglevel' in entry:
+										level = getattr(logging, entry['loglevel'].upper(), logging.ERROR)
+									self.logger.log(level, entry['log'])
+								self.logger.debug("Got data from %s: %s" %(rfd, entry))
+								if 'done' in entry and entry['done'] == True:
+									self.logger.debug("Work done. %s %s" %(entry, worker.work_item))
+									file = self.cart_item2hash(worker.work_item['cart_id'], worker.work_item['item_id'])
+									readyfile = self.cartd_readydir + file
+									fullfile = self.cartd_pendingdir + file
+									os.rename(fullfile, readyfile)
+									self.removeWorker(worker)
+									self.workDone(worker.work_item)
+									self.free_workers.append(worker)
+									worker.work_item = None
+								elif 'error' in entry and entry['error'] == True:
+									self.removeWorker(worker)
+									self.free_workers.append(worker)
+									self.workItemRecover(worker)
+							except Exception, e:
+								self.logger.error("Unknown issue. %s %s %s %s" %(line, worker.work_item, e, traceback.format_exc()))
+								self.removeWorker(worker)
+								self.free_workers.append(worker)
+								self.workItemRecover(worker)
+						res = worker.subprocess.poll()
+						if res != None:
+							self.logger.debug("Process done! %s" %(res))
+							del self.select_rlist2worker[rfd]
+							self.select_rlist.remove(rfd)
+							self.removeWorker(worker)
+							self.spawn_worker()
+							self.workItemRecover(worker)
+				while len(self.free_workers) > 0 and len(self.todo) > 0:
+					work_item = self.todo.pop()
+					file = self.cart_item2hash(work_item['cart_id'], work_item['item_id'])
+					found = False
+					try:
+						readyfile = self.cartd_readydir + file
+						size = os.stat(readyfile).st_size
+						found = True
+					except OSError, e:
+						if e.errno != errno.ENOENT:
+							raise
+					if found:
+						self.workDone(work_item)
+					else:
+						worker = self.free_workers.pop()
+						self.busy_workers.append(worker)
+						worker.work_item = work_item
+						twi = work_item.copy()
+						twi['fullfile'] = self.cartd_pendingdir + file
+
+						self.logger.debug("Got work... Sending |%s|" %(twi))
+						worker.stdin.write(base64.b64encode(json.dumps(twi)))
+						worker.stdin.write('\n')
+						worker.stdin.flush()
+			except Exception, e:
+				self.logger.exception("Unknown exception happened. Logging...")
+				raise
+	def workDone(self, work):
+		self.logger.debug("Got: %s" %(work))
+		cart_id = work['cart_id']
+		verify_list = None
+		counter = self.potential_done.get(cart_id, 0)
+		counter += 1
+		self.potential_done[cart_id] = counter
+		if counter >= work['items']:
+			del self.potential_done[cart_id]
+			verify_list = []
+		if verify_list is not None:
+			problem_found = False
+			rows = do_sql_select('select cart_id, item_id from myemsl.cart_items as ci where ci.cart_id = %(cart_id)i', myemsl_schema_versions=['1.6'], params={'cart_id':cart_id})
+			for row in rows:
+				file = self.cart_item2hash(cart_id, row[1])
+				readyfile = self.cartd_readydir + file
+				try:
+					os.stat(readyfile)
+					verify_list.append(file)
+				except Exception, e:
+					self.logger.debug("Exception %s" %(e))
+					problem_found = True
+					break
+			if problem_found:
+				state = 'expired'
+				rows = do_sql_select('select state from myemsl.cart as c where c.cart_id = %(cart_id)i', myemsl_schema_versions=['1.6'], params={'cart_id':cart_id})
+				for row in rows:
+					state = row[0]
+					break
+				if state == 'downloading':
+					self.logger.error("Problem found with cart %s!" %(cart_id))
+					do_sql_insert('update myemsl.cart set state=\'admin\' where cart_id=%(cart_id)i and state=\'downloading\'', 0, myemsl_schema_versions=['1.6'], params={'cart_id':cart_id})
+			else:
+				do_sql_insert('update myemsl.cart set state=\'amalgam\' where cart_id=%(cart_id)i and state=\'downloading\'', 0, myemsl_schema_versions=['1.6'], params={'cart_id':cart_id})
+#FIXME if state not updated, check out why and log.
+			self.process2_poke()
+
+def main():
+	config = getconfig()
+	try_mkdir(config.cartd.readydir, priv=True)
+	try_mkdir(config.cartd.pendingdir, priv=True)
+	#FIXME
+	#Need to cull out /pending/ files no longer in db on start
+	sigpipe = os.pipe()
+	pid = os.fork()
+	if pid < 0:
+		#error
+		myemsl.logging.configLogger('cartd')
+		logger = getLogger('myemsl.cartd.download')
+		logger.error("Failed to fork child. This should never happen. Something is very broken.")
+		sys.exit(-1)
+	elif pid > 0:
+		#parent
+		os.close(sigpipe[0])
+		#FIXME need a notlocal for shutdown which does not exist in python < 3. Work around like this.
+		shutdown = [False]
+		def handler_usr1(signum, frame):
+			os.write(sigpipe[1], '0')
+		def handler_chld(signum, frame):
+			print "|shutting down|"
+			shutdown[0] = True
+		signal.signal(signal.SIGUSR1, handler_usr1)
+		signal.signal(signal.SIGCHLD, handler_chld)
+		while not shutdown[0]:
+			signal.pause()
+			print "|signal|", shutdown
+		sys.exit(os.waitpid(pid, 0)[1])
+	else:
+		#child
+		os.close(sigpipe[1])
+		master = Master(sigpipe[0], config.cartd.basedir, config.cartd.readydir, config.cartd.pendingdir)
+		master.run()
+
+if __name__ == '__main__':
+	main()

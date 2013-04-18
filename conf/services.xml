@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<myemsl>
+	<prefix>https://127.0.0.1/myemsl</prefix>
+	<services>
+		<service name="preallocate" location="/cgi-bin/preallocate" />
+		<service name="query" location="/query/" />
+		<service name="iteminfo" location="/iteminfo/" />
+		<service name="testauth" location="/testauth/" />
+		<service name="files" location="/files/" />
+		<service name="logout" location="/logout/" />
+		<service name="client" location="/client/" />
+		<service name="preferences" location="/preferences/" />
+		<service name="item" location="/item/" />
+		<service name="admin_cart" location="/admin/cart/" />
+		<service name="cart" location="/api/2/cart/" />
+		<service name="cart_download" location="/cart/download/" />
+		<service name="dmspath" location="/api/1/dmspath/" />
+		<service name="fileicon" location="/static/1/icons/" />
+	</services>
+</myemsl>

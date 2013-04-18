@@ -1,0 +1,4 @@
+#!/bin/bash
+cp -a packages/bin/*/* /srv/myemsl-devel
+createrepo /srv/myemsl-devel
+yum clean all

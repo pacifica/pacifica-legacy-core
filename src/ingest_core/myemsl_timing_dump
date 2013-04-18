@@ -1,0 +1,22 @@
+#!/usr/bin/python
+
+import os
+import re
+import sys
+import time
+from optparse import OptionParser
+
+parser = OptionParser()
+parser.add_option("-m", "--timing", dest="timingfile", help="Timing file", default=None)
+
+(options, args) = parser.parse_args()
+timingfile = open(options.timingfile, 'r')
+hash = {}
+for i in timingfile:
+	i = i.strip().split(':')
+	if not hash.has_key(i[0]):
+		hash[i[0]] = {}
+	if not hash[i[0]].has_key(i[1]):
+		hash[i[0]][i[1]] = {}
+	hash[i[0]][i[1]] = float(i[2])
+print dict([(k, v['e'] - v['s']) for (k, v) in hash.iteritems() if v.has_key('e') and v.has_key('s')])

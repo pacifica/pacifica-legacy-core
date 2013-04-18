@@ -1,0 +1,22 @@
+<html>
+<body>
+<p>Every file uploaded to MyEMSL gets a unique itemid.</p>
+
+<p>The file can be accessed via the item server api. The item server api is restful.</p>
+
+<p>Files will be located at a url like:</p>
+<pre>/myemsl/&lt;instanceuuid&gt;/&lt;storageuuid&gt;/&lt;itemid&gt;</pre>
+
+<p>It will support at minimum, the Head and Get HTTP methods.</p>
+
+<p>Range requests will be supported as well.</p>
+
+<p>Any additional /&lt;stuff&gt; added past the item id can be added to the url and will be ignored by the service. This allows simple clients like wget to name things easily.</p>
+
+<p>If you specify a 'locked' get option in the url, you will recieve a HTTP_SERVICE_UNAVAILABLE (503) response code if the file is not locked on disk.</p>
+
+<p>If you specify a 'levels' get option in the url, you will recieve a header 'X-MyEMSL-Levels' that contains a string int of the number of levels the file exists on. For example, in Aurora(HPSS) it can exist on disk and two levels of tape for a combined total of "3". X-MyEMSL-Levels-Total will contain a string int of the number of levels there are.</p>
+
+<p>Authentication to the service is required. You must get a Bearer token for items from your MyEMSL instance. Once obtained, ensure you have an Authorization header with the value "Bearer &lt;token from instance&gt;". As an alternative, you can pass the token via the http get var named "token".</p>
+</body>
+</html>

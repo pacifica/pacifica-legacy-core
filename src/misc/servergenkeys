@@ -1,0 +1,44 @@
+#!/bin/bash
+set -e
+uuid="myemslserversuperkey"
+keypath='/etc/myemsl/keys/server'
+
+unixuser=`myemsl_getunixuser`
+
+if [ "x$unixuser" = "x" ]
+then
+	echo Failed to get unix user.
+	exit 1
+fi
+
+
+umask 022
+mkdir -p $keypath
+dopem=0
+if [ ! -f "$keypath"/local.pem ]
+then
+	touch "$keypath"/local.key
+	touch "$keypath"/local.pem
+#	touch $keypath/client.p12
+	chmod 400 "$keypath"/local.key
+	chmod 400 "$keypath"/local.pem
+	chown $unixuser.$unixuser "$keypath"/local.key
+	chown $unixuser.$unixuser "$keypath"/local.pem
+#	chmod 600 "$keypath"/client.p12
+	openssl genrsa 2048 > "$keypath"/local.key
+	dopem=1
+fi
+if [ ! -f "$keypath"/local.crt ]
+then
+	openssl req -new -key "$keypath"/local.key -subj "/CN=$uuid" > "$keypath"/local.csr
+	openssl x509 -req -days $((365*20)) -in "$keypath"/local.csr -signkey "$keypath"/local.key -out "$keypath"/local.crt
+#	openssl pkcs12 -export -in $keypath/local.crt -inkey $keypath/local.key -out $keypath/client.p12
+	chmod 644 "$keypath"/local.crt
+	dopem=1
+fi
+if [ $dopem -eq 1 ]
+then
+	cat "$keypath"/local.crt "$keypath"/local.key > "$keypath"/local.pem
+#	rm -f $keypath/local.key
+fi
+

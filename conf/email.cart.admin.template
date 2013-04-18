@@ -1,0 +1,13 @@
+## This file is an email template used to generate emails 
+##
+## This is a comment and will not appear in the final email.
+##
+## Variables:
+## 
+## adminCartLink - Link to the admin cart website
+##
+## To use a variable, put a dollar sign in front of it:
+## $adminCartLink
+##
+One or more download cart(s) requires attention. Please see visit the administration website here:
+$adminCartLink

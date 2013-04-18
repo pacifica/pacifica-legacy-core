@@ -1,0 +1,8 @@
+Alias /myemsl/testauth /var/www/myemsl/testauth
+<Directory /var/www/myemsl/testauth>
+	Options Indexes FollowSymLinks MultiViews
+	AllowOverride None
+	Order deny,allow
+	include @WEBAUTH_STORAGE@
+	Require valid-user
+</Directory>

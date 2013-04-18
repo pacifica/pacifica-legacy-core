@@ -1,0 +1,15 @@
+<html>
+<body>
+<p>A token is a base64 - '\n' - '=':</p>
+<ol>
+	<li>An ascii base 10 formatted length of public section.</li>
+	<li>A json encoded document that has been modified:
+	<ol>
+		<li>The leading '{' has been removed. It will automatically be re-added.</li>
+		<li>The tail '}' has been removed. It will automatically be re-added.</li>
+	</li></ol>
+	<li>An optional additional data section. If specified, its size must be specified in an 'o':&lt;len&gt; entry in the root of #2.</li>
+	<li>The signature from the authorization authority.</li>
+</ol>
+</body>
+</html>

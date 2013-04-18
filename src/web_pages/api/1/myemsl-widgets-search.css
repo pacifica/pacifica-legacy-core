@@ -1,0 +1,136 @@
+.myemsl_search_pager_list {
+	display: inline-block;
+	list-style-type: none;
+	padding: 0px;
+	margin: 0px;
+}
+.myemsl_search_pager_list li {
+	display: inline;
+	color: blue;
+	margin-left: 5px;
+	cursor: pointer;
+}
+.myemsl_search_pager_list_selected {
+	font-weight: bold;
+}
+.myemsl_search_pager_list li:first-child {
+	margin-left: 0px;
+}
+.myemsl_search_pager_back {
+	margin-right: 10px;
+}
+.myemsl_search_pager_forwards {
+	margin-left: 5px;
+}
+.myemsl_simple_search_time {
+	white-space: nowrap;
+}
+.myemsl_simple_search_row_odd {
+	background-color: #EFEFEF;
+	padding: 0px 0px 0px 0px;
+}
+.myemsl_simple_search_row_even {
+	padding: 0px 0px 0px 0px;
+}
+.myemsl_search_table {
+	border-collapse: collapse;
+	border: 1px solid #CFCFCF;
+}
+.myemsl_search_table .myemsl_search_facets_sidebar, .myemsl_search_table .myemsl_search {
+	border: 1px solid #CFCFCF;
+	vertical-align: top;
+}
+.myemsl_search_table .myemsl_search_facets_sidebar {
+	padding: 10px;
+}
+.myemsl_search_table .myemsl_search_results_col {
+	padding: 0px;
+	width: 100%;
+}
+.myemsl_search_results {
+	border-collapse: collapse;
+	border-width: 1px 0px 1px 0px;
+	border-style: solid;
+	border-color: #CFCFCF;
+	width: 100%;
+}
+.myemsl_search_simple_item_icons {
+	white-space: nowrap;
+	border-width: 0px 0px 0px 0px;
+}
+.myemsl_search_simple_items_id {
+	white-space: nowrap;
+	border-width: 0px 0px 0px 0px;
+}
+.myemsl_search_simple_items_stime {
+	border-width: 0px 0px 0px 0px;
+	padding: 0px 5px 0px 0px;
+}
+.myemsl_simple_search_size {
+	text-align: right;
+	padding-left: 10px;
+	padding-right: 0px;
+	border-width: 0px 0px 0px 0px;
+}
+.myemsl_simple_search_size_suffix {
+	border-width: 0px 0px 0px 0px;
+	padding-left: 0px;
+	padding-right: 10px;
+	font-family: monospace;
+}
+.myemsl_search_file_link {
+	white-space: nowrap;
+	font-family: monospace;
+}
+.myemsl_simple_item_subdir {
+	white-space: nowrap;
+}
+/*
+	display: inline-block;
+	width: 100%;
+	white-space: nowrap;
+	overflow: hidden; 
+	text-overflow: ellipsis;
+}
+.myemsl_simple_item_filename {
+}*/
+
+.myemsl_search_items_download_button {
+	float: right;
+	margin: 10px;
+}
+.myemsl_search_selected_facet_name a:link {
+	color: black;
+	text-decoration: none;
+}
+
+.myemsl_search_facet_ddd {
+	color: black;
+	text-decoration: none;
+}
+
+.myemsl_iteminfo_data ul#json {
+	margin: 10px 0 0; padding:10px;
+	font-family:monospace;
+	font-size: 12px;
+	background:#F9F9F9;
+	border:1px solid #E9E9E9;
+}
+.myemsl_iteminfo_data ul#json i, ul#json b {
+	color:#555;
+	font-style:
+	normal;
+}
+.myemsl_iteminfo_data ul#json ul {
+	margin:10px 0 0 20px;
+	padding: 0;
+}
+.myemsl_iteminfo_data ul#json li {
+	padding:0 0 3px;
+	list-style-type: none;
+	margin:0;
+	color:#888;
+}
+.myemsl_iteminfo_data .toggle {
+	cursor:pointer;
+}

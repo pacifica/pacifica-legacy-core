@@ -1,0 +1,57 @@
+#!/usr/bin/python
+
+import os
+import sys
+import gdbm
+import time
+import errno
+import myemsl.uploader
+import myemsl.loadkeytab
+from optparse import OptionParser
+from myemsl.getconfig import getconfig
+
+myemsl.uploader
+def main():
+	res = 2
+	db = None
+	try:
+		config = getconfig()
+
+		parser = OptionParser()
+		parser.add_option("-V", "--version", action="store_true", dest="version", help="Display version")
+		parser.add_option("-v", "--verbose", default=False, action="store_true", dest="verbose", help="Be verbose")
+		parser.add_option("-H", "--hostname", default=None, action="store", dest="hostname", help="Hostname to status")
+		(options, args) = parser.parse_args()
+		if not options.hostname:
+			print "UNKNOWN - You must specify a hostname"
+			return 3
+
+		try:
+			os.makedirs('/var/lib/myemsl/nagios/status', mode=0700)
+		except OSError, e:
+			if e.errno != errno.EEXIST:
+				raise
+		myemsl.loadkeytab.load_keytab(config.get('nagios', 'keytab'), config.get('nagios', 'user'))
+		db = gdbm.open("/var/lib/myemsl/nagios/status/%s.db" %(options.hostname), "c")
+
+		status = myemsl.uploader.upload(bundle_name="/usr/lib/myemsl/nagios/nagios_test.tar",
+		                                protocol="http",
+		                                server=options.hostname,
+						user="SVC-mscf-nagios",
+		                                )
+		db[status] = str(int(time.time()))
+		res = 0
+		print "OK"
+	except myemsl.uploader.Uploader_Error, err:
+		print "CRITICAL - Uploader failed: %s" %(err.msg)
+		return 2
+	except Exception, err:
+		print "CRITICAL - Uploader failed: %s" %(err)
+		return 2
+	if db != None:
+		db.sync()
+		db.close()
+	return res
+
+if __name__ == '__main__':
+	sys.exit(main())

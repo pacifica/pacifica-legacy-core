@@ -1,0 +1,112 @@
+#!/usr/bin/python
+
+import os
+import sys
+import errno
+import pipes
+from optparse import OptionParser
+from myemsl.inoutage import in_outage
+from myemsl.getconfig import getconfig
+
+def perform(up, verbose, message=''):
+	res = 0
+	try:
+		os.environ[('myemsl_outage_message').upper()] = message
+		dir = "/usr/libexec/myemsl/outage.d"
+		for script in sorted(os.listdir(dir), reverse=True):
+			cmd = "%s/%s" %(dir, script)
+			if up:
+				cmd += " -u"
+			else:
+				cmd += " -d"
+			tres = os.system(cmd)
+			if tres != 0:
+				if verbose:
+					print >> sys.stderr, "command %s failed with return code %d" %(cmd, tres)
+				res = tres >> 8
+				break
+	except OSError, e:
+		if e.errno != errno.ENOENT:
+			raise
+	return res
+
+def main():
+	config = getconfig()
+	for section in config.sections():
+		for item in config.items(section):
+			os.environ[("%s_%s_%s" %('myemsl', section, item[0])).upper()] = item[1]
+	os.umask(000)
+	parser = OptionParser()
+	parser.add_option("-s", "--storage", dest="storage", default=False, action='store_true', help="Storage outage.")
+	parser.add_option("-m", "--myemsl", dest="myemsl", default=False, action='store_true', help="MyEMSL outage.")
+	parser.add_option("-c", "--clear", dest="clear", default=False, action='store_true', help="Clear outage.")
+	parser.add_option("-g", "--message", dest="message", help="Message to send to users.", default="")
+	parser.add_option("-i", "--inoutage", dest="inoutage", default=False, action='store_true', help="Fail if in outage.")
+	parser.add_option("-v", "--verbose", dest="verbose", default=False, action='store_true', help="Be verbose.")
+	(options, args) = parser.parse_args()
+	basedir = '/dev/shm/myemsl/outage'
+	try:
+		os.makedirs(basedir, 0755)
+	except OSError, e:
+		if e.errno != errno.EEXIST:
+			raise
+	array = [options.storage, options.myemsl, options.clear, options.inoutage]
+	l = len(filter(lambda x: x, array))
+	if l > 1:
+		sys.stderr.write("You have specified too many modes. Please select one of '-s, -m, -c, or -i.'\n")
+		sys.exit(-1)
+	elif l < 1:
+		sys.stderr.write("You must specify a mode. Please select one of '-s, -m, -c, or -i.'\n")
+		sys.exit(-1)
+	if options.inoutage:
+		res = in_outage(["storage", "myemsl"])
+		sys.exit(res)
+	elif options.clear:
+		res = os.system("myemslmount -c")
+		if res >> 8 != 0:
+			print >> sys.stderr, "MyEMSL mounts did not checkout. Not clearing the outage."
+			sys.exit(-1)
+		try:
+			os.unlink("%s/storage" %(basedir))
+		except OSError, e:
+			if e.errno != errno.ENOENT:
+				raise
+		try:
+			os.unlink("%s/myemsl" %(basedir))
+		except OSError, e:
+			if e.errno != errno.ENOENT:
+				raise
+		tmp = "/dev/shm/myemsl/inited.new"
+		file = open(tmp, 'w')
+		file.close()
+		os.chmod(tmp, 0644)
+		os.chown(tmp, 0, 0)
+		os.rename(tmp, '/dev/shm/myemsl/inited')
+		res = perform(True, options.verbose)
+		if res >> 8 != 0:
+			print >> sys.stderr, "Failed to enable node for users"
+			sys.exit(-1)
+	else:
+		if options.message == '':
+			sys.stderr.write("You must specify an outage message using the -g option.\n")
+			sys.exit(-1)
+		else:
+			res = perform(False, options.verbose, options.message)
+			if res >> 8 != 0:
+				print >> sys.stderr, "Failed to drain node"
+				sys.exit(-1)
+			if options.myemsl:
+				file = "%s/myemsl" %(basedir)
+			else:
+				file = "%s/storage" %(basedir)
+			tmp = "%s/tmp" %(basedir)
+			f = open(tmp, "w")
+			f.write("%s" %(options.message))
+			f.close()
+			os.chmod(tmp, 0644)
+			os.chown(tmp, 0, 0)
+			os.rename(tmp, file)
+			print file, options.message
+
+if __name__ == '__main__':
+	main()

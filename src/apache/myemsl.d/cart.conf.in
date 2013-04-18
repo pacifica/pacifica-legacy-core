@@ -1,0 +1,13 @@
+Alias /myemsl/admin/cart "/var/www/myemsl/admin/cart"
+<Directory /var/www/myemsl/admin/cart>
+	Options Indexes FollowSymLinks MultiViews Includes
+	Order deny,allow
+	DirectoryIndex index.html index.php index.shtml
+	<LimitExcept GET POST DELETE>
+		deny from all
+	</LimitExcept>
+	AddType text/html .shtml
+	AddHandler server-parsed .shtml
+	include @WEBAUTH_MYEMSL@
+	Require valid-user
+</Directory>

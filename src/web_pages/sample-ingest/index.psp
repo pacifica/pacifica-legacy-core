@@ -1,0 +1,197 @@
+<%
+from myemsl.brand import brand
+from myemsl.dbconnect import myemsldb_connect
+from myemsl.bundler import bundle
+from myemsl.getuserremote import get_user_remote
+import os
+import cgi
+import tempfile
+import subprocess
+
+from myemsl.logging import getLogger
+
+logger = getLogger(__name__)
+
+def header_display():
+   brand('header', req)
+   #
+%>
+<style type="text/css" media="all">
+
+#myemsl_sample_ingest_table
+{
+  border-width: 0px 0px 0px 0px;
+  width: 950px;
+}
+.myemsl_sample_ingest_value_full
+{
+  padding: 0px 0px 0px 0px;
+}
+.myemsl_sample_ingest_value_full textarea
+{
+	width: 100%;
+}
+.myemsl_sample_ingest_value_full select
+{
+	width: 100%;
+}
+.myemsl_sample_ingest_value_full input
+{
+	width: 100%;
+}
+.myemsl_sample_ingest_label
+{
+  vertical-align: top;
+  white-space: nowrap;
+}
+.myemsl_sample_ingest_value
+{
+  width: 100%;
+  vertical-align: middle;
+}
+.myemsl_sample_ingest_error
+{
+  border-width: 0px 0px 0px 0px;
+  padding: 0px 0px 0px 0px;
+}
+.myemsl_sample_ingest_problem_string
+{
+  color: #FF0000;
+  white-space: nowrap;
+  padding: 0px 0px 5px 10px;
+}
+.myemsl_nowrap
+{
+  white-space: nowrap;
+}
+#myemsl_sample_ingest_submit
+{
+  float: right;
+}
+</style>
+<%
+   brand('middle', req)
+
+# Mentionining the form variable instantiates a FieldStorage object
+# The getfirst() method is tailored to get uniquely named fields
+word = form.getfirst('word')
+email = form.getfirst('email')
+proposal = form.getfirst('proposal')
+submit = form.getfirst('submit')
+
+word_problem_str = ""
+email_problem_str = ""
+proposal_problem_str = ""
+
+if submit != None:
+	if not word:
+		word_problem_str = "Required field not set"
+	if not email:
+		email_problem_str = "Required field not set"
+	else:
+		if email.find('@') < 0:
+			email_problem_str = "This does not look like an email address"
+	if not proposal:
+		proposal_problem_str = "Required field not set"
+	else:
+		cnx = myemsldb_connect(myemsl_schema_versions=['1.0'])
+		cursor = cnx.cursor()
+		cursor.execute("select True from eus.proposal_members where person_id = %(person)s and proposal_id = %(proposal)s;", {'proposal':proposal, 'person':req.user})
+		rows = cursor.fetchall()
+		proposal_member = False
+		for row in rows:
+			if(row[0] == True):
+				proposal_member = True
+		if not proposal_member:
+			proposal_problem_str = "You are not a member of that proposal"
+if email_problem_str != "":
+	email_problem_str = "<p class=\"myemsl_sample_ingest_problem_string\">%s</p>" %(email_problem_str)
+if proposal_problem_str != "":
+	proposal_problem_str = "<p class=\"myemsl_sample_ingest_problem_string\">%s</p>" %(proposal_problem_str)
+if word_problem_str != "":
+	word_problem_str = "<p class=\"myemsl_sample_ingest_problem_string\">%s</p>" %(word_problem_str)
+if not word:
+	word = ""
+if not email:
+	email = ""
+if not proposal:
+	proposal = ""
+# Escape the user input to avoid script injection attacks
+email = cgi.escape(email)
+proposal = cgi.escape(proposal)
+word = cgi.escape(word)
+
+if submit == None or word_problem_str != "" or email_problem_str != "" or proposal_problem_str != "":
+   email = " value=\"%s\"" %(email)
+   header_display()
+%>
+<form method="post" action="">
+<table id="myemsl_sample_ingest_table">
+<tr><td class="myemsl_sample_ingest_label">Proposal:</td><td class="myemsl_sample_ingest_value myemsl_sample_ingest_value_full">
+<select name="proposal" size="10">
+<option value=""></option>
+<%
+
+   cnx = myemsldb_connect(myemsl_schema_versions=['1.0'])
+   cursor = cnx.cursor()
+   cursor.execute("select proposal_id from eus.proposal_members where person_id = %(person)s order by proposal_id", {'person':req.user})
+   rows = cursor.fetchall()
+   for row in rows:
+#FIXME selected
+      value = cgi.escape(str(row[0]))
+      selected = ''
+      if proposal == value:
+         selected = ' selected'
+      req.write("<option value=\"%s\"%s>%s</option>" %(value, selected, value))
+   #
+%>
+</select>
+<!--<input type="text" name="proposal"<%= proposal %>>-->
+</td><td class="myemsl_sample_ingest_error"><%= proposal_problem_str %></td></tr>
+<tr><td class="myemsl_sample_ingest_label">Instrument Operator Email Address:</td><td class="myemsl_sample_ingest_value myemsl_sample_ingest_value_full"><input type="text" name="email"<%= email %>></td><td class="myemsl_sample_ingest_error"><%= email_problem_str %></td></tr>
+<tr><td class="myemsl_sample_ingest_label">Description:</td><td class="myemsl_sample_ingest_value myemsl_sample_ingest_value_full"><textarea cols="20" rows="10" name="word"><%= word %></textarea></td><td class="myemsl_sample_ingest_error"><%= word_problem_str %></td></tr>
+</table>
+<input type="submit" name="submit" value="Submit" id="myemsl_sample_ingest_submit"></p>
+</form>
+<br/>
+<%
+else:
+   #FIXME Make this configurable
+   myemsl_person_id = get_user_remote('svc-myemsl', map='fs_map')
+   if not myemsl_person_id:
+     header_display()
+     logger.error("Could not get person id for upload")
+     req.write("Unknown error")
+   else:
+      tmpfile = tempfile.NamedTemporaryFile()
+      tmpfile.write("<?xml version=\"1.0\"?>\n")
+      tmpfile.write("<myemsl>\n")
+      tmpfile.write("  <sample-ingest version=\"1.0\">\n")
+      tmpfile.write("    <submitter>%s</submitter>\n" %(req.user))
+      tmpfile.write("    <proposal>%s</proposal>\n" %(proposal))
+      tmpfile.write("    <instrument-operator><email>%s</email></instrument-operator>\n" %(email))
+      tmpfile.write("    <description>%s</description>\n" %(word))
+      tmpfile.write("  </sample-ingest>\n")
+      tmpfile.write("</myemsl>\n")
+      tmpfile.seek(0)
+      (tmpbundle_fd, tmpbundle) = tempfile.mkstemp()
+      bundle(bundle_name=tmpbundle, tarfile=True, proposal=proposal, file_list=[(tmpfile.name, "sample_ingest.xml")], groups={'proposal':proposal})
+      tmpfile.close()
+      (pipe_read, pipe_write) = os.pipe()
+      subprocess.Popen(['/usr/bin/myemsl_ingest', '-b', tmpbundle, "-u", str(myemsl_person_id), "-s", "%s" %(pipe_write)], preexec_fn=lambda: os.close(pipe_read))
+      os.close(pipe_write)
+      string = os.read(pipe_read, 1024)
+      full_string = string
+      while string != '':
+         string = os.read(pipe_read, 1024)
+         full_string += string
+      os.close(tmpbundle_fd)
+      if full_string != "":
+         psp.redirect("/myemsl/cgi-bin/status/%s" %(full_string))
+      else:
+         header_display()
+         logger.error("Could not get person id for upload")
+         req.write("Unknown error")
+
+brand('footer', req)
+%>

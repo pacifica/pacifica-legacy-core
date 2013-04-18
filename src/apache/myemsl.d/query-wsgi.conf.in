@@ -1,0 +1,17 @@
+<Location /query>
+	Options Indexes FollowSymLinks MultiViews
+	Order deny,allow
+	include @WEBAUTH_MYEMSL@
+	Require valid-user
+</Location>
+
+WSGIScriptAlias /query /usr/lib/wsgi-scripts/query.wsgi
+
+<Location /query-raw>
+	Options Indexes FollowSymLinks MultiViews
+	Order deny,allow
+	include @WEBAUTH_MYEMSL@
+	Require valid-user
+</Location>
+
+WSGIScriptAlias /query-raw /usr/lib/wsgi-scripts/query-raw.wsgi

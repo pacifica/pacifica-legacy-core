@@ -1,0 +1,19 @@
+<html>
+<body>
+<p>The service description file format is an xml document. It looks like:</p>
+<pre>&lt;?xml version="1.0"?&gt;
+&lt;myemsl&gt;
+	&lt;prefix&gt;http://url&lt;/prefix&gt;
+	&lt;services&gt;
+		&lt;service name="service1" location="/service1/" /&gt;
+		&lt;service name="service2" location="/service2/" /&gt;
+		...
+		&lt;service name="logout" location="/logout/" /&gt;
+	&lt;/services&gt;
+&lt;/myemsl&gt;</pre>
+
+<p>If a service's location starts with "/", the value of prefix must be prepended to it when processing.</p>
+
+<p>Every MyEMSL instance must run at least one copy of this service. By default it can be retrieved from "&lt;INSTANCE_URL&gt;/myemsl/services/"</p>
+</body>
+</html>

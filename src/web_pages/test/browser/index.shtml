@@ -1,0 +1,13 @@
+<!--#include virtual="/myemsl/brand/brand_header.inc"-->
+	<title>MyEMSL Browser Test</title>
+	<link rel="stylesheet" href="../qunit.css">
+	<script type="text/javascript" src="/myemsl/api/1/jquery-ui.min.js"></script>
+	<link rel="stylesheet" href="/myemsl/api/1/css/ui-lightness/jquery-ui.min.css" type="text/css" media="all"></link>
+	<script src="/myemsl/api/1/jquery.timeago.js"></script>
+<!--#include virtual="/myemsl/brand/brand_middle.inc"-->
+<div id="main">
+	<div id="qunit"></div>
+	<script src="../qunit.js"></script>
+	<script src="tests.js"></script>
+</div>
+<!--#include virtual="/myemsl/brand/brand_footer.inc"-->

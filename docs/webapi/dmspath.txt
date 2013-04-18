@@ -1,0 +1,11 @@
+The DMS Path service allows a user to find the most recent file items that they submitted by path. The results are by default returned in a json document.
+
+The url should be the subdir path you are interested in listing.
+for example:
+532_Singer_Bacteria/IPV201206061338_Auto847894
+
+The following HTTP GET option is supported:
+ * auth - If specified, myemsl_auth tokens will be added to the result.
+          All the tokens will be in an array under the key 'myemsl_auth'.
+          Each file record will contain a 'token' property that is the offset
+          of the token in the array to use for that file.

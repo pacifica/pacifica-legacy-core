@@ -1,0 +1,204 @@
+<!--#include virtual="/myemsl/brand/brand_header.inc"-->
+<!--FIXME switch to local copy.-->
+		<script type="text/javascript" src="/myemsl/api/1/jquery-ui.min.js"></script>
+		<script type="text/javascript" src="/myemsl/api/1/json2.js"></script>
+		<script type="text/javascript" src="/myemsl/api/1/myemsl-search-pager-helper.js"></script>
+		<script type="text/javascript" src="/myemsl/api/1/myemsl-search-pager.js"></script>
+		<link rel="stylesheet" href="/myemsl/api/1/css/ui-lightness/jquery-ui.min.css" type="text/css" media="all"></link>
+		<style TYPE="text/css">
+#container {
+	display: table;
+	width: 100%;
+	border-collapse:collapse;
+	margin-bottom: 10px;
+}
+.hrow {
+	display: table-row;
+	font-size: 1.4em;
+	color: #FFFFFF;
+}
+.row {
+	display: table-row;
+}
+.row:nth-child(odd) {
+	background-color: #EAF2D3;
+}
+.hcell {
+	display: table-cell;
+	background-color: #89B13F;
+	padding: 4px 4px 4px 4px;
+}
+.cell {
+	display: table-cell;
+	padding: 2px 2px 2px 2px;
+}
+#container, .row, .cell, .hcell {
+	clear: both;
+	border: 1px solid #326C13;
+}
+.refresh {
+	float: right;
+	margin-bottom: 10px;
+}
+		</style>
+		<script type="text/javascript">
+function myemsl_cart_resubmit(cart_id, ok, error) {
+	if(ok === undefined) {
+		ok = function() {};
+	}
+	if(error === undefined) {
+		error = function() {};
+	}
+	var ajx = $.ajax({
+//FIXME get from services...
+		url: "/myemsl/api/2/cart/" + cart_id + '?resubmit',
+		type: 'POST',
+		data: '{}',
+		processData: false,
+		dataType: 'json',
+		success: ok,
+		error: error
+	});
+	return ajx;
+}
+
+function myemsl_cart_delete(cart_id, ok, error) {
+	if(ok === undefined) {
+		ok = function() {};
+	}
+	if(error === undefined) {
+		error = function() {};
+	}
+	var ajx = $.ajax({
+//FIXME get from services...
+		url: "/myemsl/api/2/cart/" + cart_id,
+		type: 'DELETE',
+		processData: false,
+		success: ok,
+		error: error
+	});
+	return ajx;
+}
+
+function myemsl_admin_cart_refresh(ok, error) {
+	if(ok === undefined) {
+		ok = function() {};
+	}
+	if(error === undefined) {
+		error = function() {};
+	}
+	var ajx = $.ajax({
+//FIXME get from services...
+		url: "/myemsl/api/2/cart/?state=admin",
+		type: 'GET',
+		//data: JSON.stringify(query),
+		processData: false,
+		//dataType: 'json',
+		success: function(ajaxdata) {
+			var container = $('#container');
+			container.text('');
+			if(ajaxdata['carts'].length > 0) {
+				var header = $('<div class="hrow"><div>Cart ID</div><div>Email Address</div><div>Submit Time</div><div>Last Modified</div><div>Size</div><div>Items</div><div>Actions</div></div>')
+				header.children('div').addClass('hcell');
+				container.append(header);
+			}
+			for(i in ajaxdata['carts']) {
+				var d = ajaxdata['carts'][i];
+				var row = $('<div class="row"></div>');
+				var div;
+				var button;
+				div = $('<div></div>').text(d['cart_id']);
+				row.append(div);
+				div = $('<div><a href=""></a></div>');
+				var a = div.children('a');
+				a.text(d['email_address']);
+				a.attr('href', 'mailto:' + d['email_address']);
+				row.append(div);
+				div = $('<div></div>').text(d['submit_time']);
+				row.append(div);
+				div = $('<div></div>').text(d['last_mtime']);
+				row.append(div);
+				div = $('<div></div>').text(d['size']);
+				row.append(div);
+				div = $('<div></div>').text(d['items']);
+				row.append(div);
+				div = $('<div></div>');
+				button = $('<button></button>');
+				button.button({
+					text: false,
+					icons: {
+						primary: "ui-icon-arrowrefresh-1-s"
+					}
+				}).click(function(ajaxdata, cartrow, i) { return function() {
+					myemsl_cart_resubmit(cartrow['cart_id'], function() {
+						myemsl_admin_cart_refresh();
+					}, function() {
+						alert('Error');
+					});
+				}}(ajaxdata, d, i));
+				button.tooltip({content: "Resubmit this cart for processing again."});
+				div.append(button);
+				button = $('<button></button>');
+				button.button({
+					text: false,
+					icons: {
+						primary: "ui-icon-trash"
+					}
+				}).click(function(ajaxdata, cartrow, i) { return function() {
+					var dialog = $('<div title="Delete Cart?"><p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>You have requested to delete a cart. Are you sure?</div>');
+					dialog.dialog({
+						autoOpen: true,
+						resizable: true,
+						modal: true,
+						buttons: {
+							"Yes": function() {
+								myemsl_cart_delete(cartrow['cart_id'], function() {
+									myemsl_admin_cart_refresh();
+								}, function() {
+									alert('Error');
+								});
+								$(this).dialog("close");
+							},
+							"Cancel": function() {
+								$(this).dialog("close");
+							}
+						}
+					});
+				}}(ajaxdata, d, i));
+				button.tooltip({content: "Delete this cart."});
+				div.append(button);
+				button = $('<button></button>');
+				button.button({
+					text: false,
+					icons: {
+						primary: "ui-icon-disk"
+					}
+				}).click(function(ajaxdata, cartrow, i) { return function() {
+					//alert(cartrow['cart_id']);
+				}}(ajaxdata, d, i));
+				button.tooltip({content: "Download cart items list to disk."});
+				button.button('option', 'disabled', true);
+				div.append(button);
+				row.append(div);
+				row.children('div').addClass('cell');
+				container.append(row);
+			}
+		}
+	});
+	return ajx;
+}
+$(function() {
+	myemsl_admin_cart_refresh();
+	$('.refresh').button({
+		icons: {
+			primary: "ui-icon-refresh"
+		}
+	}).click(function() {myemsl_admin_cart_refresh()});
+});
+		</script>
+	<!--#include virtual="/myemsl/brand/brand_middle.inc"-->
+		<button class="refresh">Refresh</button>
+		<div id="container">
+			Loading...
+		</div>
+<!--#include virtual="/myemsl/brand/brand_footer.inc"-->

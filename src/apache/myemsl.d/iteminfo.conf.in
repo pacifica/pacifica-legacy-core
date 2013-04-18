@@ -1,0 +1,29 @@
+<Location /myemsl/iteminfo>
+	Options Indexes FollowSymLinks MultiViews
+	Order deny,allow
+	include @WEBAUTH_MYEMSL@
+	Require valid-user
+	SetHandler mod_python
+	PythonInterpreter main_interpreter
+	PythonHandler myemsl.handler.iteminfo
+</Location>
+
+<Location /myemsl/qrs>
+	Options Indexes FollowSymLinks MultiViews
+	Order deny,allow
+	include @WEBAUTH_MYEMSL@
+	Require valid-user
+	SetHandler mod_python
+	PythonInterpreter main_interpreter
+	PythonHandler myemsl.handler.qrs
+</Location>
+
+<Location /myemsl/qrshistory>
+	Options Indexes FollowSymLinks MultiViews
+	Order deny,allow
+	include @WEBAUTH_MYEMSL@
+	Require valid-user
+	SetHandler mod_python
+	PythonInterpreter main_interpreter
+	PythonHandler myemsl.handler.qrshistory
+</Location>

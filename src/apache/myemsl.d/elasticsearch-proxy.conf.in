@@ -1,0 +1,18 @@
+<Proxy *>
+Order deny,allow
+Allow from all
+</Proxy>
+
+SSLProxyEngine On
+RequestHeader set Front-End-Https "On"
+CacheDisable *
+
+include /etc/myemsl/elasticsearch-proxy.conf
+
+<Location /myemsl/elasticsearch/>
+        ProxyPassReverse /
+</Location>
+
+<Location /myemsl/itemauth/>
+        ProxyPassReverse /
+</Location>

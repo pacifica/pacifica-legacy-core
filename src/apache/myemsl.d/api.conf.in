@@ -1,0 +1,7 @@
+Alias /myemsl/api /var/www/myemsl/api
+
+<Directory /var/www/myemsl/api>
+    Options Indexes FollowSymLinks MultiViews
+    Order deny,allow
+</Directory>
+

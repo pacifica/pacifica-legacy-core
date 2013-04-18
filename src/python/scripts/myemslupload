@@ -1,0 +1,5 @@
+#!/usr/bin/python
+
+from myemsl.uploader import main
+
+main()

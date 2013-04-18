@@ -1,0 +1,124 @@
+<template>
+ <disk>
+  <size>8</size>
+ </disk>
+ <name>pacifica-devel-standalone-6</name>
+ <description>Pacifica Devel VM 6 template</description>
+ <os>
+  <name>RHEL-6</name>
+  <version>3</version>
+  <arch>x86_64</arch>
+  <install type='url'>
+   <url>http://mirror.serversurgeon.com/centos/6.4/os/x86_64/</url>
+  </install>
+  <rootpw>test</rootpw>
+ </os>
+ <repositories>
+    <repository name="epel-6">
+      <url>http://download.fedoraproject.org/pub/epel/6/x86_64</url>
+      <signed>no</signed>
+    </repository>
+ </repositories>
+ <packages>
+<!-- End Service Poke -->
+   <package name="make" />
+   <package name="screen" />
+   <package name="vim" />
+   <package name="git" />
+   <package name="epel-release" />
+   <package name="httpd" />
+ </packages>
+ <files>
+  <file name="/root/standalone.gui" type="raw">#!/bin/bash
+mount -o remount,rw /
+sed -i 's/^id:.*:initdefault:$/id:5:initdefault:/' /etc/inittab
+mount -o remount,ro /
+/root/standalone
+  </file>
+  <file name="/root/standalone" type="raw">#!/bin/bash
+mount -o remount,rw /
+mount /boot
+sed -i 's/console=tty.*//' /boot/grub/grub.conf
+umount /boot
+rm /etc/rc.local.ec2
+cat > /etc/rc.local.standalone &lt;&lt;"EOF"
+myemslmount
+myemsloutage -c
+EOF
+chmod +x /etc/rc.local.standalone
+passwd &amp;&amp; rm -f /root/standalone
+mount -o remount,ro /
+reboot
+  </file>
+  <file name="/etc/rc.local.first.boot" type="raw">#!/bin/bash
+test -f /usr/bin/system-config-display &amp;&amp; /usr/bin/system-config-display --reconfig --noui
+rm -f /etc/rc.local.first.boot
+  </file>
+  <file name="/etc/rc.local" type="raw">#!/bin/bash -x
+touch /var/lock/subsys/local
+set -x
+[ -x /etc/rc.local.first.boot ] &amp;&amp; /etc/rc.local.first.boot
+if [ -x /etc/rc.local.ec2 ]
+then
+	/etc/rc.local.ec2
+	export EC2=1
+fi
+
+if [ -x /etc/rc.local.standalone ]
+then
+	/etc/rc.local.standalone
+fi
+echo done 
+  </file>
+  <file name="/root/setup.local.sh" type="raw">#!/bin/bash
+set -xe
+
+yum clean all
+
+cp -f /usr/share/zoneinfo/America/Los_Angeles /etc/localtime 
+sed -i 's/ZONE=.*/ZONE="America\/Los_Angles"/g' /etc/sysconfig/clock
+
+TOREMOVE=`rpm -qa --queryformat '%{NAME}-%{VERSION}-%{RELEASE}.%{ARCH}\n' | grep 'i[36]86$' || true`
+if [ "x$TOREMOVE" != "x" ]
+then
+	rpm -e $TOREMOVE
+fi
+sed -i 's#plugins=1#plugins=1\nexclude=*.i?86#' /etc/yum.conf
+sed -i 's#^baseurl=.*$#mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=epel-5&amp;arch=$basearch#' /etc/yum.repos.d/epel.repo
+#export http_proxy=
+
+rpm --import /etc/pki/rpm-gpg/*
+
+cat &gt; rpmtransaction &lt;&lt;EOF
+upgrade
+install fuse
+run -y
+EOF
+yum shell &lt; &lt;(cat rpmtransaction; echo Y)
+
+/usr/sbin/adduser -G fuse svc-myemsl
+
+awk '{if(/^title/){if(!seen){print; seen=1}else{seen=2}} else if(seen==1){print}}' /boot/grub/grub.conf | sed 's/console=ttyS0.*/init=\/root\/standalone/' | sed 's/^title.*/title Standalone Configure/' > /tmp/grub.conf
+awk '{if(/^title/){if(!seen){print; seen=1}else{seen=2}} else if(seen==1){print}}' /boot/grub/grub.conf | sed 's/console=ttyS0.*/init=\/root\/standalone.gui/' | sed 's/^title.*/title Standalone GUI Configure/' >> /tmp/grub.conf
+cat /tmp/grub.conf >> /boot/grub/grub.conf
+rm /tmp/grub.conf
+
+echo >> /etc/fuse.conf
+
+chmod +x /root/standalone
+chmod +x /root/standalone.gui
+chmod +x /etc/rc.local.first.boot
+
+chkconfig --level 35 httpd on
+  </file>
+ </files>
+ <commands>
+   <command name='setup-rc-local'>
+exec 1>/root/setup.log
+exec 2>&amp;1
+bash /root/setup.local.sh -x
+echo $? > /root/setup.ok
+exit $?
+   </command>
+ </commands>
+</template>

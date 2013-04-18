@@ -1,0 +1,65 @@
+<!--
+	Author: Brock Erwin
+	Description: This page allows users to set email notification preferences for MyEMSL uploads
+-->
+<!--#include virtual="/myemsl/brand/brand_header.inc"-->
+	<title>MyEMSL Preferences</title>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<!--FIXME remove-->
+	<link rel="stylesheet" href="/myemsl/brand/autoindex.css" type="text/css" media="all" />
+	<style type="text/css">
+		div[id^=error] {color:red;}
+	</style>
+	<script type="text/javascript" src="/myemsl/api/1/jquery-jtemplates.js"></script>
+	<script type="text/javascript" src="scripts/show-proposals.js"></script>
+	<!--#include virtual="/myemsl/brand/brand_middle.inc"-->
+	<!-- Templates -->
+	<p style="display:none">
+		<textarea id="Template-Items" rows="0" cols="0">
+			<!--
+				<table>
+					<tr>
+						<td>Enable</td>
+						<td>Proposal Id</td>
+						<td>Proposal Name</td>
+					</tr>
+					{#for index = 1 to $T.length}
+						<tr>
+							<td>
+								<input type="checkbox"
+									name="checkBoxProposal"
+									id="proposal-{$T[$T.index - 1][1]}"
+									{#if $T[$T.index - 1][0]} checked {#else}  {#/if}
+									/>
+							</td>
+							<td>
+								{$T[$T.index - 1][1]}
+							</td>
+							<td>
+								{$T[$T.index - 1][2]}
+							</td>
+						</tr>
+					{#/for}
+				</table>
+				{#if $T.length == 0}
+					<div id='error-no-proposals'><p>You are not a member of any proposal, therefore this list is empty</p></div>
+				{#/if}
+			-->
+		</textarea>
+	</p>
+	<div id="Main" style="display:none">
+		<h1>Email Notification Settings</h1>
+		<p>Instructions: Here you can toggle email prefences for MyEMSL uploads on a per proposal basis. If enabled, you will receive email notifications every time a file is uploaded to MyEMSL that is associated with that particular proposal.  Email notifications are enabled by default on all proposals.</p>
+		<!-- Output elements -->
+		<div id="Items" class="Content"></div>
+		<p>Notice: It may take up to five minutes for any changes to take effect.</p>
+		<input type="button" id="pref-enable-all" value="Enable All" />
+		<input type="button" id="pref-disable-all" value="Disable All" />
+	</div>
+	<div id="error-NoJavascript">
+		<br>
+		<p>ERROR: Your browser does not appear to support Javascript.<br>Javascript is required on this page.<br>Please enable it, or use a browser that does support it.</p>
+		<br>
+	</div>
+		
+<!--#include virtual="/myemsl/brand/brand_footer.inc"-->

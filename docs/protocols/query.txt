@@ -1,0 +1,43 @@
+****** DEPRECATED ******
+
+The query system in MyEMSL is unique. At the most basic level, all data can be seen in the same hierarchy in which it was uploaded by using the query string “data”. Subdirectories show up as subdirectories off to the right side of “data”. For example:
+data/subdir1
+
+MyEMSL supports a set of extensible filters to remove files from the hierarchy that you do not wish to see. These are added to the left hand side of the data filter. For example:
+filter_out_stuff/data/subdir1
+
+In general, the query request is made up of a set of filters, with arguments, stacked in priority order, followed by the filter terminator "data", followed by the specific path requested to inspect.
+
+Filters have 0 or more arguments to that filter. Each argument appears as a sub directory of the filter. For example:
+Filter_that_needs_one_arg/42
+Filter_that_needs_two_args/47/52
+
+Once a filter has all of its arguments satisfied, another filter can be added to the filter list:
+Filter_that_needs_one_arg/42/Filter_that_needs_two_args/47/52
+
+Further filters may be added in this manner.
+
+Once all filters are added in this way, the special filter "data" needs to be applied in order to signal no further filters are to be applied and to switch to file mode:
+Filter_that_needs_one_arg/42/Filter_that_needs_two_args/47/52/data
+
+At this point, any hierarchy in the data can be accessed by appending the subdirectory information as well:
+Filter_that_needs_one_arg/42/Filter_that_needs_two_args/47/52/data/subdir1/subdir2
+
+Lastly, as a special option, any filter arguments can be delayed by using the special argument "-later-". The N'th "-later-" on the left hand side of the "data" filter must be filled in by the N'th subdirectory on the right hand side of the "data" filter. For example, the following two lines are equivalent queries:
+Filter_that_needs_one_arg/42/Filter_that_needs_two_args/47/52/data/subdir1/subdir2
+Filter_that_needs_one_arg/-later-/Filter_that_needs_two_args/47/52/data/42/subdir1/subdir2
+
+The following two lines are also equivalent queries:
+Filter_that_needs_one_arg/42/Filter_that_needs_two_args/47/52/data/subdir1/subdir2
+Filter_that_needs_one_arg/-later-/Filter_that_needs_two_args/47/-later-/data/42/52/subdir1/subdir2
+
+Note: The "-later-" arguments are intended to allow administrators to generate views of the data such that the end user is presented with a set of directories where data is broken out into subdirectories based on "-later-" parameters. For example, to provide the end user with a view of their data where data looks like:
+proposal1/data_related_to_proposal_1
+proposal2/data_related_to_proposal_2
+proposal3/data_related_to_proposal_3
+
+The query would be:
+proposal/-later-/data
+
+Note: The "-later-" arguments can also be used to ensure that recursive operations on data will finitely end. Doing a find on the query string "proposal" will never complete since it will recurse to proposal/1/proposal/1/proposal/1/... indefinitely. While a find on "proposal/-later-/data" will complete successfully.
+

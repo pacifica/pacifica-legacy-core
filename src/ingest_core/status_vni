@@ -1,0 +1,118 @@
+#!/usr/bin/python
+
+import sys
+import os
+import pg
+import pgdb
+import libxml2
+import libxslt
+from socket import gethostname
+from optparse import OptionParser
+
+from subprocess import PIPE, Popen
+from myemsl.dbconnect import myemsldb_connect
+from myemsl.getconfig import getconfig_secret
+config = getconfig_secret()
+
+parser = OptionParser()
+parser.add_option("-j", "--jobid", dest="jobid", help="Job ID", type=int)
+parser.add_option("-u", "--username", dest="username", help="Username")
+parser.add_option("-f", "--format", dest="format", help="format output option", default="text")
+
+myemsl_sharedir = "/usr/share/myemsl"
+
+(options, args) = parser.parse_args()
+
+# FIXME: hard code the 7 states
+last_step = 7
+
+steps = []
+trans = -1
+for i in range(0, last_step+1):
+	steps.append({"STATUS":"UNKNOWN", "MESSAGE":"UNKNOWN"})
+
+cnx = myemsldb_connect(config, ["1.5"])
+cursor = cnx.cursor()
+
+cursor.execute("select step, message, status, trans_id, person_id from myemsl.ingest_state where jobid = %(jobid)i and host = %(host)s;", {'jobid':options.jobid, 'host':gethostname()})
+rows = cursor.fetchall()
+known = False
+for row in rows:
+	(step, message, status, trans_id, person_id) = row
+	for i in range(0, step):
+		steps[i]["STATUS"] = "SUCCESS"
+		steps[i]["MESSAGE"] = "completed"
+	steps[step]["STATUS"] = status
+	steps[step]["MESSAGE"] = message
+	if trans_id:
+		trans = trans_id
+	# NOTE: add user permissions based on person_id vs. options.username
+	break
+
+try:
+	if trans != -1 and steps[5]['STATUS'] == 'SUCCESS':
+		cursor.execute("select vtime as status from myemsl.files where transaction = %(trans)i and vtime is null and (name != 'metadata.txt' or subdir != '') group by vtime", {'trans':trans})
+		rows = cursor.fetchall()
+		unknown = False
+		for row in rows:
+			unknown = True
+			break
+		if not unknown:
+			cursor = cnx.cursor()
+			cursor.execute("select bool_and(verified) from myemsl.files where transaction = %(trans)i and (name != 'metadata.txt' or subdir != '')", {'trans':trans})
+			rows = cursor.fetchall()
+			for row in rows:
+				if row[0] == True:
+					steps[last_step-1]['STATUS'] = "SUCCESS"
+					steps[last_step-1]['MESSAGE'] = "verified"
+				else:
+					steps[last_step-1]['STATUS'] = "ERROR"
+					steps[last_step-1]['MESSAGE'] = "verify_failed"
+				break
+		cnx.close()
+except pg.DatabaseError, e:
+	pass
+
+#<?xml version="1.0" encoding="ISO-8859-1"?>
+#<?xml-stylesheet type="text/xsl" href="/myemsl/status/status.xslt"?>
+#<myemsl>
+#	<status username='34002'>
+#		<transaction id='8320' />
+#		<step id='0' message='completed' status='SUCCESS' />
+#		<step id='1' message='completed' status='SUCCESS' />
+#		<step id='2' message='completed' status='SUCCESS' />
+#		<step id='3' message='completed' status='SUCCESS' />
+#		<step id='4' message='completed' status='SUCCESS' />
+#
+#		<step id='5' message='completed' status='SUCCESS' />
+#		<step id='6' message='UNKNOWN' status='UNKNOWN' />
+#	</status>
+#</myemsl>
+
+xml = "<myemsl>\n"
+xml += "\t<status username='"+options.username+"'>\n"
+if trans:
+	xml += "\t\t<transaction id='"+str(trans)+"' />\n"
+for step in range(0, len(steps)-1):
+	xml += "\t\t<step id='"+str(step)+"' message='"+str(steps[step]['MESSAGE'])+"' status='"+str(steps[step]['STATUS'])+"' />\n"
+xml += "\t</status>\n"
+xml += "</myemsl>\n"
+
+
+if options.format == "xml":
+	print "<?xml version=\"1.0\"?>"
+	print xml
+	sys.exit(0)
+
+styledoc = libxml2.parseFile(myemsl_sharedir+"/"+options.format+".xsl")
+doc = libxml2.parseMemory(xml, len(xml))
+style = libxslt.parseStylesheetDoc(styledoc)
+result = style.applyStylesheet(doc, None)
+if options.format == "text" or options.format == "json":
+	print "\n".join(style.saveResultToString(result).split('\n')[1:])
+else:
+	print style.saveResultToString(result)
+style.freeStylesheet()
+doc.freeDoc()
+result.freeDoc()
+sys.exit(0)

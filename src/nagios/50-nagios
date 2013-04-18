@@ -1,0 +1,37 @@
+#!/bin/bash
+
+MPT=/srv/myemsl-nagios
+
+if [ "x$MYEMSL_UNIX_USER" = "x" ]
+then
+	echo "Unix user is not set."
+	exit 1
+fi
+
+if [ "x$1" = "x-u" ]
+then
+	umount "$MPT"
+	exit $?
+elif [ "x$1" = "x-c" ]
+then
+	#su - "$MYEMSL_UNIX_USER" -s /bin/bash -c 'ls "'$MPT'" > /dev/null 2>&1'
+	true
+	exit $?
+else
+	if [ "x$MYEMSL_ARCHIVE_USER" = "x" ]
+	then
+		echo "Archive user is not set."
+		exit 1
+	fi
+	if [ "x$MYEMSL_ARCHIVE_SUBDIR" = "x" ]
+	then
+		echo "Archive subdir is not set."
+		exit 1
+	fi
+	umask 077
+	mkdir -p "$MPT"
+	chown "$MYEMSL_UNIX_USER"."$MYEMSL_UNIX_USER" "$MPT"
+#FIXME Make nagios person id configurable
+	buhfs -o subdir="$MYEMSL_ARCHIVE_SUBDIR"/47943,no_trash,switch_user="$MYEMSL_UNIX_USER",user="$MYEMSL_ARCHIVE_USER",keytab=/var/hpss/etc/svc-myemsl.keytab,no_multiuser "$MPT"
+	exit $?
+fi

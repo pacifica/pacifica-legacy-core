@@ -1,0 +1,14 @@
+Alias /myemsl/test /var/www/myemsl/test
+
+<Directory /var/www/myemsl/test>
+    AllowOverride All
+    Options Indexes FollowSymLinks MultiViews Includes
+    Order deny,allow
+    DirectoryIndex index.html index.php index.shtml
+    include @WEBAUTH_MYEMSL@
+    Require valid-user
+
+    AddType text/html .shtml
+    AddHandler server-parsed .shtml
+</Directory>
+

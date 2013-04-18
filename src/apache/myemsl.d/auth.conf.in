@@ -1,0 +1,8 @@
+<Location /myemsl/auth>
+	Options Indexes FollowSymLinks MultiViews
+	Order deny,allow
+	include @WEBAUTH@
+	SetHandler mod_python
+	PythonInterpreter main_interpreter
+	PythonHandler myemsl.handler.auth
+</Location>

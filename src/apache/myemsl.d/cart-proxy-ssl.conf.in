@@ -1,0 +1,14 @@
+<Proxy *>
+Order deny,allow
+Allow from all
+</Proxy>
+
+SSLProxyEngine On
+RequestHeader set Front-End-Https "On"
+CacheDisable *
+
+include /etc/myemsl/cart-proxy.conf
+
+<Location /myemsl/cart/download>
+        ProxyPassReverse /
+</Location>

@@ -1,0 +1,82 @@
+#!/bin/bash
+#
+# Init file for cartd server daemon
+#
+# chkconfig: 2345 55 25
+# description: cartd server daemon
+#
+# pidfile: /var/run/myemsl_cartd.pid
+
+# source function library
+. /etc/rc.d/init.d/functions
+
+RETVAL=0
+prog="myemsl_cartd"
+prog2="cartd_child"
+
+PID_FILE=/var/run/myemsl_cartd.pid
+PID2_FILE=/var/run/myemsl_cartd2.pid
+
+start()
+{
+	MYEMSL_UNIX_USER=`myemsl_getunixuser`
+	mkdir -p /srv/myemsl-cartd
+	chown "$MYEMSL_UNIX_USER.$MYEMSL_UNIX_USER" /srv/myemsl-cartd
+	chmod 700 /srv/myemsl-cartd
+	chown "apache.$MYEMSL_UNIX_USER" /etc/myemsl/keys/item/*
+	chmod 440 /etc/myemsl/keys/item/*
+	chown "root.$MYEMSL_UNIX_USER" /var/log/myemsl
+	chmod 770 /var/log/myemsl
+	touch "$PID_FILE"
+	chown "root.$MYEMSL_UNIX_USER" "$PID_FILE"
+	chmod 770 "$PID_FILE"
+	status -p $PID_FILE $prog >/dev/null
+	RETVAL=$?
+	[ "$RETVAL" = 0 ] && return 0
+	/bin/su $MYEMSL_UNIX_USER -s /bin/bash -c "/usr/bin/service-poke-server -p $PID_FILE -D -f /var/tmp/myemsl_cartd -i /usr/share/myemsl/cartd-service-poke.ini"
+	[ "$?" != 0 ] && return 1
+	chown svc-myemsl.apache /var/tmp/myemsl_cartd
+	chmod 660 /var/tmp/myemsl_cartd
+	[ "$?" != 0 ] && return 1
+	/usr/libexec/myemsl/cartd -u "$MYEMSL_UNIX_USER" -p "$PID2_FILE"
+	[ "$?" != 0 ] && return 1
+	touch /var/lock/subsys/myemsl_cartd
+	return 0
+}
+
+stop()
+{
+	if [ -n "`pidfileofproc $prog`" ] ; then
+	    killproc -p $PID_FILE $prog >/dev/null
+	    killproc -p $PID2_FILE $prog2 >/dev/null
+	else
+	    return 1
+	fi
+	RETVAL=$?
+	[ "$RETVAL" = 0 ] && rm -f /var/lock/subsys/myemsl_cartd
+}
+
+case "$1" in
+	-u)
+		start
+		RETVAL=$?
+		;;
+	-d)
+		stop
+		;;
+	-c)
+		status -p $PID_FILE $prog >/dev/null
+		status -p $PID2_FILE $prog2 >/dev/null
+		RETVAL=$?
+		if [ "$RETVAL" = 0 ]
+		then
+			RETVAL=1
+		else
+			RETVAL=0
+		fi
+		;;
+	*)
+		echo $"Unknown command"
+		RETVAL=1
+esac
+exit $RETVAL

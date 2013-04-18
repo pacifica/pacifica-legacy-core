@@ -1,0 +1,129 @@
+#!/usr/bin/python
+
+import os
+import time
+import myemsl.ingest
+from myemsl.elasticsearch import *
+from myemsl.dbconnect import myemsldb_connect
+
+def debugfunc(elements):
+	print "Start"
+	for e in elements:
+		print e
+	print "End"
+
+def doindexing(prefix, callback, type=None, desc=None):
+	index = None
+	jsoncache = "/var/lib/myemsl/metadata/jsoncache"
+	rebuild = True
+	new_schema = ""
+	if type == None:
+		type = 'simple_items'
+	if type == 'simple_items':
+		old_index = None
+		try:
+			retval, code = get_alias(type)
+			if code == 200:
+				old_index = retval
+		except Exception, e:
+			pass
+		if old_index != None:
+			file = None
+        		try:
+                		jsoncache = config.get('metadata', 'jsoncache')
+				os.mkdirs(jsoncache)
+        		except Exception, e:
+                		pass
+			try:
+				file = open(jsoncache + '/elasticsearch_simple_item_schema.json', 'r')
+        		except Exception, e:
+                		pass
+			new_schema = json.dumps(json.loads(desc), sort_keys=True)
+			if file:
+				current_schema = file.read()
+				file.close()
+				if current_schema == new_schema:
+					rebuild = False
+					index = old_index
+	if not index:
+		index = "%s_%i" %(prefix, int(time.time()))
+	if rebuild:
+		print "Building index: %s" %(index)
+		res = create_index(index, desc=desc)
+		if res != 200:
+			sys.stderr.write("Failed to create %s index: %s\n" %(prefix, index))
+			sys.exit(-1)
+	b = bulkupload(index, type=type)
+	c = chunkit(b.callback, 1000)
+#	c = chunkit(debugfunc, 2)
+	callback(c.add, rebuild=rebuild)
+	c.flush()
+	if rebuild:
+		retval, code = get_alias(type)
+		if code != 200 and code != 404:
+			print "Failed to get alias with code %s" %(code)
+			sys.exit(code)
+		if code == 200:
+			res = delete_index(retval)
+		code = create_alias(index, "%s_%s" %(config.get('elasticsearch', 'alias'), type))
+		if code != 200:
+			print "Failed to create alias with code %s" %(code)
+			sys.exit(code)
+		if type == 'simple_items':
+			file = open(jsoncache + '/elasticsearch_simple_item_schema.json', 'w')
+			file.write(new_schema)
+			file.close()
+
+def main():
+#FIXME get this from config
+	prefix = "myemsl_local_predicate_index"
+	doindexing(prefix, local_predicates_to_json, type="local_predicates", desc=schema_get('predicate'))
+#FIXME get this from config
+	prefix = "myemsl_proposal_index"
+	doindexing(prefix, proposal_info_to_json, type="proposal", desc=schema_get('proposal'))
+#FIXME get this from config
+	prefix = "myemsl_index"
+	#doindexing(prefix, all_metadata_to_json)
+	doindexing(prefix, all_metadata_with_cache, desc=schema_get('simple_item'))
+	sql = """
+SELECT
+	trans_id,
+	item_id,
+	jobid,
+	host
+FROM
+	myemsl.ingest_state AS i,
+	myemsl.files AS f
+WHERE
+	i.step = %(step)i AND
+	i.status = 'SUCCESS' AND
+	f.transaction = i.trans_id;
+	"""
+	cnx = myemsldb_connect(myemsl_schema_versions=['1.7'])
+	cursor = cnx.cursor()
+	STEP_VAR=4
+	cursor.execute(sql, params={'step':STEP_VAR})
+	skip_trans = {}
+	trans2job = {};
+	pending_trans = {};
+	for row in cursoriter(cursor):
+		transaction = row[0]
+		item_id = row[1]
+		job_id = row[2]
+		host = row[3]
+		trans2job[transaction] = (job_id, host)
+		if skip_trans.get(transaction) != None:
+			continue
+		pending_trans[transaction] = 1
+		(code, document) = item_get(item_id)
+		if code != 200:
+#FIXME log this better somehow.
+			print "Failed to get document for item_id %s %s" %(item_id, code)
+			skip_trans[transaction] = 1
+			del pending_trans[transaction]
+	for transaction in pending_trans.keys():
+		(job_id, host) = trans2job[transaction]
+		myemsl.ingest.update_state(job_id, STEP_VAR+1, 'SUCCESS', 'completed')
+
+if __name__ == "__main__":
+	main()

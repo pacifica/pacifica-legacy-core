@@ -1,0 +1,2 @@
+#!/bin/bash
+myemsldbdump | su - $(/usr/bin/myemsl_getunixuser) -s /bin/bash -c 'mkdir -p /srv/myemsl-ingest/.myemsl/dbbackup; dd of=/srv/myemsl-ingest/.myemsl/dbbackup/`date '+%s'`.dump'

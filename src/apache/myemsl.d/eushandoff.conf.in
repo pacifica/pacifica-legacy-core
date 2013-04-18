@@ -1,0 +1,7 @@
+<Location /myemsl/eushandoff>
+        Options Indexes FollowSymLinks MultiViews
+        Order deny,allow
+        SetHandler mod_python
+        PythonInterpreter main_interpreter
+        PythonHandler myemsl.handler.eushandoff
+</Location>

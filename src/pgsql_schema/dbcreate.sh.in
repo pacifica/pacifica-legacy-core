@@ -1,0 +1,46 @@
+#!/bin/bash
+if [ $UID != 0 ]
+then
+	echo You must be root to run this.
+	exit 1
+fi
+
+REALLY_DESTROY=FALSE
+
+while getopts ":r" opt; do
+  case $opt in
+    r)
+      REALLY_DESTROY=TRUE
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      exit 1
+      ;;
+    :)
+      echo "Option -$OPTARG requires an argument." >&2
+      exit 1
+      ;;
+  esac
+done
+
+LOCATION=@LOCATION@
+
+if [ $REALLY_DESTROY = "TRUE" ]
+then
+	/etc/init.d/postgresql stop
+	rm -rf /var/lib/pgsql
+	/etc/init.d/postgresql initdb
+	/etc/init.d/postgresql start
+	while [ ! -S /tmp/.s.PGSQL.5432 ]
+	do
+		sleep 1
+	done
+fi
+
+PASSWD=$(dd if=/dev/random bs=32 count=1 | base64 | sed 's:/::g' | cut -c 1-16)
+PASSWD2=$(dd if=/dev/random bs=32 count=1 | base64 | sed 's:/::g' | cut -c 1-16)
+python -c "from ConfigParser import RawConfigParser as C;o=C();i='/etc/myemsl/secret.ini';o.read(i);o.set('metadata', 'password', '$PASSWD');o.write(open(i, 'w'))"
+
+sudo -u postgres 'psql' < <(cat $LOCATION/myemsl_users.sql | sed "s/@PASSWD@/$PASSWD/g" | sed "s/@PASSWD2@/$PASSWD2/g")
+sudo -u postgres 'psql' 'myemsl_metadata' < <(echo -e 'create schema eus;ALTER SCHEMA eus OWNER TO metadata_admins;set search_path = eus, public;'; cat $LOCATION/eus.sql $LOCATION/myemsl.sql $LOCATION/eus_auth.sql $LOCATION/myemsl_authz.sql)
+

@@ -1,0 +1,34 @@
+#!/bin/bash
+
+MPT=/srv/amalgam
+
+if [ "x$MYEMSL_UNIX_USER" = "x" ]
+then
+	echo "Unix user is not set."
+	exit 1
+fi
+if [ "x$1" = "x-u" ]
+then
+	umount "$MPT"
+	exit $?
+elif [ "x$1" = "x-c" ]
+then
+	su "$MYEMSL_UNIX_USER" -s /bin/bash -c 'ls "'$MPT'" > /dev/null 2>&1'
+	exit $?
+else
+	mkdir -p /srv/myemsl-cartd/ready
+	chown "$MYEMSL_UNIX_USER.$MYEMSL_UNIX_USER" /srv/myemsl-cartd
+	chown "$MYEMSL_UNIX_USER.$MYEMSL_UNIX_USER" /srv/myemsl-cartd/ready
+	chmod 770 /srv/myemsl-cartd
+	chmod 770 /srv/myemsl-cartd/ready
+	umask 077
+	mkdir -p "$MPT"
+	mkdir -p "${MPT}fs/working"
+	mkdir -p "${MPT}fs/pending"
+	chown "$MYEMSL_UNIX_USER"."$MYEMSL_UNIX_USER" "$MPT"
+	chown "$MYEMSL_UNIX_USER"."$MYEMSL_UNIX_USER" "${MPT}fs/working"
+	chown "$MYEMSL_UNIX_USER"."$MYEMSL_UNIX_USER" "${MPT}fs/pending"
+	chown "$MYEMSL_UNIX_USER"."$MYEMSL_UNIX_USER" "${MPT}fs"
+	amalgamfs -o modules=myemslauth,myemslauth_depth=1,switchuser="$MYEMSL_UNIX_USER",datadir="/srv/myemsl-cartd/ready",allow_other "$MPT"
+	exit $?
+fi

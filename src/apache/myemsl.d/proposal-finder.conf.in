@@ -1,0 +1,14 @@
+Alias /myemsl/proposal-finder /var/www/myemsl/proposal-finder
+
+<Directory /var/www/myemsl/proposal-finder>
+    AllowOverride All
+    Options Indexes FollowSymLinks MultiViews Includes
+    Order deny,allow
+    DirectoryIndex index.html index.php index.shtml
+    include @WEBAUTH_MYEMSL@
+    Require valid-user
+
+    AddType text/html .shtml
+    AddHandler server-parsed .shtml
+</Directory>
+

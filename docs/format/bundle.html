@@ -1,0 +1,30 @@
+<html>
+<body>
+<p>A MyEMSL bundle is an uncompressed tar file with the data in the root of the tar, with one aditional file at the root, "metadata.txt".</p>
+
+<p>Ths metadata.txt file is a json encoded file with the following format:</p>
+<pre>
+{
+	"version":"1.0.0",
+	"eusInfo":{
+		"proposalID":"prop1",
+		"groups":[
+			{"name":"grpname", "type":"grptype"},
+			{"name":"grpname2", "type":"grptype2"}
+		]
+	},
+	"file":[
+		{"sha1Hash":"26345e9061642efeb2b9d2da11baaa998b4b4fd9","fileName":"sample_ingest.xml","destinationDirectory":""}
+		{"sha1Hash":"92996b1aeb2d4118fa386e0f733101fac78df48f","fileName":"Clean Phenakite_013.tif","destinationDirectory":"Clean"},
+	]
+}</pre>
+
+<p>Version must be "1.0.0" currently.</p>
+
+<p>"ProposalID" is optional, but should be set to the proposal id if you wish to link files to a proposal.</p>
+
+<p>You must have at least one group specified. Groups are used to store metadata like instrument, or other things people will want to catagorize and filter on.</p>
+
+<p>For each file in the bundle (except the metadata.txt file), there should be an entry in the "file" section. It must have a valid "sha1Hash" propertly. "fileName" and "destinationDirectory" also must match up with the filename in the bundle.</p>
+</body>
+</html>

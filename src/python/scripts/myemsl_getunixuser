@@ -1,0 +1,5 @@
+#!/usr/bin/python
+
+from myemsl.getunixuser import main
+
+main()

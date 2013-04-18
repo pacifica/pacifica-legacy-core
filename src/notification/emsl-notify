@@ -1,0 +1,263 @@
+#!/usr/bin/python -u
+
+# Authors: Brock Erwin
+#          Dave Brown
+#!/usr/bin/env python
+import smtplib
+try:
+	from email.mime.text import MIMEText
+	from email.mime.image import MIMEImage 
+	from email.mime.multipart import MIMEMultipart 
+except ImportError:
+	from email.MIMEText import MIMEText
+	from email.MIMEImage import MIMEImage
+	from email.MIMEMultipart import MIMEMultipart
+
+
+from myemsl.getconfig import getconfig
+from Cheetah.Template import Template
+import os, sys
+import re
+import time
+from nntplib import NNTP
+import libxml2
+import subprocess
+import traceback
+import bsddb
+from optparse import OptionParser
+from myemsl.dbconnect import myemsldb_connect
+
+proposalMembers = {}
+doNotNotify = {}
+
+def query_db():
+	#
+	# Create a cache which holds each proposal in the system and what
+	# users are members in each of those proposals
+	#
+	global proposalMembers, doNotNotify
+	proposalMembers = {}
+	doNotNotify = {}
+
+	sql = '''set search_path=eus,myemsl; select
+	proposals.proposal_id, users.person_id, first_name, last_name, email_address,
+	proposals.proposal_id, proposals.title from proposals, proposal_members, users
+				where
+	proposals.proposal_id = proposal_members.proposal_id and
+	users.person_id = proposal_members.person_id
+				order by
+	proposals.proposal_id, users.person_id
+	'''
+	cnx = myemsldb_connect(myemsl_schema_versions=['1.0'])
+	cursor = cnx.cursor()
+	cursor.execute(sql, {})
+	rows = cursor.fetchall()
+	for row in rows:
+		if not proposalMembers.has_key(row[0]):
+			# Initialize empty list
+			proposalMembers[row[0]] = []
+		proposalMembers[row[0]].append(row[1:])
+
+	sql = '''set search_path=eus,myemsl; select * from notification;'''
+	cnx = myemsldb_connect(myemsl_schema_versions=['1.0'])
+	cursor = cnx.cursor()
+	cursor.execute(sql, {})
+	rows = cursor.fetchall()
+	for row in rows:
+		if not doNotNotify.has_key(row[0]):
+			doNotNotify[row[0]] = set()
+		doNotNotify[row[0]].add(row[1])
+
+def getNotifyEmails(proposalId, emailDomains):
+	global proposalMembers, doNotNotify
+	# Iterate through all people on the passed proposal
+	emails = ''
+	first = True
+	for person in proposalMembers[proposalId]:
+		# Check if they don't want to be notified
+		if person[3] != None:
+			if (not doNotNotify.has_key(person[0])) or proposalId not in doNotNotify[person[0]]:
+				personEmail = str(person[3]).strip()
+				isOk = True
+				if len(emailDomains) > 0:
+					isOk = False
+					for domain in emailDomains:
+						if personEmail[len(personEmail) - len(domain):] == domain:
+							isOk = True
+				if isOk:
+					if first != True:
+						emails += ','
+					first = False
+					emails += personEmail
+	return emails
+
+def getFromConfigWithDefault(config, section, option, default):
+	if config.has_option(section, option):
+		#print 'config.get(%s, %s) == %s' % (section, option, config.get(section, option))
+		return config.get(section, option)
+	else:
+		return default
+
+def myMain():
+	config = getconfig()
+
+	# NNTP server and group
+	server = getFromConfigWithDefault(config, 'notification', 'nntp_server', '127.0.0.1')
+	group = getFromConfigWithDefault(config, 'notification', 'nntp_group', 'local.myemsl.incoming.notifications')
+	
+	# location of the statedb used to keep track of what notifications have already been sent
+	statedb = getFromConfigWithDefault(config, 'notification', 'state_database', '/var/lib/myemsl/notify.db')
+	# how often to check for new news (in seconds)
+	nntpqueryinterval = int(getFromConfigWithDefault(config, 'notification', 'nntp_query_interval', 60))
+	# how often to check for database updates (in seconds) -- the database holds notification preferences
+	dbreloadinterval = int(getFromConfigWithDefault(config, 'notification', 'database_reload_interval', 500))
+	# This is the location of the cheetah email template file.  See the example file installed for an example of how to use
+	emailTemplate = open(getFromConfigWithDefault(config, 'notification', 'email_template', '/etc/myemsl/email.template'), 'r').read()
+	# If not none, this daemon will send ALL emails to the email address specified here.  To be used for development purposes
+	testingEmail = getFromConfigWithDefault(config, 'notification', 'testing_email', None)
+	# The subject of the notification emails
+	emailSubject = getFromConfigWithDefault(config, 'notification', 'email_subject', 'MyEMSL Proposal $proposalId Activity')
+	# Configure the sender of the email notifications to this address
+	sender = getFromConfigWithDefault(config, 'notification', 'email_from', 'MyEMSL<myemsl@emsl.pnnl.gov>')
+	# Need an smtp server to connect to
+	smtpServer = getFromConfigWithDefault(config, 'notification', 'email_smtp_server', 'mailhost.pnl.gov')
+	# Whitelist of domains that we're allowed to send emails to
+	# If not specified, then all emails will be allowed by default
+	# This is a comma separated list like this: "example.com, foo.org, cheese.tv"
+	emailDomains = getFromConfigWithDefault(config, 'notification', 'email_domains_allowed', None)
+
+	# Turn the comma separated list into a python array, stripping off whitespace
+	list = []
+	if emailDomains != None:
+		for domain in emailDomains.strip().split(','):
+			list.append(domain.strip())
+	emailDomains = list
+
+
+	_continue = True
+
+	db = bsddb.btopen(statedb, 'c')
+	s = NNTP(server)
+
+	
+	doc = libxml2.parseDoc(open("/etc/myemsl/services.xml").read())
+	myPrefix = doc.xpathEval("/myemsl/prefix")[0].getContent()
+	myPreferences = doc.xpathEval("/myemsl/services/service[@name='preferences']")[0].hasProp('location').getContent()
+	myFiles = doc.xpathEval("/myemsl/services/service[@name='files']")[0].hasProp('location').getContent()
+	doc.freeDoc()
+	if myPreferences[0] == '/':
+		myPreferences = "%s%s" %(myPrefix, myPreferences)
+	if myFiles[0] == '/':
+		myFiles = "%s%s" %(myPrefix, myFiles)
+	if myFiles[-1:] != '/':
+		myFiles += '/'
+
+	query_db()
+	nntpCheckTime = 0
+	dbCheckTime = 0
+	while _continue:
+		sys.stdout.flush()
+		sys.stderr.flush()
+		nntpNextCheckTime = nntpCheckTime + nntpqueryinterval
+		dbNextCheckTime = dbCheckTime + dbreloadinterval
+
+		if dbNextCheckTime < nntpNextCheckTime:
+			sleeptime = dbNextCheckTime - int(time.time())
+			if sleepytime > 0:
+				time.sleep(sleepytime)
+			print '%s: Checking Database for Notification Preference Changes' % datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+			dbCheckTime = int(time.time())
+			query_db()
+		else:
+			sleepytime = nntpNextCheckTime - int(time.time())
+			if sleepytime > 0:
+				time.sleep(sleepytime)
+
+			print '%s: Checking NNTP Server for new news' % datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+			nntpCheckTime = int(time.time())
+			resp, count, first, last, name = s.group(group)
+			print resp, count, first, last, name
+			sys.stdout.flush()
+			for message in range(int(first), int(last)+1):
+				if str(message) in db and db[str(message)] == 'Read':
+					continue
+				if str(message) in db and db[str(message)] == 'Failed':
+					continue
+				db[str(message)] = "Read";
+				print '%s: db[%s] = "Read"' % (datetime.datetime.now().strftime("%Y-%m-%d %H:%M"), str(message))
+
+				resp, number, id = s.stat(str(message))
+				resp, number, id, _list = s.body(id)
+				try:
+					doc = libxml2.parseDoc("\n".join(_list))
+				except:
+					#print "Failed to parse xml document"
+					db[str(message)] = "Failed"
+					continue
+
+				#print doc
+				proposals = {}
+	#			for x in doc.xpathEval("/myemsl/proposals/proposal"):
+	#				proposals.append(x.getContent())
+				transactionId = doc.xpathEval("/myemsl/transaction")[0].getContent()
+				for x in doc.xpathEval("/myemsl/files/file"):
+					fileName = x.xpathEval("name")[0].getContent()
+	#				print fileName
+					groups = []
+					for g in x.xpathEval("groups/group"):
+						thetype = g.xpathEval("type")[0].getContent()
+						typeName = g.xpathEval("name")[0].getContent()
+						#print type, typeName
+						if thetype == "proposal":
+							if not proposals.has_key(typeName):
+								proposals[typeName] = []
+							proposals[typeName].append(fileName)
+				# Need to explicitly deallocate the libxml2 document otherwise libxml2 will not free the memory associated with it
+				doc.freeDoc()
+
+				if len(proposals) > 0:
+					#print proposals
+					for proposal in proposals:
+						filesPerLine = ''
+						for file in proposals[proposal]:
+							filesPerLine += file + "\n"
+
+						nameSpace = {'proposalId': proposal,
+								'transactionURL': "%stransaction/%s/proposal/%s/data" % (myFiles, transactionId, proposal),
+								'unsubscribeURL': "%s\n" % myPreferences,
+								'filesPerLine': filesPerLine}
+						notificationList = getNotifyEmails(proposal, emailDomains)
+						contents = ''
+						if testingEmail == None:
+							to = notificationList
+						else:
+							to = testingEmail
+							contents += 'If you had not passed configured /etc/myemsl/general.ini, section [notification], option testing_email=%s, the following people would have been notified:\n' % testingEmail
+							contents += notificationList
+							contents += '  The original message will appear below.\n'
+							contents += '-------------------------------------------\n'
+						contents += str( Template(emailTemplate, searchList=[nameSpace]) )
+						# Format line breaks properly for the windows people ;-D
+						contents = re.sub("\n","\r\n", contents)
+						msg = MIMEMultipart()
+						msg['Subject'] = str( Template(emailSubject, searchList=[nameSpace]) )
+						msg['From'] = sender
+						msg['Bcc'] = to
+						mimeText = MIMEText(contents, 'plain')
+						msg.attach(mimeText)
+						smtp = smtplib.SMTP(smtpServer)
+						smtp.sendmail(sender, to, msg.as_string())
+				db.sync()
+	s.quit()
+
+while True:
+	import datetime
+	print '%s: Started emsl-notify' % datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+	try:
+		myMain()
+	except Exception, e:
+		print e
+		tb = traceback.format_exc()
+		print tb
+	# Prevent this program from locking up 1 CPU
+	time.sleep(1)

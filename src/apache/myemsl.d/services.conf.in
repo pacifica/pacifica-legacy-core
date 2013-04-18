@@ -1,0 +1,9 @@
+Alias /myemsl/services "/etc/myemsl/services.xml"
+RewriteEngine On
+RewriteRule ^/myemsl/services/(.*) /myemsl/services [R]
+
+<Directory /etc/myemsl>
+	Options 
+	AllowOverride None
+	Order deny,allow
+</Directory>

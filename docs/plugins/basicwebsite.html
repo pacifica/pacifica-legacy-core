@@ -1,0 +1,38 @@
+<html>
+<body>
+<p>To plug in a basic website to MyEMSL there are a few things you need to do:</p>
+<ol>
+	<li>Create a service config file:
+	<ol>
+		<li>It must be in apache config file format</li>
+		<li>The file name must end in ".conf"</li>
+		<li>The location must be in /usr/lib/myemsl/apache/myemsl.d to enable it on http</li>
+		<li>The location must be in /usr/lib/myemsl/apache/myemsl-ssl.d to enable it on https.</li>
+	</ol></li>
+	<li>If the site has any authentication of its own, you should configure it to use REMOTE_USER</li>
+	<li>As part of your config, you must include one of the following two files in each area needing protection.
+	<ol>
+		<li>If you can continue to operate when the archive is offline, use "include /usr/lib/myemsl/apache/webauth-myemsl.conf"</li>
+		<li>Otherwise, "include /usr/lib/myemsl/apache/webauth-storage.conf"</li>
+	</ol></li>
+	<li>If outage information for a particular service or services needs to be in a different format then human readable html, for example, for ajax services, you need to include an outage config file per regular expression pattern.
+	<ol>
+		<li>Write the full url pattern to the config file.</li>
+		<li>The location for ajax formatted outage information is "/usr/lib/myemsl/apache/outage.d/ajax.d/&lt;servicename&gt;"</li>
+		<li>To have certain files ignore outage entirely, place the regex in "/usr/lib/myemsl/apache/outage.d/ignore.d/&lt;servicename&gt;"</li>
+	</ol></li>
+</ol>
+
+<p>Here is an example service config, website.config:</p>
+<pre>Alias /website /usr/share/website
+&lt;Directory /usr/share/website&gt;
+    AllowOverride All
+    Options Indexes FollowSymLinks MultiViews
+    Order deny,allow
+    include /usr/lib/myemsl/apache/webauth-myemsl.conf
+&lt;/Directory&gt;</pre>
+
+<p>Outage file example "/usr/lib/myemsl/apache/outage.d/ajax.d/website":</p>
+<pre>^/myemsl/website/ajax[0-9]*\.php.*$</pre>
+</body>
+</html>

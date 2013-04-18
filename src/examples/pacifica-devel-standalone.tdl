@@ -1,0 +1,481 @@
+<template>
+ <name>pacifica-devel-standalone</name>
+ <description>Pacifica CentOS Linux 5 Development Box x86_64 template</description>
+ <os>
+  <name>CentOS-5</name>
+  <version>U8</version>
+  <arch>x86_64</arch>
+  <install type='url'>
+<!--   <url>http://mscimager.emsl.pnl.gov/cobbler/ks_mirror/centos5.7-x86_64/</url>-->
+<!--   <url>http://isoredirect.centos.org/centos/5.9/os/x86_64/</url>-->
+   <url>http://vault.centos.org/5.8/os/x86_64/</url>
+  </install>
+ </os>
+ <repositories>
+  <repository name="10gen">
+   <url>http://downloads-distro.mongodb.org/repo/redhat/os/x86_64</url>
+   <signed>no</signed>
+  </repository>
+  <repository name="myemsl-devel-deps">
+   <url>http://192.168.123.1/myemsl-repo/epel-5-x86_64</url>
+   <signed>no</signed>
+  </repository>
+  <repository name="pgdg84">
+   <url>http://yum.pgrpms.org/8.4/redhat/rhel-5-x86_64/</url>
+<!--      <url>http://mscimager.emsl.pnl.gov/cobbler/repo_mirror/pgsql-8.4-rhel-5-x86_64/</url>-->
+   <signed>no</signed>
+  </repository>
+  <repository name="epel">
+   <url>http://download.fedoraproject.org/pub/epel/5/x86_64</url>-->
+<!--   <url>http://mscimager.emsl.pnl.gov/cobbler/repo_mirror/epel-el5-x86_64/</url>-->
+   <signed>no</signed>
+  </repository>
+  <repository name="ruby187-el5-x86_64">
+<!--   <url>http://mscimager.emsl.pnl.gov/cobbler/repo_mirror/ruby187-el5-x86_64/</url>-->
+   <url>http://centos.karan.org/el5/ruby187/x86_64</url>
+   <signed>no</signed>
+  </repository>
+ </repositories>
+ <files>
+  <file name="/etc/xdg/autostart/pacifica-docs.desktop" type="raw">
+[Desktop Entry]
+Encoding=UTF-8
+Name=Pacifica Docs
+Comment=Display Pacifica Documentation
+Icon=myemsluploaderstatus
+Exec=firefox file:///usr/share/doc/myemsl-devel/vm.html
+Terminal=false
+Type=Application
+Categories=
+NoDisplay=true
+X-GNOME-Autostart-Delay=60
+  </file>
+  <file name="/etc/sysconfig/network-scripts/ifcfg-eth0" type="raw">
+DEVICE=eth0
+ONBOOT=yes
+BOOTPROTO=dhcp
+  </file>
+  <file name="/root/pacifica_test_permissions" type="raw">#!/usr/bin/python
+
+import myemsl.permission
+
+psid = myemsl.permission.get_or_create_permission_set_id(['p'])
+print psid
+pgid = myemsl.permission.get_permission_group_id('TEST', 'instrument')
+if pgid == None:
+	pgid = myemsl.permission.create_permission_group('TEST', 'instrument')
+if pgid != None:
+	print pgid
+	myemsl.permission.add_permission_group_member(pgid, 1)
+	myemsl.permission.add_permission_group_member(pgid, 2)
+	myemsl.permission.add_permission_group_member(pgid, 3)
+	myemsl.permission.create_permission(pgid, 'instrument', psid)
+  </file>
+  <file name="/etc/rc.local.ec2" type="raw">#!/bin/bash -x
+
+echo 0 > /proc/sys/kernel/hung_task_timeout_secs
+
+if [ ! -d /root/.ssh ]; then
+  mkdir -p /root/.ssh
+  chmod 700 /root/.ssh
+fi
+
+#Bind mount some stuff to the ephemeral storage location.
+mkdir -p /srv/ephemeral
+mount /dev/vdb /srv/ephemeral
+
+if [ ! -d /srv/ephemeral/myemsl-md ]
+then
+	if [ -d /var/lib/myemsl/metadata ]
+	then
+		cp -a /var/lib/myemsl/metadata /srv/ephemeral/myemsl-md
+	else
+		mkdir -p /srv/ephemeral/myemsl-md
+		mkdir -p /var/lib/myemsl/metadata
+	fi
+fi
+mount --bind /srv/ephemeral/myemsl-md /var/lib/myemsl/metadata
+
+if [ ! -d /srv/ephemeral/elasticsearch ]
+then
+	if [ -d /var/lib/elasticsearch ]
+	then
+		cp -a /var/lib/elasticsearch /srv/ephemeral
+	else
+		mkdir -p /srv/ephemeral/elasticsearch
+		mkdir -p /var/lib/elasticsearch
+		chown elasticsearch.elasticsearch /srv/ephemeral/elasticsearch
+		chomd 755 /srv/ephemeral/elasticsearch
+	fi
+fi
+mount --bind /srv/ephemeral/elasticsearch /var/lib/elasticsearch
+
+if [ ! -d /srv/ephemeral/pgsql ]
+then
+	if [ -d /var/lib/pgsql ]
+	then
+		cp -a /var/lib/pgsql /srv/ephemeral
+	fi
+fi
+mount --bind /srv/ephemeral/pgsql /var/lib/pgsql
+
+# Fetch public key using HTTP
+ATTEMPTS=10
+while [ ! -f /root/.ssh/authorized_keys ]; do
+    curl -f http://169.254.169.254/latest/meta-data/public-keys/0/openssh-key > /tmp/aws-key 2>/dev/null
+    if [ $? -eq 0 ]; then
+        cat /tmp/aws-key >> /root/.ssh/authorized_keys
+        chmod 0600 /root/.ssh/authorized_keys
+        restorecon /root/.ssh/authorized_keys
+        rm -f /tmp/aws-key
+        echo "Successfully retrieved AWS public key from instance metadata"
+    else
+        FAILED=$(($FAILED + 1))
+        if [ $FAILED -ge $ATTEMPTS ]; then
+            echo "Failed to retrieve AWS public key after $FAILED attempts, quitting"
+            break
+        fi
+        echo "Could not retrieve AWS public key (attempt #$FAILED/$ATTEMPTS), retrying in 5 seconds..."
+        sleep 5
+    fi
+done
+while [ ! -f /tmp/userdata.customize ]; do
+    curl -f http://169.254.169.254/latest/user-data > /tmp/userdata.customize 2>/dev/null
+    if [ $? -eq 0 ]; then
+        if [ `stat --printf=%s /tmp/userdata.customize` == 0 ] ; then
+            echo "Failed to retrieve user data bash script. Its empty."
+            break
+        fi
+	chmod +x /tmp/userdata.customize
+	/tmp/userdata.customize
+    else
+        FAILED=$(($FAILED + 1))
+        if [ $FAILED -ge $ATTEMPTS ]; then
+            echo "Failed to retrieve user data customize program after $FAILED attempts, quitting"
+            break
+        fi
+        echo "Could not retrieve user data customize program (attempt #$FAILED/$ATTEMPTS), retrying in 5 seconds..."
+        sleep 5
+    fi
+done
+  </file>
+  <file name="/etc/modprobe.conf" type="raw">
+alias scsi_hostadapter ata_piix
+alias scsi_hostadapter1 virtio_blk
+alias scsi_hostadapter2 ahci
+  </file>
+  <file name="/tmp/dbcreate.sh" type="raw">#!/usr/bin/expect -f
+set force_conservative 0
+if {$force_conservative} {
+        set send_slow {1 .1}
+        proc send {ignore arg} {
+                sleep .1
+                exp_send -s -- \$arg
+        }
+}
+set timeout -1
+spawn /usr/lib/myemsl/dbcreate.sh -r
+match_max 100000
+expect eof
+  </file>
+  <file name="/etc/slurm/slurm.conf" type="raw">
+ControlMachine=localhost
+ClusterName=localhost
+AuthType=auth/munge
+SelectType=select/cons_res
+SelectTypeParameters=CR_CORE
+PreemptType=preempt/partition_prio
+PreemptMode=SUSPEND,GANG
+NodeName=localhost Procs=1 State=DRAIN
+PartitionName=local Priority=99 Nodes=localhost Default=YES Shared=YES
+PartitionName=lopri Priority=10 Nodes=localhost Shared=YES
+  </file>
+  <file name="/etc/fuse.conf" type="raw">
+user_allow_other
+
+  </file>
+  <file name="/etc/news/readers.conf" type="raw">
+auth "read-write" {
+    hosts: "localhost, 127.0.0.1,IP @IP@"
+    default: "&lt;read-write>@myemsl"
+}
+access "read-write" {
+     users: "&lt;read-write>@myemsl"
+     read: "*"
+     post: "local.myemsl.incoming.notifications"
+}
+  </file>
+  <file name="/root/standalone.gui" type="raw">#!/bin/bash
+mount -o remount,rw /
+sed -i 's/^id:.*:initdefault:$/id:5:initdefault:/' /etc/inittab
+mount -o remount,ro /
+/root/standalone
+  </file>
+  <file name="/etc/httpd/conf.d/proxy.conf" type="raw">
+ProxyRequests On
+&lt;Proxy *>
+	Order deny,allow
+	Deny from all
+	Allow from 127.0.0.1
+&lt;/Proxy>
+  </file>
+  <file name="/root/standalone" type="raw">#!/bin/bash
+mount -o remount,rw /
+mount /boot
+sed -i 's/console=tty.*//' /boot/grub/grub.conf
+umount /boot
+rm /etc/rc.local.ec2
+cat > /etc/rc.local.standalone &lt;&lt;"EOF"
+myemslmount
+myemsloutage -c
+EOF
+chmod +x /etc/rc.local.standalone
+/sbin/chkconfig elasticsearch on
+passwd &amp;&amp; rm -f /root/standalone
+mount -o remount,ro /
+reboot
+  </file>
+  <file name="/etc/rc.local.first.boot" type="raw">#!/bin/bash
+test -f /usr/bin/system-config-display &amp;&amp; /usr/bin/system-config-display --reconfig --noui
+/usr/libexec/myemsl/servergenkeys
+/usr/libexec/myemsl/itemauthgenkeys
+/usr/sbin/create-munge-key
+IP=$(ifconfig eth0 | sed -n 's/.*inet addr:\([^ ]\+\).*/\1/p')
+sed -i 's/@IP@/'$IP'/g' /etc/news/readers.conf
+#Disable safety in postgres for much better performance. This is a devel instance after all...
+echo "fsync = off" >> /var/lib/pgsql/data/postgresql.conf 
+echo "full_page_writes = off" >> /var/lib/pgsql/data/postgresql.conf 
+echo "listen_addresses = '0.0.0.0'" >> /var/lib/pgsql/data/postgresql.conf 
+#echo bindaddress: $IP >> /etc/news/inn.conf
+echo bindaddress: all >> /etc/news/inn.conf
+rm -f /etc/rc.local.first.boot
+  </file>
+  <file name="/etc/rc.local" type="raw">#!/bin/bash -x
+touch /var/lock/subsys/local
+set -x
+[ -x /etc/rc.local.first.boot ] &amp;&amp; /etc/rc.local.first.boot
+if [ -x /etc/rc.local.ec2 ]
+then
+	/etc/rc.local.ec2
+	export EC2=1
+fi
+setenforce permissive
+/etc/init.d/postgresql restart
+/etc/init.d/httpd restart
+/etc/init.d/innd start
+/etc/init.d/munge start
+
+if [ "x$EC2" != "x" ]
+then
+	myemsl_ec2_standalone_service_sync
+	myemslmount
+	myemsloutage -c
+	/etc/init.d/elasticsearch restart
+fi
+if [ -x /etc/rc.local.standalone ]
+then
+	/etc/rc.local.standalone
+fi
+echo done 
+  </file>
+  <file name="/root/setup.local.sh" type="raw">#!/bin/bash
+
+set -xe
+
+yum clean all
+
+cp -f /usr/share/zoneinfo/America/Los_Angeles /etc/localtime 
+sed -i 's/ZONE=.*/ZONE="America\/Los_Angles"/g' /etc/sysconfig/clock
+
+TOREMOVE=`rpm -qa --queryformat '%{NAME}-%{VERSION}-%{RELEASE}.%{ARCH}\n' | grep 'i[36]86$'`
+rpm -e $TOREMOVE
+sed -i 's#plugins=1#plugins=1\nexclude=*.i?86#' /etc/yum.conf
+sed -i 's#^baseurl=.*$#mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=epel-5&amp;arch=$basearch#' /etc/yum.repos.d/epel.repo
+#export http_proxy=
+
+rpm --import /etc/pki/rpm-gpg/*
+
+cat &gt; rpmtransaction &lt;&lt;EOF
+upgrade
+groupinstall "GNOME Desktop Environment" "X Window System" "Development Tools"
+install qt47-devel qt47-webkit-devel sqlite sqlite-devel
+install myemsl-web-services-ssl myemsl-web-services-common myemsl-web-personinfo-ssl \
+           myemsl-cartd myemsl-web-cart-ssl pacifica-web-basicauth \
+           myemsl-web-ingestor-ssl myemsl-web-notify-ssl \
+           myemsl-web-iteminfo-ssl \
+           myemsl-web-query-raw-ssl myemsl-database myemsl-database-schema \
+           myemsl-notification myemsl-devel myemsl-sumcheck \
+           go libbuhfsutil-devel libbuhfsutil \
+           postgresql-server vim-enhanced elinks expect screen glib2-devel libattr-devel \
+           postgresql-devel gdb strace myemsl-devel-doc \
+           fuse-devel libarchive-devel subversion \
+           curl-devel php-devel libxml2-devel libxslt-devel \
+           gdm mercurial firefox iotop reptyr myemsl-elasticsearch-sync \
+           python-devel createrepo elasticsearch myemsl-web-elasticsearch-ssl \
+           myemsl-web-item-ssl myemsl-archive-standalone mod_xsendfile alpine \
+           myemsl-web-query-ssl pacifica-builddeps rubygem-json rubygems \
+           git pacifica-devel-brand-ssl pacifica-devel-brand-common fuse pacifica-test-data
+install go-pacifica-auth pacifica-auth-default-local pacifica-uploader pacifica-auth libpacificaauth-devel
+run -y
+EOF
+#install mongo-10gen mongo-10gen-server
+yum shell &lt; &lt;(cat rpmtransaction; echo Y)
+
+#FIXME add these back later.
+# rubygem-addressable rubygem-chunky_png rubygem-sass rubygem-compass rubygem-fssm
+
+ln -s /etc/xdg/Pacifica /usr/lib64/qt47/etc
+
+/usr/sbin/adduser -G fuse svc-myemsl
+
+echo "index.gateway.local.sync: -1" >> /etc/elasticsearch/elasticsearch.yml
+
+chmod +x /tmp/dbcreate.sh
+/tmp/dbcreate.sh
+
+chkconfig munge off
+chkconfig innd off
+chkconfig elasticsearch off
+chkconfig myemsl_elasticsearch on
+chkconfig pacificauploaderd on
+
+echo '%rhel 5' > /etc/rpm/macros.dist
+
+sed -i 's:\(127.0.0.1/32[ \t]*\)ident:\1password:g' /var/lib/pgsql/data/pg_hba.conf
+IP=$(ifconfig eth0 | sed -n 's/.*inet addr:\([^ ]\+\).*/\1/p')
+cp -a /var/lib/pgsql/data/pg_hba.conf /var/lib/pgsql/data/pg_hba.conf.bak
+echo 'host all all '$IP'/32 password' >> /var/lib/pgsql/data/pg_hba.conf
+echo 'enabling: host all all '$IP'/32 password'
+ifconfig
+/etc/init.d/postgresql restart
+myemsldbadm -c "insert into eus.users(person_id, network_id, email_address) values(1, 'test1', 'testuser1@nowhere.com');"
+myemsldbadm -c "insert into eus.users(person_id, network_id, email_address) values(2, 'test2', 'testuser2@nowhere.com');"
+myemsldbadm -c "insert into eus.users(person_id, network_id, email_address) values(3, 'test3', 'testuser3@nowhere.com');"
+chmod +x /root/pacifica_test_permissions
+/root/pacifica_test_permissions
+mv /var/lib/pgsql/data/pg_hba.conf.bak /var/lib/pgsql/data/pg_hba.conf
+htpasswd -c -b /etc/myemsl/htpasswd test1 testpw1
+htpasswd -b /etc/myemsl/htpasswd test2 testpw2
+htpasswd -b /etc/myemsl/htpasswd test3 testpw3
+mkdir -p /srv/pacifica-testupload/instrument-1
+mkdir -p /srv/pacifica-testupload/instrument-2
+mkdir -p /srv/pacifica-testupload/instrument-3
+cp -a /usr/share/pacifica/testdata/data/ds1/* /srv/pacifica-testupload/instrument-1
+
+/etc/init.d/innd start
+sleep 2
+/usr/lib/news/bin/ctlinnd newgroup local.myemsl.incoming.notifications
+mv /etc/news/incoming.conf /etc/news/incoming.conf.orig
+cat > /etc/news/incoming.conf &lt;&lt;ENOF
+streaming:              true
+max-connections:        8
+ENOF
+/etc/init.d/innd stop
+
+mkdir -p /var/lib/pacifica/uploader/config
+chmod 700 /var/lib/pacifica/uploader/config
+chmod 755 /var/lib/pacifica/uploader
+chmod 755 /var/lib/pacifica
+cat > /var/lib/pacifica/uploader/config/MA==.json &lt;&lt;ENOF
+{
+	"Rules": [
+		{
+			"Name": "Instrument 1",
+			"Paths": [
+				"/srv/pacifica-testupload"
+			],
+			"StaticMetadata": [],
+			"ExcludePatterns": [],
+			"RenamePatterns": [],
+			"MetadataPattern": [
+				{
+					"Pattern": "^/srv/pacifica-testupload/instrument-(?P\u003cinstrument\u003e[0-9]*)/.*",
+					"Group": [
+						{
+							"Pattern": "instrument",
+							"Value": "instrument"
+						}
+					]
+				}
+			],
+			"AutoSubmit": false,
+			"AutoDelete": false
+		}
+	]
+}
+ENOF
+cat > /usr/share/doc/myemsl-devel/vm.html &lt;&lt;ENOF
+&lt;html>
+&lt;body>
+&lt;h2>&lt;p>Welcome to the Pacifica Testing/Development Virtual Machine.&lt;/p>&lt;/h2>
+&lt;hr />
+&lt;p>To access the local instance's website, &lt;a href="https://localhost/myemsl/search/simple">click here&lt;/a>. Note, you will be prompted to accept a locally signed certificate. This is ok.&lt;/p>
+&lt;p>There are three test users provided by default:&lt;/p>
+&lt;table border="1">
+        &lt;tr>
+                &lt;td>Username&lt;/td>
+                &lt;td>Password&lt;/td>
+        &lt;/tr>
+        &lt;tr>
+                &lt;td>test1&lt;/td>
+                &lt;td>testpw1&lt;/td>
+        &lt;/tr>
+        &lt;tr>
+                &lt;td>test2&lt;/td>
+                &lt;td>testpw2&lt;/td>
+        &lt;/tr>
+        &lt;tr>
+                &lt;td>test3&lt;/td>
+                &lt;td>testpw3&lt;/td>
+        &lt;/tr>
+&lt;/table>
+&lt;hr />
+&lt;p>To access the developer documentation, &lt;a href="file:///usr/share/doc/myemsl-devel/index.html">click here&lt;/a>&lt;/p>
+&lt;hr />
+&lt;p>To access the Pacifica ElasticSearch metadata database, click here &lt;a href="http://localhost:9200/_plugin/head/">Here&lt;/a>.&lt;/p>
+&lt;/body>
+&lt;/html>
+ENOF
+
+/usr/share/java/elasticsearch/bin/plugin -install mobz/elasticsearch-head
+
+sed -i 's/SELINUX=enforcing/SELINUX=permissive/' /etc/sysconfig/selinux
+
+echo local.myemsl.incoming.notifications > /etc/news/subscriptions
+
+sed -i 's/rhgb quiet/console=ttyS0/' /boot/grub/grub.conf
+awk '{if(/^title/){if(!seen){print; seen=1}else{seen=2}} else if(seen==1){print}}' /boot/grub/grub.conf | sed 's/console=ttyS0.*/init=\/root\/standalone/' | sed 's/^title.*/title Standalone Configure/' > /tmp/grub.conf
+awk '{if(/^title/){if(!seen){print; seen=1}else{seen=2}} else if(seen==1){print}}' /boot/grub/grub.conf | sed 's/console=ttyS0.*/init=\/root\/standalone.gui/' | sed 's/^title.*/title Standalone GUI Configure/' >> /tmp/grub.conf
+cat /tmp/grub.conf >> /boot/grub/grub.conf
+rm /tmp/grub.conf
+
+mkdir -p /srv/myemsl-ingest
+chown svc-myemsl.svc-myemsl /srv/myemsl-ingest
+
+sed -i 's:ssl_verify_peer.*:ssl_verify_peer=False:' /etc/myemsl/general.ini
+sed -i 's:ssl_verify_host.*:ssl_verify_host=False:' /etc/myemsl/general.ini
+
+echo >> /etc/fuse.conf
+
+chmod +x /root/standalone
+chmod +x /root/standalone.gui
+chmod +x /etc/rc.local.first.boot
+chmod +x /etc/rc.local.ec2
+
+chkconfig --level 35 httpd on
+chkconfig --level 35 munge on
+chkconfig --level 35 postgresql on
+chkconfig --level 35 innd on
+chkconfig --level 5 elasticsearch on
+  </file>
+ </files>
+ <commands>
+   <command name='setup-rc-local'>
+exec 1>/root/setup.log
+exec 2>&amp;1
+bash /root/setup.local.sh -x
+echo $? > /root/setup.ok
+exit $?
+   </command>
+ </commands>
+</template>

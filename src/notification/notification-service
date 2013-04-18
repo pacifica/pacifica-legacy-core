@@ -1,0 +1,72 @@
+#!/bin/sh
+#
+# notification-service Start/stop myemsl notification service
+#
+# chkconfig:  345 99 01
+# description: myemsl email notification service
+
+# Author: Brock Erwin
+
+# Generic startup scripts
+RETVAL=0
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+# Source networking configuration.
+. /etc/sysconfig/network
+
+pidfile=${PIDFILE-/var/run/emsl-notify.pid}
+name=emsl-notify
+program=$name
+logbase=/var/log/myemsl
+logfile=${logbase}/emsl-notify.log
+lockfile=${LOCKFILE-/var/lock/subsys/emsl-notify}
+STOP_TIMEOUT=${STOP_TIMEOUT-10}
+
+mkdir -p ${logbase}
+mkdir -p /var/lib/myemsl
+
+start() {
+	echo -n "Starting ${name}: "
+	python -u $(which $program) > ${logfile} 2>&1 &
+	pid=$!
+	echo $pid > $pidfile
+	checkpid $pid
+	RETVAL=$?
+	[ $RETVAL = 0 ] && touch ${lockfile} && echo OK || echo FAILED
+	return $RETVAL
+}
+stop() {
+	echo -n "Shutting down ${name}: "
+	killproc -p ${pidfile} -d ${STOP_TIMEOUT} $program
+	RETVAL=$?
+	echo
+	[ $RETVAL = 0 ] && rm -f ${lockfile} ${pidfile}
+}
+# See how we were called.
+case "$1" in
+  start)
+    checkpid $(cat ${pidfile})
+    [ $? = 0 ] && echo $name already running\! || start
+    ;;
+  stop)
+    stop
+    ;;
+  status)
+    status -p ${pidfile} $program
+    RETVAL=$?
+    ;;
+  restart)
+    stop
+    start
+    RETVAL=$?
+    echo
+    ;;
+  *)
+    echo "Usage: ${name} {start|stop|restart|status}"
+    exit 1
+esac
+
+exit $RETVAL
+

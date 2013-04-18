@@ -1,0 +1,16 @@
+<!--#include virtual="/myemsl/brand/brand_header.inc"-->
+		<link rel="stylesheet" href="/myemsl/api/1/myemsl-widgets.css" type="text/css" media="all"></link>
+		<link rel="stylesheet" href="/myemsl/api/1/css/ui-lightness/jquery-ui.min.css" type="text/css" media="all"></link>
+		<script src="/myemsl/api/1/require.js"></script>
+		<script src="/myemsl/api/1/myemsl-widgets-main.js"></script>
+		<script type="text/javascript">
+			require(['myemsl.generic-input-plus-finder'], function(m) {
+				$('#foo').myemslInputPlusFinder({'widget':'proposal'});
+			});
+		</script>
+	<!--#include virtual="/myemsl/brand/brand_middle.inc"-->
+		<div>Please enter a proposal for what you are doing...</div>
+				<input id="foo">
+		<br/><br/>
+		<div>Some more text here...</div>
+<!--#include virtual="/myemsl/brand/brand_footer.inc"-->

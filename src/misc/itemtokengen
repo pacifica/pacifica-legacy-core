@@ -1,0 +1,30 @@
+#!/usr/bin/python
+
+import sys
+import time
+import myemsl.token
+import myemsl.token.uuid as mtuuid
+import myemsl.token.rfc3339enc as rfc3339enc
+
+from optparse import OptionParser
+
+parser = OptionParser()
+parser.add_option("-u", "--uuid", dest="uuid", help="MyEMSL Instance UUID", default=None)
+parser.add_option("-i", "--items", dest="items", help="Comma separated list of item IDs", default=None)
+parser.add_option("-d", "--duration", dest="duration", help="Duration in seconds", default=60*60)
+
+(options, args) = parser.parse_args()
+if options.uuid == None:
+	sys.stderr.write("You must specify an instance uuid with -u\n")
+	sys.exit(-1)
+if options.items == None:
+	sys.stderr.write("You must specify items with -i\n")
+	sys.exit(-1)
+
+uuid = mtuuid.encode(options.uuid)
+items = [int(i.strip()) for i in options.items.split(',')]
+duration = int(options.duration)
+
+js = {'s':rfc3339enc.rfc3339(time.time()), 'd':duration, 'u':uuid, 'i':items, 'o':0}
+stok = myemsl.token.token_gen(js, '')
+print stok

@@ -1,0 +1,22 @@
+<html>
+<body>
+<p>Authentication is currently abstracted in MyEMSL. To get credentials for MyEMSL, install the appropriate MyEMSL Auth package for your system. To develop against it, also install the MyEMSL Auth SDK.</p>
+
+<p>If at all possible, use the programming language specific helper library provided by the SDK for your language. The api will provide you with a location to the various services in a hash. Please access the services through that url instead of hardcoding.</p>
+
+<p>If a suitable library does not exist, the raw authentication protocol is defined below for you to program against:</p>
+
+<ol>
+	<li>Use your languages facility to execute the program "pacificaauth"</li>
+	<li>If the return value of step one is not 0, an error occurred or the user canceled authentication. Do not proceed to process credentials.</li>
+	<li>Process the stdout stream from "pacificaauth" using the following rules:
+	<ol>
+		<li>Each line resembles an HTTP header.</li>
+		<li>Keep track of "URL: &lt;url&gt;" lines. When parsing Set-Cookie headers, the URL location is the location to which the set cookie request came from.</li>
+	</ol></li>
+	<li>"Set-Cookie: &lt;cookiedata&gt;" lines need to be loaded into your cookie jar using the URL specified in URL lines. The cookie jar must be passed with all MyEMSL service requests.</li>
+	<li>Lines starting with "Service:" should have the "name=url" pairs stored in a hash. These contain the URL's to various MyEMSL services.</li>
+	<li>When done with your session, remember to log it out using the "logout" service.</li>
+</ol>
+</body>
+</html>

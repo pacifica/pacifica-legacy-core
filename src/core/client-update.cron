@@ -1,0 +1,16 @@
+#!/bin/bash
+
+clientdir=/var/www/myemsl/client/rhel/5Client/x86_64
+
+if [ ! -d $clientdir ]
+then
+	mkdir -p $clientdir
+	chown --recursive apache.apache /var/www/myemsl/client
+fi
+
+umask 0022
+
+yumdownloader --destdir=$clientdir myemsl-client myemsl-release
+pushd $clientdir > /dev/null &&
+createrepo . &&
+popd > /dev/null

@@ -1,0 +1,8 @@
+<Location /myemsl/getuser>
+	Options Indexes FollowSymLinks MultiViews
+	Order deny,allow
+#FIXME need to do tigher auth for this service.
+	SetHandler mod_python
+	PythonInterpreter main_interpreter
+	PythonHandler myemsl.handler.getuser
+</Location>

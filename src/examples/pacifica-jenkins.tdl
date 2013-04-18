@@ -1,0 +1,1368 @@
+<template>
+ <disk>
+  <size>32</size>
+ </disk>
+ <name>pacifica-jenkins</name>
+ <description>Pacifica Jenkins x86_64 template</description>
+ <os>
+  <name>RHEL-6</name>
+  <version>4</version>
+  <arch>x86_64</arch>
+  <install type='url'>
+   <url>http://mirror.serversurgeon.com/centos/6.4/os/x86_64/</url>
+  </install>
+  <rootpw>test</rootpw>
+ </os>
+ <repositories>
+    <repository name="epel-6">
+      <url>http://download.fedoraproject.org/pub/epel/6/x86_64</url>
+      <signed>no</signed>
+    </repository>
+    <repository name='jenkins'>
+      <url>http://pkg.jenkins-ci.org/redhat</url>
+      <signed>no</signed>
+    </repository>
+ </repositories>
+ <packages>
+<!-- Cache -->
+   <package name="squid" />
+   <package name="mod_php" />
+<!-- Image building -->
+   <package name="oz" />
+   <package name="guestfish" />
+<!-- Service Poke -->
+   <package name="automake" />
+   <package name="autoconf" />
+   <package name="libtool" />
+   <package name="swig" />
+   <package name="python-devel" />
+   <package name="glib2-devel" />
+<!-- BUHFS -->
+   <package name="fuse-devel" />
+   <package name="libattr-devel" />
+<!-- MyEMSL Core -->
+   <package name="libarchive-devel" />
+<!-- End Service Poke -->
+   <package name="make" />
+   <package name="screen" />
+   <package name="vim" />
+   <package name="subversion" />
+   <package name="git" />
+   <package name="epel-release" />
+   <package name="cloud-init" />
+   <package name="jenkins" />
+   <package name="mock" />
+   <package name="java-1.7.0-openjdk" />
+   <package name="dejavu-sans-fonts" />
+   <package name="httpd" />
+   <package name="rpmdevtools" />
+ </packages>
+ <files>
+  <file name="/root/pacifica-devel-vm-config.xml" type="raw">&lt;?xml version='1.0' encoding='UTF-8'?>
+&lt;project>
+  &lt;actions/>
+  &lt;description>&lt;/description>
+  &lt;keepDependencies>false&lt;/keepDependencies>
+  &lt;properties/>
+  &lt;scm class="hudson.scm.NullSCM"/>
+  &lt;canRoam>true&lt;/canRoam>
+  &lt;disabled>false&lt;/disabled>
+  &lt;blockBuildWhenDownstreamBuilding>false&lt;/blockBuildWhenDownstreamBuilding>
+  &lt;blockBuildWhenUpstreamBuilding>false&lt;/blockBuildWhenUpstreamBuilding>
+  &lt;triggers class="vector"/>
+  &lt;concurrentBuild>false&lt;/concurrentBuild>
+  &lt;builders>
+    &lt;hudson.tasks.Shell>
+      &lt;command>cat /var/lib/jenkins/jobs/myemsl-core/workspace/DIST/epel-5-x86_64/src/examples/pacifica-devel-standalone.tdl | sed &apos;s^#export http_proxy=.*^export http_proxy=&quot;http://user:&apos;`cat /var/lib/jenkins/squidpw | python -c &quot;import urllib; import sys; print urllib.quote(sys.stdin.readline().strip(),safe='')&quot;`&apos;@192.168.123.1:3128&quot;^&apos; &gt; pacifica-devel-standalone.tdl
+env
+sudo /usr/bin/oz-install -d3 -u -p -s `pwd`/pacifica-devel-standalone.dsk -t 10000 -x pacifica-devel-standalone.xml pacifica-devel-standalone.tdl
+virt-copy-out -a pacifica-devel-standalone.dsk /root/setup.log .
+virt-copy-out -a pacifica-devel-standalone.dsk /root/setup.ok .
+if [ `cat setup.ok` -ne 0 ]; then
+    cat setup.log
+    exit 1
+fi
+&lt;/command>
+    &lt;/hudson.tasks.Shell>
+  &lt;/builders>
+  &lt;publishers/>
+  &lt;buildWrappers/>
+&lt;/project>
+  </file>
+  <file name="/root/pacifica-test-data-config.xml" type="raw">&lt;?xml version='1.0' encoding='UTF-8'?>
+&lt;matrix-project>
+  &lt;actions/>
+  &lt;description>&lt;/description>
+  &lt;keepDependencies>false&lt;/keepDependencies>
+  &lt;properties/>
+  &lt;scm class="hudson.plugins.git.GitSCM" plugin="git@1.3.0">
+    &lt;configVersion>2&lt;/configVersion>
+    &lt;userRemoteConfigs>
+      &lt;hudson.plugins.git.UserRemoteConfig>
+        &lt;name>&lt;/name>
+        &lt;refspec>&lt;/refspec>
+        &lt;url>https://github.com/EMSL-MSC/pacifica-test-data.git&lt;/url>
+      &lt;/hudson.plugins.git.UserRemoteConfig>
+    &lt;/userRemoteConfigs>
+    &lt;branches>
+      &lt;hudson.plugins.git.BranchSpec>
+        &lt;name>**&lt;/name>
+      &lt;/hudson.plugins.git.BranchSpec>
+    &lt;/branches>
+    &lt;disableSubmodules>false&lt;/disableSubmodules>
+    &lt;recursiveSubmodules>false&lt;/recursiveSubmodules>
+    &lt;doGenerateSubmoduleConfigurations>false&lt;/doGenerateSubmoduleConfigurations>
+    &lt;authorOrCommitter>false&lt;/authorOrCommitter>
+    &lt;clean>false&lt;/clean>
+    &lt;wipeOutWorkspace>false&lt;/wipeOutWorkspace>
+    &lt;pruneBranches>false&lt;/pruneBranches>
+    &lt;remotePoll>false&lt;/remotePoll>
+    &lt;ignoreNotifyCommit>false&lt;/ignoreNotifyCommit>
+    &lt;useShallowClone>false&lt;/useShallowClone>
+    &lt;buildChooser class="hudson.plugins.git.util.DefaultBuildChooser"/>
+    &lt;gitTool>Default&lt;/gitTool>
+    &lt;submoduleCfg class="list"/>
+    &lt;relativeTargetDir>&lt;/relativeTargetDir>
+    &lt;reference>&lt;/reference>
+    &lt;excludedRegions>&lt;/excludedRegions>
+    &lt;excludedUsers>&lt;/excludedUsers>
+    &lt;gitConfigName>&lt;/gitConfigName>
+    &lt;gitConfigEmail>&lt;/gitConfigEmail>
+    &lt;skipTag>false&lt;/skipTag>
+    &lt;includedRegions>&lt;/includedRegions>
+    &lt;scmName>&lt;/scmName>
+  &lt;/scm>
+  &lt;canRoam>true&lt;/canRoam>
+  &lt;disabled>false&lt;/disabled>
+  &lt;blockBuildWhenDownstreamBuilding>false&lt;/blockBuildWhenDownstreamBuilding>
+  &lt;blockBuildWhenUpstreamBuilding>false&lt;/blockBuildWhenUpstreamBuilding>
+  &lt;triggers class="vector">
+    &lt;hudson.triggers.SCMTrigger>
+      &lt;spec>5 * * * *&lt;/spec>
+      &lt;ignorePostCommitHooks>false&lt;/ignorePostCommitHooks>
+    &lt;/hudson.triggers.SCMTrigger>
+  &lt;/triggers>
+  &lt;concurrentBuild>false&lt;/concurrentBuild>
+  &lt;axes>
+    &lt;hudson.matrix.TextAxis>
+      &lt;name>DIST&lt;/name>
+      &lt;values>
+        &lt;string>epel-5-x86_64&lt;/string>
+        &lt;string>epel-6-x86_64&lt;/string>
+        &lt;string>fedora-18-x86_64&lt;/string>
+      &lt;/values>
+    &lt;/hudson.matrix.TextAxis>
+  &lt;/axes>
+  &lt;builders>
+    &lt;hudson.tasks.Shell>
+      &lt;command>export CREATEREPOOPTS=
+if [ &quot;$DIST&quot; = &quot;epel-5-x86_64&quot; ]; then export CREATEREPOOPTS=&apos;-s sha&apos;; fi
+make MOCKDIST=&quot;$DIST&quot; mock
+cp -a packages/&quot;$DIST&quot;/bin/* /var/lib/jenkins/&quot;$DIST&quot;/
+createrepo $CREATEREPOOPTS /var/lib/jenkins/&quot;$DIST&quot;/
+&lt;/command>
+    &lt;/hudson.tasks.Shell>
+  &lt;/builders>
+  &lt;publishers/>
+  &lt;buildWrappers/>
+  &lt;executionStrategy class="hudson.matrix.DefaultMatrixExecutionStrategyImpl">
+    &lt;runSequentially>false&lt;/runSequentially>
+  &lt;/executionStrategy>
+&lt;/matrix-project>
+  </file>
+  <file name="/root/views-config.xml" type="raw">
+    &lt;listView>
+      &lt;owner class="hudson" reference="../../.."/>
+      &lt;name>pacifica-deps&lt;/name>
+      &lt;filterExecutors>false&lt;/filterExecutors>
+      &lt;filterQueue>false&lt;/filterQueue>
+      &lt;properties class="hudson.model.View$PropertyList"/>
+      &lt;jobNames>
+        &lt;comparator class="hudson.util.CaseInsensitiveComparator"/>
+        &lt;string>amalgam&lt;/string>
+        &lt;string>elasticsearch&lt;/string>
+        &lt;string>elasticsearch-download&lt;/string>
+        &lt;string>go&lt;/string>
+        &lt;string>libbuhfsutil&lt;/string>
+        &lt;string>qt47&lt;/string>
+        &lt;string>service-poke&lt;/string>
+        &lt;string>slurm&lt;/string>
+      &lt;/jobNames>
+      &lt;jobFilters/>
+      &lt;columns>
+        &lt;hudson.views.StatusColumn/>
+        &lt;hudson.views.WeatherColumn/>
+        &lt;hudson.views.JobColumn/>
+        &lt;hudson.views.LastSuccessColumn/>
+        &lt;hudson.views.LastFailureColumn/>
+        &lt;hudson.views.LastDurationColumn/>
+        &lt;hudson.views.BuildButtonColumn/>
+      &lt;/columns>
+    &lt;/listView>
+    &lt;listView>
+      &lt;owner class="hudson" reference="../../.."/>
+      &lt;name>pacifica-common&lt;/name>
+      &lt;filterExecutors>false&lt;/filterExecutors>
+      &lt;filterQueue>false&lt;/filterQueue>
+      &lt;properties class="hudson.model.View$PropertyList"/>
+      &lt;jobNames>
+        &lt;comparator class="hudson.util.CaseInsensitiveComparator" reference="../../../listView/jobNames/comparator"/>
+        &lt;string>pacifica-auth&lt;/string>
+        &lt;string>pacifica-builddeps&lt;/string>
+      &lt;/jobNames>
+      &lt;jobFilters/>
+      &lt;columns>
+        &lt;hudson.views.StatusColumn/>
+        &lt;hudson.views.WeatherColumn/>
+        &lt;hudson.views.JobColumn/>
+        &lt;hudson.views.LastSuccessColumn/>
+        &lt;hudson.views.LastFailureColumn/>
+        &lt;hudson.views.LastDurationColumn/>
+        &lt;hudson.views.BuildButtonColumn/>
+      &lt;/columns>
+    &lt;/listView>
+    &lt;listView>
+      &lt;owner class="hudson" reference="../../.."/>
+      &lt;name>pacifica-server&lt;/name>
+      &lt;filterExecutors>false&lt;/filterExecutors>
+      &lt;filterQueue>false&lt;/filterQueue>
+      &lt;properties class="hudson.model.View$PropertyList"/>
+      &lt;jobNames>
+        &lt;comparator class="hudson.util.CaseInsensitiveComparator" reference="../../../listView/jobNames/comparator"/>
+        &lt;string>myemsl-core&lt;/string>
+        &lt;string>pacifica-devel-brand&lt;/string>
+        &lt;string>pacifica-web-basicauth&lt;/string>
+      &lt;/jobNames>
+      &lt;jobFilters/>
+      &lt;columns>
+        &lt;hudson.views.StatusColumn/>
+        &lt;hudson.views.WeatherColumn/>
+        &lt;hudson.views.JobColumn/>
+        &lt;hudson.views.LastSuccessColumn/>
+        &lt;hudson.views.LastFailureColumn/>
+        &lt;hudson.views.LastDurationColumn/>
+        &lt;hudson.views.BuildButtonColumn/>
+      &lt;/columns>
+    &lt;/listView>
+    &lt;listView>
+      &lt;owner class="hudson" reference="../../.."/>
+      &lt;name>pacifica-uploader&lt;/name>
+      &lt;filterExecutors>false&lt;/filterExecutors>
+      &lt;filterQueue>false&lt;/filterQueue>
+      &lt;properties class="hudson.model.View$PropertyList"/>
+      &lt;jobNames>
+        &lt;comparator class="hudson.util.CaseInsensitiveComparator" reference="../../../listView/jobNames/comparator"/>
+        &lt;string>pacifica-uploader&lt;/string>
+      &lt;/jobNames>
+      &lt;jobFilters/>
+      &lt;columns>
+        &lt;hudson.views.StatusColumn/>
+        &lt;hudson.views.WeatherColumn/>
+        &lt;hudson.views.JobColumn/>
+        &lt;hudson.views.LastSuccessColumn/>
+        &lt;hudson.views.LastFailureColumn/>
+        &lt;hudson.views.LastDurationColumn/>
+        &lt;hudson.views.BuildButtonColumn/>
+      &lt;/columns>
+    &lt;/listView>
+  </file>
+  <file name="/root/pacifica-web-basicauth-config.xml" type="raw">&lt;?xml version='1.0' encoding='UTF-8'?>
+&lt;matrix-project>
+  &lt;actions/>
+  &lt;description>&lt;/description>
+  &lt;keepDependencies>false&lt;/keepDependencies>
+  &lt;properties/>
+  &lt;scm class="hudson.plugins.git.GitSCM" plugin="git@1.3.0">
+    &lt;configVersion>2&lt;/configVersion>
+    &lt;userRemoteConfigs>
+      &lt;hudson.plugins.git.UserRemoteConfig>
+        &lt;name>&lt;/name>
+        &lt;refspec>&lt;/refspec>
+        &lt;url>https://github.com/EMSL-MSC/pacifica-web-basicauth.git&lt;/url>
+      &lt;/hudson.plugins.git.UserRemoteConfig>
+    &lt;/userRemoteConfigs>
+    &lt;branches>
+      &lt;hudson.plugins.git.BranchSpec>
+        &lt;name>**&lt;/name>
+      &lt;/hudson.plugins.git.BranchSpec>
+    &lt;/branches>
+    &lt;disableSubmodules>false&lt;/disableSubmodules>
+    &lt;recursiveSubmodules>false&lt;/recursiveSubmodules>
+    &lt;doGenerateSubmoduleConfigurations>false&lt;/doGenerateSubmoduleConfigurations>
+    &lt;authorOrCommitter>false&lt;/authorOrCommitter>
+    &lt;clean>false&lt;/clean>
+    &lt;wipeOutWorkspace>false&lt;/wipeOutWorkspace>
+    &lt;pruneBranches>false&lt;/pruneBranches>
+    &lt;remotePoll>false&lt;/remotePoll>
+    &lt;ignoreNotifyCommit>false&lt;/ignoreNotifyCommit>
+    &lt;useShallowClone>false&lt;/useShallowClone>
+    &lt;buildChooser class="hudson.plugins.git.util.DefaultBuildChooser"/>
+    &lt;gitTool>Default&lt;/gitTool>
+    &lt;submoduleCfg class="list"/>
+    &lt;relativeTargetDir>&lt;/relativeTargetDir>
+    &lt;reference>&lt;/reference>
+    &lt;excludedRegions>&lt;/excludedRegions>
+    &lt;excludedUsers>&lt;/excludedUsers>
+    &lt;gitConfigName>&lt;/gitConfigName>
+    &lt;gitConfigEmail>&lt;/gitConfigEmail>
+    &lt;skipTag>false&lt;/skipTag>
+    &lt;includedRegions>&lt;/includedRegions>
+    &lt;scmName>&lt;/scmName>
+  &lt;/scm>
+  &lt;canRoam>true&lt;/canRoam>
+  &lt;disabled>false&lt;/disabled>
+  &lt;blockBuildWhenDownstreamBuilding>false&lt;/blockBuildWhenDownstreamBuilding>
+  &lt;blockBuildWhenUpstreamBuilding>false&lt;/blockBuildWhenUpstreamBuilding>
+  &lt;triggers class="vector">
+    &lt;hudson.triggers.SCMTrigger>
+      &lt;spec>5 * * * *&lt;/spec>
+      &lt;ignorePostCommitHooks>false&lt;/ignorePostCommitHooks>
+    &lt;/hudson.triggers.SCMTrigger>
+  &lt;/triggers>
+  &lt;concurrentBuild>false&lt;/concurrentBuild>
+  &lt;axes>
+    &lt;hudson.matrix.TextAxis>
+      &lt;name>DIST&lt;/name>
+      &lt;values>
+        &lt;string>epel-5-x86_64&lt;/string>
+        &lt;string>epel-6-x86_64&lt;/string>
+        &lt;string>fedora-18-x86_64&lt;/string>
+      &lt;/values>
+    &lt;/hudson.matrix.TextAxis>
+  &lt;/axes>
+  &lt;builders>
+    &lt;hudson.tasks.Shell>
+      &lt;command>export CREATEREPOOPTS=
+if [ &quot;$DIST&quot; = &quot;epel-5-x86_64&quot; ]; then export CREATEREPOOPTS=&apos;-s sha&apos;; fi
+make MOCKDIST=&quot;$DIST&quot; mock
+cp -a packages/&quot;$DIST&quot;/bin/* /var/lib/jenkins/&quot;$DIST&quot;/
+createrepo $CREATEREPOOPTS /var/lib/jenkins/&quot;$DIST&quot;/
+&lt;/command>
+    &lt;/hudson.tasks.Shell>
+  &lt;/builders>
+  &lt;publishers/>
+  &lt;buildWrappers/>
+  &lt;executionStrategy class="hudson.matrix.DefaultMatrixExecutionStrategyImpl">
+    &lt;runSequentially>false&lt;/runSequentially>
+  &lt;/executionStrategy>
+&lt;/matrix-project>
+  </file>
+  <file name="/root/pacifica-devel-brand-config.xml" type="raw">&lt;?xml version='1.0' encoding='UTF-8'?>
+&lt;matrix-project>
+  &lt;actions/>
+  &lt;description>&lt;/description>
+  &lt;keepDependencies>false&lt;/keepDependencies>
+  &lt;properties/>
+  &lt;scm class="hudson.plugins.git.GitSCM" plugin="git@1.3.0">
+    &lt;configVersion>2&lt;/configVersion>
+    &lt;userRemoteConfigs>
+      &lt;hudson.plugins.git.UserRemoteConfig>
+        &lt;name>&lt;/name>
+        &lt;refspec>&lt;/refspec>
+        &lt;url>https://github.com/EMSL-MSC/pacifica-devel-brand.git&lt;/url>
+      &lt;/hudson.plugins.git.UserRemoteConfig>
+    &lt;/userRemoteConfigs>
+    &lt;branches>
+      &lt;hudson.plugins.git.BranchSpec>
+        &lt;name>**&lt;/name>
+      &lt;/hudson.plugins.git.BranchSpec>
+    &lt;/branches>
+    &lt;disableSubmodules>false&lt;/disableSubmodules>
+    &lt;recursiveSubmodules>false&lt;/recursiveSubmodules>
+    &lt;doGenerateSubmoduleConfigurations>false&lt;/doGenerateSubmoduleConfigurations>
+    &lt;authorOrCommitter>false&lt;/authorOrCommitter>
+    &lt;clean>false&lt;/clean>
+    &lt;wipeOutWorkspace>false&lt;/wipeOutWorkspace>
+    &lt;pruneBranches>false&lt;/pruneBranches>
+    &lt;remotePoll>false&lt;/remotePoll>
+    &lt;ignoreNotifyCommit>false&lt;/ignoreNotifyCommit>
+    &lt;useShallowClone>false&lt;/useShallowClone>
+    &lt;buildChooser class="hudson.plugins.git.util.DefaultBuildChooser"/>
+    &lt;gitTool>Default&lt;/gitTool>
+    &lt;submoduleCfg class="list"/>
+    &lt;relativeTargetDir>&lt;/relativeTargetDir>
+    &lt;reference>&lt;/reference>
+    &lt;excludedRegions>&lt;/excludedRegions>
+    &lt;excludedUsers>&lt;/excludedUsers>
+    &lt;gitConfigName>&lt;/gitConfigName>
+    &lt;gitConfigEmail>&lt;/gitConfigEmail>
+    &lt;skipTag>false&lt;/skipTag>
+    &lt;includedRegions>&lt;/includedRegions>
+    &lt;scmName>&lt;/scmName>
+  &lt;/scm>
+  &lt;canRoam>true&lt;/canRoam>
+  &lt;disabled>false&lt;/disabled>
+  &lt;blockBuildWhenDownstreamBuilding>false&lt;/blockBuildWhenDownstreamBuilding>
+  &lt;blockBuildWhenUpstreamBuilding>false&lt;/blockBuildWhenUpstreamBuilding>
+  &lt;triggers class="vector">
+    &lt;hudson.triggers.SCMTrigger>
+      &lt;spec>5 * * * *&lt;/spec>
+      &lt;ignorePostCommitHooks>false&lt;/ignorePostCommitHooks>
+    &lt;/hudson.triggers.SCMTrigger>
+  &lt;/triggers>
+  &lt;concurrentBuild>false&lt;/concurrentBuild>
+  &lt;axes>
+    &lt;hudson.matrix.TextAxis>
+      &lt;name>DIST&lt;/name>
+      &lt;values>
+        &lt;string>epel-5-x86_64&lt;/string>
+        &lt;string>epel-6-x86_64&lt;/string>
+        &lt;string>fedora-18-x86_64&lt;/string>
+      &lt;/values>
+    &lt;/hudson.matrix.TextAxis>
+  &lt;/axes>
+  &lt;builders>
+    &lt;hudson.tasks.Shell>
+      &lt;command>export CREATEREPOOPTS=
+if [ &quot;$DIST&quot; = &quot;epel-5-x86_64&quot; ]; then export CREATEREPOOPTS=&apos;-s sha&apos;; fi
+make MOCKDIST=&quot;$DIST&quot; mock
+cp -a packages/&quot;$DIST&quot;/bin/* /var/lib/jenkins/&quot;$DIST&quot;/
+createrepo $CREATEREPOOPTS /var/lib/jenkins/&quot;$DIST&quot;/
+&lt;/command>
+    &lt;/hudson.tasks.Shell>
+  &lt;/builders>
+  &lt;publishers/>
+  &lt;buildWrappers/>
+  &lt;executionStrategy class="hudson.matrix.DefaultMatrixExecutionStrategyImpl">
+    &lt;runSequentially>false&lt;/runSequentially>
+  &lt;/executionStrategy>
+&lt;/matrix-project>
+  </file>
+  <file name="/root/pacifica-auth-config.xml" type="raw">&lt;?xml version='1.0' encoding='UTF-8'?>
+&lt;matrix-project>
+  &lt;actions/>
+  &lt;description>&lt;/description>
+  &lt;keepDependencies>false&lt;/keepDependencies>
+  &lt;properties/>
+  &lt;scm class="hudson.plugins.git.GitSCM" plugin="git@1.3.0">
+    &lt;configVersion>2&lt;/configVersion>
+    &lt;userRemoteConfigs>
+      &lt;hudson.plugins.git.UserRemoteConfig>
+        &lt;name>&lt;/name>
+        &lt;refspec>&lt;/refspec>
+        &lt;url>https://github.com/EMSL-MSC/pacifica-auth.git&lt;/url>
+      &lt;/hudson.plugins.git.UserRemoteConfig>
+    &lt;/userRemoteConfigs>
+    &lt;branches>
+      &lt;hudson.plugins.git.BranchSpec>
+        &lt;name>**&lt;/name>
+      &lt;/hudson.plugins.git.BranchSpec>
+    &lt;/branches>
+    &lt;disableSubmodules>false&lt;/disableSubmodules>
+    &lt;recursiveSubmodules>false&lt;/recursiveSubmodules>
+    &lt;doGenerateSubmoduleConfigurations>false&lt;/doGenerateSubmoduleConfigurations>
+    &lt;authorOrCommitter>false&lt;/authorOrCommitter>
+    &lt;clean>false&lt;/clean>
+    &lt;wipeOutWorkspace>false&lt;/wipeOutWorkspace>
+    &lt;pruneBranches>false&lt;/pruneBranches>
+    &lt;remotePoll>false&lt;/remotePoll>
+    &lt;ignoreNotifyCommit>false&lt;/ignoreNotifyCommit>
+    &lt;useShallowClone>false&lt;/useShallowClone>
+    &lt;buildChooser class="hudson.plugins.git.util.DefaultBuildChooser"/>
+    &lt;gitTool>Default&lt;/gitTool>
+    &lt;submoduleCfg class="list"/>
+    &lt;relativeTargetDir>&lt;/relativeTargetDir>
+    &lt;reference>&lt;/reference>
+    &lt;excludedRegions>&lt;/excludedRegions>
+    &lt;excludedUsers>&lt;/excludedUsers>
+    &lt;gitConfigName>&lt;/gitConfigName>
+    &lt;gitConfigEmail>&lt;/gitConfigEmail>
+    &lt;skipTag>false&lt;/skipTag>
+    &lt;includedRegions>&lt;/includedRegions>
+    &lt;scmName>&lt;/scmName>
+  &lt;/scm>
+  &lt;canRoam>true&lt;/canRoam>
+  &lt;disabled>false&lt;/disabled>
+  &lt;blockBuildWhenDownstreamBuilding>false&lt;/blockBuildWhenDownstreamBuilding>
+  &lt;blockBuildWhenUpstreamBuilding>false&lt;/blockBuildWhenUpstreamBuilding>
+  &lt;triggers class="vector">
+    &lt;hudson.triggers.SCMTrigger>
+      &lt;spec>5 * * * *&lt;/spec>
+      &lt;ignorePostCommitHooks>false&lt;/ignorePostCommitHooks>
+    &lt;/hudson.triggers.SCMTrigger>
+  &lt;/triggers>
+  &lt;concurrentBuild>false&lt;/concurrentBuild>
+  &lt;axes>
+    &lt;hudson.matrix.TextAxis>
+      &lt;name>DIST&lt;/name>
+      &lt;values>
+        &lt;string>epel-5-x86_64&lt;/string>
+        &lt;string>epel-6-x86_64&lt;/string>
+        &lt;string>fedora-18-x86_64&lt;/string>
+      &lt;/values>
+    &lt;/hudson.matrix.TextAxis>
+  &lt;/axes>
+  &lt;builders>
+    &lt;hudson.tasks.Shell>
+      &lt;command>export CREATEREPOOPTS=
+if [ &quot;$DIST&quot; = &quot;epel-5-x86_64&quot; ]; then export CREATEREPOOPTS=&apos;-s sha&apos;; fi
+make mock MOCKDIST=&quot;$DIST&quot;
+cp -a packages/&quot;$DIST&quot;/bin/* /var/lib/jenkins/&quot;$DIST&quot;/
+createrepo $CREATEREPOOPTS /var/lib/jenkins/&quot;$DIST&quot;/ 
+&lt;/command>
+    &lt;/hudson.tasks.Shell>
+  &lt;/builders>
+  &lt;publishers/>
+  &lt;buildWrappers/>
+  &lt;executionStrategy class="hudson.matrix.DefaultMatrixExecutionStrategyImpl">
+    &lt;runSequentially>false&lt;/runSequentially>
+  &lt;/executionStrategy>
+&lt;/matrix-project>
+  </file>
+  <file name="/root/slurm-config.xml" type="raw">&lt;?xml version='1.0' encoding='UTF-8'?>
+&lt;matrix-project>
+  &lt;actions/>
+  &lt;description>&lt;/description>
+  &lt;keepDependencies>false&lt;/keepDependencies>
+  &lt;properties/>
+  &lt;scm class="hudson.scm.NullSCM"/>
+  &lt;canRoam>true&lt;/canRoam>
+  &lt;disabled>false&lt;/disabled>
+  &lt;blockBuildWhenDownstreamBuilding>false&lt;/blockBuildWhenDownstreamBuilding>
+  &lt;blockBuildWhenUpstreamBuilding>false&lt;/blockBuildWhenUpstreamBuilding>
+  &lt;triggers class="vector"/>
+  &lt;concurrentBuild>false&lt;/concurrentBuild>
+  &lt;axes>
+    &lt;hudson.matrix.TextAxis>
+      &lt;name>DIST&lt;/name>
+      &lt;values>
+        &lt;string>epel-5-x86_64&lt;/string>
+        &lt;string>epel-6-x86_64&lt;/string>
+        &lt;string>fedora-18-x86_64&lt;/string>
+      &lt;/values>
+    &lt;/hudson.matrix.TextAxis>
+  &lt;/axes>
+  &lt;builders>
+    &lt;hudson.tasks.Shell>
+      &lt;command>SLURM_VERSION=&quot;2.5.4&quot;
+export CREATEREPOOPTS=
+if [ &quot;$DIST&quot; = &quot;epel-5-x86_64&quot; ]; then export CREATEREPOOPTS=&apos;-s sha&apos;; fi
+MOCK=&quot;/usr/bin/mock&quot;
+MOCKDIR=&quot;/var/lib/mock/$DIST&quot;
+wget -O slurm-$SLURM_VERSION.tar.bz2 http://www.schedmd.com/download/latest/slurm-$SLURM_VERSION.tar.bz2
+tar -xjf slurm-$SLURM_VERSION.tar.bz2 slurm-$SLURM_VERSION/slurm.spec
+rm -f *.src.rpm
+rm -rf packages
+mkdir -p packages/&quot;$DIST&quot;/bin
+$MOCK -r &quot;$DIST&quot; --buildsrpm --spec=`pwd`/slurm-$SLURM_VERSION/slurm.spec --sources=$PWD
+cp $MOCKDIR/result/*.src.rpm .
+if ! $MOCK -r &quot;$DIST&quot; --result `pwd`/packages/&quot;$DIST&quot;/bin slurm-$SLURM_VERSION*.src.rpm; then
+  more $MOCKDIR/result/*log | cat
+  exit -1
+fi
+cp -a packages/&quot;$DIST&quot;/bin/* /var/lib/jenkins/&quot;$DIST&quot;/
+createrepo $CREATEREPOOPTS /var/lib/jenkins/&quot;$DIST&quot;/
+&lt;/command>
+    &lt;/hudson.tasks.Shell>
+  &lt;/builders>
+  &lt;publishers/>
+  &lt;buildWrappers/>
+  &lt;executionStrategy class="hudson.matrix.DefaultMatrixExecutionStrategyImpl">
+    &lt;runSequentially>false&lt;/runSequentially>
+  &lt;/executionStrategy>
+&lt;/matrix-project>
+  </file>
+  <file name="/root/elasticsearch-config.xml" type="raw">&lt;?xml version='1.0' encoding='UTF-8'?>
+&lt;matrix-project>
+  &lt;actions/>
+  &lt;description>&lt;/description>
+  &lt;keepDependencies>false&lt;/keepDependencies>
+  &lt;properties/>
+  &lt;scm class="hudson.scm.NullSCM"/>
+  &lt;canRoam>true&lt;/canRoam>
+  &lt;disabled>false&lt;/disabled>
+  &lt;blockBuildWhenDownstreamBuilding>false&lt;/blockBuildWhenDownstreamBuilding>
+  &lt;blockBuildWhenUpstreamBuilding>false&lt;/blockBuildWhenUpstreamBuilding>
+  &lt;triggers class="vector"/>
+  &lt;concurrentBuild>false&lt;/concurrentBuild>
+  &lt;axes>
+    &lt;hudson.matrix.TextAxis>
+      &lt;name>DIST&lt;/name>
+      &lt;values>
+        &lt;string>epel-5-x86_64&lt;/string>
+        &lt;string>epel-6-x86_64&lt;/string>
+        &lt;string>fedora-18-x86_64&lt;/string>
+      &lt;/values>
+    &lt;/hudson.matrix.TextAxis>
+  &lt;/axes>
+  &lt;builders>
+    &lt;hudson.tasks.Shell>
+      &lt;command>export CREATEREPOOPTS=
+if [ &quot;$DIST&quot; = &apos;epel-5-x86_64&apos; ]; then export CREATEREPOOPTS=&apos;-s sha&apos;; 
+fi
+rm -rf elasticsearch-rpms/.git
+cp -a /var/lib/jenkins/jobs/elasticsearch-download/workspace/* .
+cd elasticsearch-rpms
+rm -rf packages
+mkdir -p packages/&quot;$DIST&quot;/srpms
+mkdir -p packages/&quot;$DIST&quot;/bin
+MOCK=/usr/bin/mock
+$MOCK -r &quot;$DIST&quot; --buildsrpm --spec `pwd`/SPECS/elasticsearch.spec --sources &quot;`pwd`&quot;/SOURCES
+mv &quot;/var/lib/mock/$DIST/result/&quot;*.src.rpm packages/&quot;$DIST&quot;/srpms/
+$MOCK -r &quot;$DIST&quot; --result `pwd`/packages/&quot;$DIST&quot;/bin `pwd`/packages/&quot;$DIST&quot;/srpms/*.src.rpm
+mkdir -p /var/lib/jenkins/&quot;$DIST&quot;/
+cp -a packages/&quot;$DIST&quot;/bin/* /var/lib/jenkins/&quot;$DIST&quot;/
+createrepo $CREATEREPOOPTS /var/lib/jenkins/&quot;$DIST&quot;/
+&lt;/command>
+    &lt;/hudson.tasks.Shell>
+  &lt;/builders>
+  &lt;publishers/>
+  &lt;buildWrappers/>
+  &lt;executionStrategy class="hudson.matrix.DefaultMatrixExecutionStrategyImpl">
+    &lt;runSequentially>false&lt;/runSequentially>
+  &lt;/executionStrategy>
+&lt;/matrix-project>
+  </file>
+  <file name="/root/elasticsearch-download-config.xml" type="raw">&lt;?xml version='1.0' encoding='UTF-8'?>
+&lt;project>
+  &lt;actions/>
+  &lt;description>&lt;/description>
+  &lt;keepDependencies>false&lt;/keepDependencies>
+  &lt;properties/>
+  &lt;scm class="hudson.scm.NullSCM"/>
+  &lt;canRoam>true&lt;/canRoam>
+  &lt;disabled>false&lt;/disabled>
+  &lt;blockBuildWhenDownstreamBuilding>false&lt;/blockBuildWhenDownstreamBuilding>
+  &lt;blockBuildWhenUpstreamBuilding>false&lt;/blockBuildWhenUpstreamBuilding>
+  &lt;triggers class="vector"/>
+  &lt;concurrentBuild>false&lt;/concurrentBuild>
+  &lt;builders>
+    &lt;hudson.tasks.Shell>
+      &lt;command>test -d elasticsearch-rpms || git clone --depth=1 https://github.com/tavisto/elasticsearch-rpms.git
+cd elasticsearch-rpms
+git pull
+#rpmdev-setuptree
+#ln -s `pwd`/SPECS/elasticsearch.spec ~/rpmbuild/SPECS/elasticsearch.spec
+#ln -s `pwd`/SOURCES/* ~/rpmbuild/SOURCES/
+cd SOURCES
+#spectool -g ~/rpmbuild/SPECS/elasticsearch.spec
+spectool -g `pwd`/../SPECS/elasticsearch.spec
+&lt;/command>
+    &lt;/hudson.tasks.Shell>
+  &lt;/builders>
+  &lt;publishers>
+    &lt;hudson.tasks.BuildTrigger>
+      &lt;childProjects>elasticsearch&lt;/childProjects>
+      &lt;threshold>
+        &lt;name>SUCCESS&lt;/name>
+        &lt;ordinal>0&lt;/ordinal>
+        &lt;color>BLUE&lt;/color>
+      &lt;/threshold>
+    &lt;/hudson.tasks.BuildTrigger>
+  &lt;/publishers>
+  &lt;buildWrappers/>
+&lt;/project>
+  </file>
+  <file name="/etc/httpd/conf.d/myemsl-repo.conf" type="raw">
+Alias /myemsl-repo/epel-5-x86_64 "/var/lib/jenkins/epel-5-x86_64"
+&lt;Directory /var/lib/jenkins/epel-5-x86_64>
+	Options Indexes FollowSymLinks MultiViews
+	AllowOverride None
+	Order deny,allow
+&lt;/Directory>
+Alias /myemsl-repo/epel-6-x86_64 "/var/lib/jenkins/epel-6-x86_64"
+&lt;Directory /var/lib/jenkins/epel-6-x86_64>
+	Options Indexes FollowSymLinks MultiViews
+	AllowOverride None
+	Order deny,allow
+&lt;/Directory>
+Alias /myemsl-repo/fedora-18-x86_64 "/var/lib/jenkins/fedora-18-x86_64"
+&lt;Directory /var/lib/jenkins/fedora-18-x86_64>
+	Options Indexes FollowSymLinks MultiViews
+	AllowOverride None
+	Order deny,allow
+&lt;/Directory>
+  </file>
+  <file name="/root/amalgam-config.xml" type="raw">&lt;?xml version='1.0' encoding='UTF-8'?>
+&lt;matrix-project>
+  &lt;actions/>
+  &lt;description>&lt;/description>
+  &lt;keepDependencies>false&lt;/keepDependencies>
+  &lt;properties/>
+  &lt;scm class="hudson.plugins.git.GitSCM" plugin="git@1.3.0">
+    &lt;configVersion>2&lt;/configVersion>
+    &lt;userRemoteConfigs>
+      &lt;hudson.plugins.git.UserRemoteConfig>
+        &lt;name>&lt;/name>
+        &lt;refspec>&lt;/refspec>
+        &lt;url>https://github.com/EMSL-MSC/amalgam.git&lt;/url>
+      &lt;/hudson.plugins.git.UserRemoteConfig>
+    &lt;/userRemoteConfigs>
+    &lt;branches>
+      &lt;hudson.plugins.git.BranchSpec>
+        &lt;name>**&lt;/name>
+      &lt;/hudson.plugins.git.BranchSpec>
+    &lt;/branches>
+    &lt;disableSubmodules>false&lt;/disableSubmodules>
+    &lt;recursiveSubmodules>false&lt;/recursiveSubmodules>
+    &lt;doGenerateSubmoduleConfigurations>false&lt;/doGenerateSubmoduleConfigurations>
+    &lt;authorOrCommitter>false&lt;/authorOrCommitter>
+    &lt;clean>false&lt;/clean>
+    &lt;wipeOutWorkspace>false&lt;/wipeOutWorkspace>
+    &lt;pruneBranches>false&lt;/pruneBranches>
+    &lt;remotePoll>false&lt;/remotePoll>
+    &lt;ignoreNotifyCommit>false&lt;/ignoreNotifyCommit>
+    &lt;useShallowClone>false&lt;/useShallowClone>
+    &lt;buildChooser class="hudson.plugins.git.util.DefaultBuildChooser"/>
+    &lt;gitTool>Default&lt;/gitTool>
+    &lt;submoduleCfg class="list"/>
+    &lt;relativeTargetDir>&lt;/relativeTargetDir>
+    &lt;reference>&lt;/reference>
+    &lt;excludedRegions>&lt;/excludedRegions>
+    &lt;excludedUsers>&lt;/excludedUsers>
+    &lt;gitConfigName>&lt;/gitConfigName>
+    &lt;gitConfigEmail>&lt;/gitConfigEmail>
+    &lt;skipTag>false&lt;/skipTag>
+    &lt;includedRegions>&lt;/includedRegions>
+    &lt;scmName>&lt;/scmName>
+  &lt;/scm>
+  &lt;canRoam>true&lt;/canRoam>
+  &lt;disabled>false&lt;/disabled>
+  &lt;blockBuildWhenDownstreamBuilding>false&lt;/blockBuildWhenDownstreamBuilding>
+  &lt;blockBuildWhenUpstreamBuilding>false&lt;/blockBuildWhenUpstreamBuilding>
+  &lt;triggers class="vector">
+    &lt;hudson.triggers.SCMTrigger>
+      &lt;spec>5 * * * *&lt;/spec>
+      &lt;ignorePostCommitHooks>false&lt;/ignorePostCommitHooks>
+    &lt;/hudson.triggers.SCMTrigger>
+  &lt;/triggers>
+  &lt;concurrentBuild>false&lt;/concurrentBuild>
+  &lt;axes>
+    &lt;hudson.matrix.TextAxis>
+      &lt;name>DIST&lt;/name>
+      &lt;values>
+        &lt;string>epel-5-x86_64&lt;/string>
+        &lt;string>epel-6-x86_64&lt;/string>
+      &lt;/values>
+    &lt;/hudson.matrix.TextAxis>
+  &lt;/axes>
+  &lt;builders>
+    &lt;hudson.tasks.Shell>
+      &lt;command>export CREATEREPOOPTS=
+if [ &quot;$DIST&quot; = &quot;epel-5-x86_64&quot; ]; then export CREATEREPOOPTS=&apos;-s sha&apos;; fi
+bash autogen.sh --enable-dist-only
+make MOCKDIST=&quot;$DIST&quot; mock
+cp -a packages/&quot;$DIST&quot;/bin/* /var/lib/jenkins/&quot;$DIST&quot;/
+mkdir -p /var/lib/jenkins/&quot;$DIST&quot;/
+createrepo $CREATEREPOOPTS /var/lib/jenkins/&quot;$DIST&quot;/
+&lt;/command>
+    &lt;/hudson.tasks.Shell>
+  &lt;/builders>
+  &lt;publishers/>
+  &lt;buildWrappers/>
+  &lt;executionStrategy class="hudson.matrix.DefaultMatrixExecutionStrategyImpl">
+    &lt;runSequentially>false&lt;/runSequentially>
+  &lt;/executionStrategy>
+&lt;/matrix-project>
+  </file>
+  <file name="/root/libbuhfsutil-config.xml" type="raw">&lt;?xml version='1.0' encoding='UTF-8'?>
+&lt;matrix-project>
+  &lt;actions/>
+  &lt;description>&lt;/description>
+  &lt;keepDependencies>false&lt;/keepDependencies>
+  &lt;properties/>
+  &lt;scm class="hudson.scm.SubversionSCM" plugin="subversion@1.39">
+    &lt;locations>
+      &lt;hudson.scm.SubversionSCM_-ModuleLocation>
+        &lt;remote>https://svn.pnl.gov/svn/esp/buhfs/trunk&lt;/remote>
+        &lt;local>.&lt;/local>
+      &lt;/hudson.scm.SubversionSCM_-ModuleLocation>
+    &lt;/locations>
+    &lt;excludedRegions>&lt;/excludedRegions>
+    &lt;includedRegions>&lt;/includedRegions>
+    &lt;excludedUsers>&lt;/excludedUsers>
+    &lt;excludedRevprop>&lt;/excludedRevprop>
+    &lt;excludedCommitMessages>&lt;/excludedCommitMessages>
+    &lt;workspaceUpdater class="hudson.scm.subversion.UpdateUpdater"/>
+  &lt;/scm>
+  &lt;canRoam>true&lt;/canRoam>
+  &lt;disabled>false&lt;/disabled>
+  &lt;blockBuildWhenDownstreamBuilding>false&lt;/blockBuildWhenDownstreamBuilding>
+  &lt;blockBuildWhenUpstreamBuilding>false&lt;/blockBuildWhenUpstreamBuilding>
+  &lt;triggers class="vector"/>
+  &lt;concurrentBuild>false&lt;/concurrentBuild>
+  &lt;axes>
+    &lt;hudson.matrix.TextAxis>
+      &lt;name>DIST&lt;/name>
+      &lt;values>
+        &lt;string>epel-5-x86_64&lt;/string>
+        &lt;string>epel-6-x86_64&lt;/string>
+      &lt;/values>
+    &lt;/hudson.matrix.TextAxis>
+  &lt;/axes>
+  &lt;builders>
+    &lt;hudson.tasks.Shell>
+      &lt;command>bash autogen.sh --enable-dist-only
+export CREATEREPOOPTS=
+if [ &quot;$DIST&quot; = &quot;epel-5-x86_64&quot; ]; then export CREATEREPOOPTS=&apos;-s sha&apos;; fi
+make MOCKDIST=&quot;$DIST&quot; MOCKOPTS=&quot;--without hpss&quot; mock
+cp -a packages/&quot;$DIST&quot;/bin/* /var/lib/jenkins/&quot;$DIST&quot;/
+mkdir -p /var/lib/jenkins/&quot;$DIST&quot;/
+createrepo $CREATEREPOOPTS /var/lib/jenkins/&quot;$DIST&quot;/
+&lt;/command>
+    &lt;/hudson.tasks.Shell>
+  &lt;/builders>
+  &lt;publishers/>
+  &lt;buildWrappers/>
+  &lt;executionStrategy class="hudson.matrix.DefaultMatrixExecutionStrategyImpl">
+    &lt;runSequentially>true&lt;/runSequentially>
+  &lt;/executionStrategy>
+&lt;/matrix-project>
+  </file>
+  <file name="/root/myemsl-core-config.xml" type="raw">&lt;?xml version='1.0' encoding='UTF-8'?>
+&lt;matrix-project>
+  &lt;actions/>
+  &lt;description>&lt;/description>
+  &lt;keepDependencies>false&lt;/keepDependencies>
+  &lt;properties/>
+  &lt;scm class="hudson.scm.NullSCM"/>
+  &lt;canRoam>true&lt;/canRoam>
+  &lt;disabled>false&lt;/disabled>
+  &lt;blockBuildWhenDownstreamBuilding>false&lt;/blockBuildWhenDownstreamBuilding>
+  &lt;blockBuildWhenUpstreamBuilding>false&lt;/blockBuildWhenUpstreamBuilding>
+  &lt;triggers class="vector"/>
+  &lt;concurrentBuild>false&lt;/concurrentBuild>
+  &lt;axes>
+    &lt;hudson.matrix.TextAxis>
+      &lt;name>DIST&lt;/name>
+      &lt;values>
+        &lt;string>epel-5-x86_64&lt;/string>
+        &lt;string>epel-6-x86_64&lt;/string>
+        &lt;string>fedora-18-x86_64&lt;/string>
+      &lt;/values>
+    &lt;/hudson.matrix.TextAxis>
+  &lt;/axes>
+  &lt;builders>
+    &lt;hudson.tasks.Shell>
+      &lt;command>cp -a /var/lib/jenkins/myemsl2/myemsl2/trunk/* .
+cp -a /var/lib/jenkins/myemsl2/myemsl2/trunk/.svn .
+export CREATEREPOOPTS=
+if [ &quot;$DIST&quot; = &quot;epel-5-x86_64&quot; ]; then export CREATEREPOOPTS=&apos;-s sha&apos;; fi
+bash autogen.sh
+make dist
+MOCK=/usr/bin/mock
+mkdir -p packages/&quot;$DIST&quot;/srpms
+mkdir -p packages/&quot;$DIST&quot;/bin
+make MOCKDIST=&quot;$DIST&quot; mock
+cp -a packages/&quot;$DIST&quot;/bin/* /var/lib/jenkins/&quot;$DIST&quot;/
+createrepo $CREATEREPOOPTS /var/lib/jenkins/&quot;$DIST&quot;/
+&lt;/command>
+    &lt;/hudson.tasks.Shell>
+  &lt;/builders>
+  &lt;publishers/>
+  &lt;buildWrappers/>
+  &lt;executionStrategy class="hudson.matrix.DefaultMatrixExecutionStrategyImpl">
+    &lt;runSequentially>false&lt;/runSequentially>
+  &lt;/executionStrategy>
+&lt;/matrix-project>
+  </file>
+  <file name="/root/pacifica-builddeps-config.xml" type="raw">&lt;?xml version='1.0' encoding='UTF-8'?>
+&lt;matrix-project>
+  &lt;actions/>
+  &lt;description>&lt;/description>
+  &lt;keepDependencies>false&lt;/keepDependencies>
+  &lt;properties/>
+  &lt;scm class="hudson.plugins.git.GitSCM" plugin="git@1.3.0">
+    &lt;configVersion>2&lt;/configVersion>
+    &lt;userRemoteConfigs>
+      &lt;hudson.plugins.git.UserRemoteConfig>
+        &lt;name>&lt;/name>
+        &lt;refspec>&lt;/refspec>
+        &lt;url>https://github.com/EMSL-MSC/pacifica-builddeps.git&lt;/url>
+      &lt;/hudson.plugins.git.UserRemoteConfig>
+    &lt;/userRemoteConfigs>
+    &lt;branches>
+      &lt;hudson.plugins.git.BranchSpec>
+        &lt;name>**&lt;/name>
+      &lt;/hudson.plugins.git.BranchSpec>
+    &lt;/branches>
+    &lt;disableSubmodules>false&lt;/disableSubmodules>
+    &lt;recursiveSubmodules>false&lt;/recursiveSubmodules>
+    &lt;doGenerateSubmoduleConfigurations>false&lt;/doGenerateSubmoduleConfigurations>
+    &lt;authorOrCommitter>false&lt;/authorOrCommitter>
+    &lt;clean>false&lt;/clean>
+    &lt;wipeOutWorkspace>false&lt;/wipeOutWorkspace>
+    &lt;pruneBranches>false&lt;/pruneBranches>
+    &lt;remotePoll>false&lt;/remotePoll>
+    &lt;ignoreNotifyCommit>false&lt;/ignoreNotifyCommit>
+    &lt;useShallowClone>false&lt;/useShallowClone>
+    &lt;buildChooser class="hudson.plugins.git.util.DefaultBuildChooser"/>
+    &lt;gitTool>Default&lt;/gitTool>
+    &lt;submoduleCfg class="list"/>
+    &lt;relativeTargetDir>&lt;/relativeTargetDir>
+    &lt;reference>&lt;/reference>
+    &lt;excludedRegions>&lt;/excludedRegions>
+    &lt;excludedUsers>&lt;/excludedUsers>
+    &lt;gitConfigName>&lt;/gitConfigName>
+    &lt;gitConfigEmail>&lt;/gitConfigEmail>
+    &lt;skipTag>false&lt;/skipTag>
+    &lt;includedRegions>&lt;/includedRegions>
+    &lt;scmName>&lt;/scmName>
+  &lt;/scm>
+  &lt;canRoam>true&lt;/canRoam>
+  &lt;disabled>false&lt;/disabled>
+  &lt;blockBuildWhenDownstreamBuilding>false&lt;/blockBuildWhenDownstreamBuilding>
+  &lt;blockBuildWhenUpstreamBuilding>false&lt;/blockBuildWhenUpstreamBuilding>
+  &lt;triggers class="vector">
+    &lt;hudson.triggers.SCMTrigger>
+      &lt;spec>5 * * * *&lt;/spec>
+      &lt;ignorePostCommitHooks>false&lt;/ignorePostCommitHooks>
+    &lt;/hudson.triggers.SCMTrigger>
+  &lt;/triggers>
+  &lt;concurrentBuild>false&lt;/concurrentBuild>
+  &lt;axes>
+    &lt;hudson.matrix.TextAxis>
+      &lt;name>DIST&lt;/name>
+      &lt;values>
+        &lt;string>epel-5-x86_64&lt;/string>
+        &lt;string>epel-6-x86_64&lt;/string>
+        &lt;string>fedora-18-x86_64&lt;/string>
+      &lt;/values>
+    &lt;/hudson.matrix.TextAxis>
+  &lt;/axes>
+  &lt;builders>
+    &lt;hudson.tasks.Shell>
+      &lt;command> make MOCKDIST=&quot;$DIST&quot; mock
+export CREATEREPOOPTS=
+if [ &quot;$DIST&quot; = &quot;epel-5-x86_64&quot; ]; then export CREATEREPOOPTS=&apos;-s sha&apos;; fi
+cp -a packages/&quot;$DIST&quot;/bin/* /var/lib/jenkins/&quot;$DIST&quot;/
+createrepo $CREATEREPOOPTS /var/lib/jenkins/&quot;$DIST&quot;/
+&lt;/command>
+    &lt;/hudson.tasks.Shell>
+  &lt;/builders>
+  &lt;publishers>
+    &lt;hudson.tasks.ArtifactArchiver>
+      &lt;artifacts>packages/*/bin/*.rpm,build-win32.zip&lt;/artifacts>
+      &lt;latestOnly>true&lt;/latestOnly>
+    &lt;/hudson.tasks.ArtifactArchiver>
+  &lt;/publishers>
+  &lt;buildWrappers/>
+  &lt;executionStrategy class="hudson.matrix.DefaultMatrixExecutionStrategyImpl">
+    &lt;runSequentially>false&lt;/runSequentially>
+  &lt;/executionStrategy>
+&lt;/matrix-project>
+  </file>
+  <file name="/root/qt47-config.xml" type="raw">&lt;?xml version='1.0' encoding='UTF-8'?>
+&lt;project>
+  &lt;actions/>
+  &lt;description>&lt;/description>
+  &lt;keepDependencies>false&lt;/keepDependencies>
+  &lt;properties/>
+  &lt;scm class="hudson.scm.NullSCM"/>
+  &lt;canRoam>true&lt;/canRoam>
+  &lt;disabled>false&lt;/disabled>
+  &lt;blockBuildWhenDownstreamBuilding>false&lt;/blockBuildWhenDownstreamBuilding>
+  &lt;blockBuildWhenUpstreamBuilding>false&lt;/blockBuildWhenUpstreamBuilding>
+  &lt;triggers class="vector">
+    &lt;hudson.triggers.TimerTrigger>
+      &lt;spec>5 * * * *&lt;/spec>
+    &lt;/hudson.triggers.TimerTrigger>
+  &lt;/triggers>
+  &lt;concurrentBuild>false&lt;/concurrentBuild>
+  &lt;builders>
+    &lt;hudson.tasks.Shell>
+      &lt;command>export MOCK=/usr/bin/mock
+export CREATEREPOOPTS=
+if [ "$DIST" = "epel-5-x86_64" ]; then export CREATEREPOOPTS='-s sha'; fi
+$MOCK -r atrpms-epel-5-x86_64 --init
+$MOCK -r atrpms-epel-5-x86_64 --install qt47-webkit-devel sqlite-devel
+mkdir -p /var/lib/jenkins/epel-5-x86_64/
+cp -af /var/cache/mock/atrpms-epel-5-x86_64/yum_cache/atrpms-testing/packages/*.rpm /var/lib/jenkins/epel-5-x86_64/
+rm -f /var/lib/jenkins/epel-5-x86_64/libgpg-error-*.rpm
+chcon system_u:object_r:var_lib_t:s0 /var/lib/jenkins/epel-5-x86_64/*.rpm
+createrepo $CREATEREPOOPTS /var/lib/jenkins/epel-5-x86_64/
+$MOCK -r atrpms-epel-5-x86_64 --clean
+&lt;/command>
+    &lt;/hudson.tasks.Shell>
+  &lt;/builders>
+  &lt;publishers/>
+  &lt;buildWrappers/>
+&lt;/project>
+  </file>
+  <file name="/root/pacifica-uploader-config.xml" type="raw">&lt;?xml version='1.0' encoding='UTF-8'?>
+&lt;matrix-project>
+  &lt;actions/>
+  &lt;description>&lt;/description>
+  &lt;keepDependencies>false&lt;/keepDependencies>
+  &lt;properties/>
+  &lt;scm class="hudson.plugins.git.GitSCM" plugin="git@1.3.0">
+    &lt;configVersion>2&lt;/configVersion>
+    &lt;userRemoteConfigs>
+      &lt;hudson.plugins.git.UserRemoteConfig>
+        &lt;name>&lt;/name>
+        &lt;refspec>&lt;/refspec>
+        &lt;url>https://github.com/EMSL-MSC/pacifica-uploader.git&lt;/url>
+      &lt;/hudson.plugins.git.UserRemoteConfig>
+    &lt;/userRemoteConfigs>
+    &lt;branches>
+      &lt;hudson.plugins.git.BranchSpec>
+        &lt;name>**&lt;/name>
+      &lt;/hudson.plugins.git.BranchSpec>
+    &lt;/branches>
+    &lt;disableSubmodules>false&lt;/disableSubmodules>
+    &lt;recursiveSubmodules>false&lt;/recursiveSubmodules>
+    &lt;doGenerateSubmoduleConfigurations>false&lt;/doGenerateSubmoduleConfigurations>
+    &lt;authorOrCommitter>false&lt;/authorOrCommitter>
+    &lt;clean>false&lt;/clean>
+    &lt;wipeOutWorkspace>false&lt;/wipeOutWorkspace>
+    &lt;pruneBranches>false&lt;/pruneBranches>
+    &lt;remotePoll>false&lt;/remotePoll>
+    &lt;ignoreNotifyCommit>false&lt;/ignoreNotifyCommit>
+    &lt;useShallowClone>false&lt;/useShallowClone>
+    &lt;buildChooser class="hudson.plugins.git.util.DefaultBuildChooser"/>
+    &lt;gitTool>Default&lt;/gitTool>
+    &lt;submoduleCfg class="list"/>
+    &lt;relativeTargetDir>&lt;/relativeTargetDir>
+    &lt;reference>&lt;/reference>
+    &lt;excludedRegions>&lt;/excludedRegions>
+    &lt;excludedUsers>&lt;/excludedUsers>
+    &lt;gitConfigName>&lt;/gitConfigName>
+    &lt;gitConfigEmail>&lt;/gitConfigEmail>
+    &lt;skipTag>false&lt;/skipTag>
+    &lt;includedRegions>&lt;/includedRegions>
+    &lt;scmName>&lt;/scmName>
+  &lt;/scm>
+  &lt;canRoam>true&lt;/canRoam>
+  &lt;disabled>false&lt;/disabled>
+  &lt;blockBuildWhenDownstreamBuilding>false&lt;/blockBuildWhenDownstreamBuilding>
+  &lt;blockBuildWhenUpstreamBuilding>false&lt;/blockBuildWhenUpstreamBuilding>
+  &lt;triggers class="vector">
+    &lt;hudson.triggers.SCMTrigger>
+      &lt;spec>5 * * * *&lt;/spec>
+      &lt;ignorePostCommitHooks>false&lt;/ignorePostCommitHooks>
+    &lt;/hudson.triggers.SCMTrigger>
+  &lt;/triggers>
+  &lt;concurrentBuild>false&lt;/concurrentBuild>
+  &lt;axes>
+    &lt;hudson.matrix.TextAxis>
+      &lt;name>DIST&lt;/name>
+      &lt;values>
+        &lt;string>epel-5-x86_64&lt;/string>
+        &lt;string>epel-6-x86_64&lt;/string>
+        &lt;string>fedora-18-x86_64&lt;/string>
+      &lt;/values>
+    &lt;/hudson.matrix.TextAxis>
+  &lt;/axes>
+  &lt;builders>
+    &lt;hudson.tasks.Shell>
+      &lt;command>export CREATEREPOOPTS=
+if [ &quot;$DIST&quot; = &quot;epel-5-x86_64&quot; ]; then export CREATEREPOOPTS=&apos;-s sha&apos;; fi
+make mock MOCKDIST=&quot;$DIST&quot;
+cp -a packages/&quot;$DIST&quot;/bin/* /var/lib/jenkins/&quot;$DIST&quot;/
+createrepo $CREATEREPOOPTS /var/lib/jenkins/&quot;$DIST&quot;/
+&lt;/command>
+    &lt;/hudson.tasks.Shell>
+  &lt;/builders>
+  &lt;publishers/>
+  &lt;buildWrappers/>
+  &lt;executionStrategy class="hudson.matrix.DefaultMatrixExecutionStrategyImpl">
+    &lt;runSequentially>false&lt;/runSequentially>
+  &lt;/executionStrategy>
+&lt;/matrix-project>
+  </file>
+  <file name="/root/service-poke-config.xml" type="raw">&lt;?xml version='1.0' encoding='UTF-8'?>
+&lt;matrix-project>
+  &lt;actions/>
+  &lt;description>&lt;/description>
+  &lt;keepDependencies>false&lt;/keepDependencies>
+  &lt;properties/>
+  &lt;scm class="hudson.plugins.git.GitSCM" plugin="git@1.3.0">
+    &lt;configVersion>2&lt;/configVersion>
+    &lt;userRemoteConfigs>
+      &lt;hudson.plugins.git.UserRemoteConfig>
+        &lt;name>&lt;/name>
+        &lt;refspec>&lt;/refspec>
+        &lt;url>https://github.com/EMSL-MSC/service-poke.git&lt;/url>
+      &lt;/hudson.plugins.git.UserRemoteConfig>
+    &lt;/userRemoteConfigs>
+    &lt;branches>
+      &lt;hudson.plugins.git.BranchSpec>
+        &lt;name>**&lt;/name>
+      &lt;/hudson.plugins.git.BranchSpec>
+    &lt;/branches>
+    &lt;disableSubmodules>false&lt;/disableSubmodules>
+    &lt;recursiveSubmodules>false&lt;/recursiveSubmodules>
+    &lt;doGenerateSubmoduleConfigurations>false&lt;/doGenerateSubmoduleConfigurations>
+    &lt;authorOrCommitter>false&lt;/authorOrCommitter>
+    &lt;clean>false&lt;/clean>
+    &lt;wipeOutWorkspace>false&lt;/wipeOutWorkspace>
+    &lt;pruneBranches>false&lt;/pruneBranches>
+    &lt;remotePoll>false&lt;/remotePoll>
+    &lt;ignoreNotifyCommit>false&lt;/ignoreNotifyCommit>
+    &lt;useShallowClone>false&lt;/useShallowClone>
+    &lt;buildChooser class="hudson.plugins.git.util.DefaultBuildChooser"/>
+    &lt;gitTool>Default&lt;/gitTool>
+    &lt;submoduleCfg class="list"/>
+    &lt;relativeTargetDir>&lt;/relativeTargetDir>
+    &lt;reference>&lt;/reference>
+    &lt;excludedRegions>&lt;/excludedRegions>
+    &lt;excludedUsers>&lt;/excludedUsers>
+    &lt;gitConfigName>&lt;/gitConfigName>
+    &lt;gitConfigEmail>&lt;/gitConfigEmail>
+    &lt;skipTag>false&lt;/skipTag>
+    &lt;includedRegions>&lt;/includedRegions>
+    &lt;scmName>&lt;/scmName>
+  &lt;/scm>
+  &lt;canRoam>true&lt;/canRoam>
+  &lt;disabled>false&lt;/disabled>
+  &lt;blockBuildWhenDownstreamBuilding>false&lt;/blockBuildWhenDownstreamBuilding>
+  &lt;blockBuildWhenUpstreamBuilding>false&lt;/blockBuildWhenUpstreamBuilding>
+  &lt;triggers class="vector">
+    &lt;hudson.triggers.SCMTrigger>
+      &lt;spec>5 * * * *&lt;/spec>
+      &lt;ignorePostCommitHooks>false&lt;/ignorePostCommitHooks>
+    &lt;/hudson.triggers.SCMTrigger>
+  &lt;/triggers>
+  &lt;concurrentBuild>false&lt;/concurrentBuild>
+  &lt;axes>
+    &lt;hudson.matrix.TextAxis>
+      &lt;name>DIST&lt;/name>
+      &lt;values>
+        &lt;string>epel-5-x86_64&lt;/string>
+        &lt;string>epel-6-x86_64&lt;/string>
+        &lt;string>fedora-18-x86_64&lt;/string>
+      &lt;/values>
+    &lt;/hudson.matrix.TextAxis>
+  &lt;/axes>
+  &lt;builders>
+    &lt;hudson.tasks.Shell>
+      &lt;command>MOCK=/usr/bin/mock
+export CREATEREPOOPTS=
+if [ &quot;$DIST&quot; = &quot;epel-5-x86_64&quot; ]; then export CREATEREPOOPTS=&apos;-s sha&apos;; fi
+mkdir -p packages/&quot;$DIST&quot;/srpms
+mkdir -p packages/&quot;$DIST&quot;/bin
+bash autogen.sh
+make dist
+$MOCK -r &quot;$DIST&quot; --buildsrpm --spec service-poke.spec --sources &quot;`pwd`&quot;
+mv &quot;/var/lib/mock/$DIST/result/&quot;*.src.rpm packages/&quot;$DIST&quot;/srpms/
+$MOCK -r &quot;$DIST&quot; --result `pwd`/packages/&quot;$DIST&quot;/bin `pwd`/packages/&quot;$DIST&quot;/srpms/*.src.rpm
+cp -a packages/"$DIST"/bin/* /var/lib/jenkins/"$DIST"/
+createrepo $CREATEREPOOPTS /var/lib/jenkins/"$DIST"/
+&lt;/command>
+    &lt;/hudson.tasks.Shell>
+  &lt;/builders>
+  &lt;publishers/>
+  &lt;buildWrappers/>
+  &lt;executionStrategy class="hudson.matrix.DefaultMatrixExecutionStrategyImpl">
+    &lt;runSequentially>false&lt;/runSequentially>
+  &lt;/executionStrategy>
+&lt;/matrix-project>
+  </file>
+  <file name="/root/go-config.xml" type="raw">&lt;?xml version='1.0' encoding='UTF-8'?>
+&lt;matrix-project>
+  &lt;actions/>
+  &lt;description>&lt;/description>
+  &lt;keepDependencies>false&lt;/keepDependencies>
+  &lt;properties/>
+  &lt;scm class="hudson.plugins.git.GitSCM" plugin="git@1.3.0">
+    &lt;configVersion>2&lt;/configVersion>
+    &lt;userRemoteConfigs>
+      &lt;hudson.plugins.git.UserRemoteConfig>
+        &lt;name>&lt;/name>
+        &lt;refspec>&lt;/refspec>
+        &lt;url>https://github.com/EMSL-MSC/go-rpms.git&lt;/url>
+      &lt;/hudson.plugins.git.UserRemoteConfig>
+    &lt;/userRemoteConfigs>
+    &lt;branches>
+      &lt;hudson.plugins.git.BranchSpec>
+        &lt;name>**&lt;/name>
+      &lt;/hudson.plugins.git.BranchSpec>
+    &lt;/branches>
+    &lt;disableSubmodules>false&lt;/disableSubmodules>
+    &lt;recursiveSubmodules>false&lt;/recursiveSubmodules>
+    &lt;doGenerateSubmoduleConfigurations>false&lt;/doGenerateSubmoduleConfigurations>
+    &lt;authorOrCommitter>false&lt;/authorOrCommitter>
+    &lt;clean>false&lt;/clean>
+    &lt;wipeOutWorkspace>false&lt;/wipeOutWorkspace>
+    &lt;pruneBranches>false&lt;/pruneBranches>
+    &lt;remotePoll>false&lt;/remotePoll>
+    &lt;ignoreNotifyCommit>false&lt;/ignoreNotifyCommit>
+    &lt;useShallowClone>false&lt;/useShallowClone>
+    &lt;buildChooser class="hudson.plugins.git.util.DefaultBuildChooser"/>
+    &lt;gitTool>Default&lt;/gitTool>
+    &lt;submoduleCfg class="list"/>
+    &lt;relativeTargetDir>&lt;/relativeTargetDir>
+    &lt;reference>&lt;/reference>
+    &lt;excludedRegions>&lt;/excludedRegions>
+    &lt;excludedUsers>&lt;/excludedUsers>
+    &lt;gitConfigName>&lt;/gitConfigName>
+    &lt;gitConfigEmail>&lt;/gitConfigEmail>
+    &lt;skipTag>false&lt;/skipTag>
+    &lt;includedRegions>&lt;/includedRegions>
+    &lt;scmName>&lt;/scmName>
+  &lt;/scm>
+  &lt;canRoam>true&lt;/canRoam>
+  &lt;disabled>false&lt;/disabled>
+  &lt;blockBuildWhenDownstreamBuilding>false&lt;/blockBuildWhenDownstreamBuilding>
+  &lt;blockBuildWhenUpstreamBuilding>false&lt;/blockBuildWhenUpstreamBuilding>
+  &lt;triggers class="vector">
+    &lt;hudson.triggers.SCMTrigger>
+      &lt;spec>5 * * * *&lt;/spec>
+      &lt;ignorePostCommitHooks>false&lt;/ignorePostCommitHooks>
+    &lt;/hudson.triggers.SCMTrigger>
+  &lt;/triggers>
+  &lt;concurrentBuild>false&lt;/concurrentBuild>
+  &lt;axes>
+    &lt;hudson.matrix.TextAxis>
+      &lt;name>DIST&lt;/name>
+      &lt;values>
+        &lt;string>epel-5-x86_64&lt;/string>
+        &lt;string>epel-6-x86_64&lt;/string>
+        &lt;string>fedora-18-x86_64&lt;/string>
+      &lt;/values>
+    &lt;/hudson.matrix.TextAxis>
+  &lt;/axes>
+  &lt;builders>
+    &lt;hudson.tasks.Shell>
+      &lt;command>export CREATEREPOOPTS=
+if [ &quot;$DIST&quot; = &quot;epel-5-x86_64&quot; ]; then export CREATEREPOOPTS=&apos;-s sha&apos;; fi
+mkdir -p /var/lib/jenkins/&quot;$DIST&quot;/
+make mock MOCKDIST=&quot;$DIST&quot;
+cp -a packages/&quot;$DIST&quot;/bin/* /var/lib/jenkins/&quot;$DIST&quot;/
+createrepo $CREATEREPOOPTS /var/lib/jenkins/&quot;$DIST&quot;/ &lt;/command>
+    &lt;/hudson.tasks.Shell>
+  &lt;/builders>
+  &lt;publishers/>
+  &lt;buildWrappers/>
+  &lt;executionStrategy class="hudson.matrix.DefaultMatrixExecutionStrategyImpl">
+    &lt;runSequentially>false&lt;/runSequentially>
+  &lt;/executionStrategy>
+&lt;/matrix-project>
+  </file>
+ </files>
+ <commands>
+   <command name='setup-rc-local'>
+exec 1>/root/setup.log
+exec 2>&amp;1
+set -x
+/etc/init.d/jenkins restart
+sleep 10
+java -jar jenkins-cli.jar -s http://127.0.0.1:8080/ reload-configuration
+/etc/init.d/jenkins stop
+
+sed -i 's:\(&lt;numExecutors>\)[^&lt;]*:\11:' /var/lib/jenkins/config.xml
+sed -i 's:\(&lt;\/hudson.model.AllView>\):\1@VIEWS@:' /var/lib/jenkins/config.xml
+sed -i '/@VIEWS@/r /root/views-config.xml' /var/lib/jenkins/config.xml
+sed -i 's/@VIEWS@//g' /var/lib/jenkins/config.xml
+/etc/init.d/jenkins start
+sed -i 's/rhgb quiet/console=ttyS0/' /boot/grub/grub.conf
+groupmems -g mock -a jenkins
+cp /etc/mock/epel-5-x86_64.cfg /etc/mock/atrpms-epel-5-x86_64.cfg
+for x in epel-5-x86_64 epel-6-x86_64 fedora-18-x86_64
+do
+	su - jenkins -s /bin/bash -c "mock --init $x"
+	sed -i '/^"""$/D' /etc/mock/"$x".cfg
+        mkdir -p /var/lib/jenkins/"$x"
+	createrepo /var/lib/jenkins/"$x"
+	chown --recursive jenkins.jenkins /var/lib/jenkins/"$x"
+	cat >> /etc/mock/"$x".cfg &lt;&lt;EOF
+[jenkinslocal]
+name=jenkinslocal
+baseurl=file:///var/lib/jenkins/"$x"/
+cost=2000
+enabled=1
+"""
+EOF
+done
+sed -i "s/config_opts\['root'\] = 'epel-5-x86_64'/config_opts['root'] = 'atrpms-epel-5-x86_64'/" /etc/mock/atrpms-epel-5-x86_64.cfg
+
+sed -i '/^"""$/D' /etc/mock/atrpms-epel-5-x86_64.cfg
+cat >> /etc/mock/atrpms-epel-5-x86_64.cfg &lt;&lt;"EOF"
+[atrpms]
+name=EPEL $releasever - $basearch - ATrpms
+baseurl=http://dl.atrpms.net/el5-x86_64/atrpms/stable
+enabled=1
+
+[atrpms-testing]
+name=EPEL $releasever - $basearch - ATrpms testing
+baseurl=http://dl.atrpms.net/el5-x86_64/atrpms/testing
+enabled=1
+"""
+EOF
+sleep 20
+wget http://127.0.0.1:8080/jnlpJars/jenkins-cli.jar
+mkdir -p /var/lib/jenkins/updates
+curl -L http://updates.jenkins-ci.org/update-center.json | sed '1d;$d' > /var/lib/jenkins/updates/default.json
+chown -R jenkins:nogroup /var/lib/jenkins/updates
+/etc/init.d/jenkins restart
+sleep 20
+java -jar jenkins-cli.jar -s http://127.0.0.1:8080/ install-plugin -restart 'git'
+/etc/init.d/jenkins restart
+sleep 20
+java -jar jenkins-cli.jar -s http://127.0.0.1:8080/ create-job qt47 &lt; qt47-config.xml
+java -jar jenkins-cli.jar -s http://127.0.0.1:8080/ create-job go &lt; go-config.xml
+java -jar jenkins-cli.jar -s http://127.0.0.1:8080/ create-job libbuhfsutil &lt; libbuhfsutil-config.xml
+java -jar jenkins-cli.jar -s http://127.0.0.1:8080/ create-job amalgam &lt; amalgam-config.xml
+java -jar jenkins-cli.jar -s http://127.0.0.1:8080/ create-job myemsl-core &lt; myemsl-core-config.xml
+java -jar jenkins-cli.jar -s http://127.0.0.1:8080/ create-job elasticsearch-download &lt; elasticsearch-download-config.xml
+java -jar jenkins-cli.jar -s http://127.0.0.1:8080/ create-job elasticsearch &lt; elasticsearch-config.xml
+java -jar jenkins-cli.jar -s http://127.0.0.1:8080/ create-job service-poke &lt; service-poke-config.xml
+java -jar jenkins-cli.jar -s http://127.0.0.1:8080/ create-job slurm &lt; slurm-config.xml
+java -jar jenkins-cli.jar -s http://127.0.0.1:8080/ create-job pacifica-builddeps &lt; pacifica-builddeps-config.xml
+java -jar jenkins-cli.jar -s http://127.0.0.1:8080/ create-job pacifica-auth &lt; pacifica-auth-config.xml
+java -jar jenkins-cli.jar -s http://127.0.0.1:8080/ create-job pacifica-web-basicauth &lt; pacifica-web-basicauth-config.xml
+java -jar jenkins-cli.jar -s http://127.0.0.1:8080/ create-job pacifica-devel-brand &lt; pacifica-devel-brand-config.xml
+java -jar jenkins-cli.jar -s http://127.0.0.1:8080/ create-job pacifica-test-data &lt; pacifica-test-data-config.xml
+java -jar jenkins-cli.jar -s http://127.0.0.1:8080/ create-job pacifica-uploader &lt; pacifica-uploader-config.xml
+java -jar jenkins-cli.jar -s http://127.0.0.1:8080/ create-job pacifica-devel-vm &lt; pacifica-devel-vm-config.xml
+chkconfig httpd on
+chkconfig squid on
+su - jenkins -s /bin/bash -c 'dd if=/dev/urandom bs=1 count=9 | base64 > /var/lib/jenkins/squidpw'
+cat > /etc/squid/squid.conf &lt;&lt;EOF
+auth_param basic program /usr/lib64/squid/ncsa_auth /etc/squid/passwords
+auth_param basic realm Squid proxy-caching web server
+auth_param basic credentialsttl 2 hours
+auth_param basic casesensitive on
+acl ncsa_users proxy_auth REQUIRED
+http_access allow ncsa_users
+http_port 3128
+maximum_object_size 409600 KB
+cache_replacement_policy heap LFUDA
+cache_dir ufs /var/spool/squid 1000 16 256
+range_offset_limit -1
+redirect_program /usr/bin/python /etc/squid/proxy.py
+redirect_children 5
+EOF
+sed -i 's/192.168.122/192.168.123/g' /etc/libvirt/qemu/networks/default.xml
+sed -i 's/192.168.122/192.168.123/g' /var/lib/libvirt/network/default.xml
+cat > /etc/squid/proxy.py &lt;&lt;EOF
+#!/usr/bin/env python
+ 
+import sys
+def m(line):
+	list = line.strip().split(' ')
+	ourl = list[0]
+	nurl = '\n'
+	if ourl.startswith('http://mirrorlist.centos.org/?'):
+		nurl = 'http://127.0.0.1/mirrors/index.php?' + ourl[len('http://mirrorlist.centos.org/?'):] + '\n'
+	if ourl.startswith('http://mirrors.fedoraproject.org/mirrorlist?'):
+		nurl = 'http://127.0.0.1/mirrors/index.php?' + ourl[len('http://mirrors.fedoraproject.org/mirrorlist?'):] + '&amp;mirror=epel\n'
+	return nurl
+ 
+while True:
+    nurl = m(sys.stdin.readline())
+    sys.stdout.write(nurl)
+    sys.stdout.flush()
+EOF
+htpasswd -bc /etc/squid/passwords user `cat /var/lib/jenkins/squidpw`
+mkdir /var/www/html/mirrors/
+cat > /var/www/html/mirrors/index.php &lt;&lt;"EOF"
+&lt;?php
+header('Content-type: plain/text; charset=ISO-8859-1');
+if($_GET['mirror'] == 'epel') {
+	echo("http://mirror.us.leaseweb.net/epel/5/x86_64/\n");
+} else {
+	echo("http://dallas.tx.mirror.xygenhosting.com/CentOS/$_GET[release]/$_GET[repo]/$_GET[arch]/\n");
+}
+?>
+EOF
+cat > /etc/sudoers.d/jenkinsoz &lt;&lt;"EOF"
+Defaults:jenkins !requiretty
+jenkins ALL=NOPASSWD: /usr/bin/oz-install
+jenkins ALL=NOPASSWD: /usr/bin/oz-customize
+EOF
+chmod 440 /etc/sudoers.d/jenkinsoz 
+sed -i 's/jeos = no/jeos = yes/' /etc/oz/oz.cfg 
+   </command>
+ </commands>
+</template>

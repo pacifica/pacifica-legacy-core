@@ -1,0 +1,260 @@
+#!/usr/bin/python
+
+import os
+import re
+import sys
+import gdbm
+import time
+import myemsl.loadkeytab
+import myemsl.getstatusremote
+import myemsl.getfileremote
+import myemsl.nagiosrmtransremote
+from optparse import OptionParser
+from myemsl.getconfig import getconfig
+from myemsl import websessionremote
+
+#FIXME Dead function?
+def get_transaction_from_status(url, web_session_remote=None):
+	dom = myemsl.getstatusremote.get_status_remote(url, web_session_remote=web_session_remote)
+	for x in dom.childNodes:
+		if x.nodeType == x.ELEMENT_NODE and x.nodeName == "myemsl":
+			for y in x.childNodes:
+				if y.nodeType == x.ELEMENT_NODE and y.nodeName == "status":
+					for z in y.childNodes:
+						if z.nodeType == z.ELEMENT_NODE and z.nodeName == "transaction":
+							res = int(z.getAttribute('id'))
+							return res
+	raise Exception("Malformed status xml.")
+
+#Return value 0 not timed out unknown, 1 timed out unknown, 2 error, 3 definitive all good
+def get_status(url, timeout, utime, transaction, steps, do_timeout=True, web_session_remote=None):
+	res = 0
+	found = False
+	unknown = False
+	dom = myemsl.getstatusremote.get_status_remote(url, web_session_remote=web_session_remote)
+	for x in dom.childNodes:
+		if x.nodeType == x.ELEMENT_NODE and x.nodeName == "myemsl":
+			for y in x.childNodes:
+				if y.nodeType == x.ELEMENT_NODE and y.nodeName == "status":
+					for z in y.childNodes:
+						if z.nodeType == z.ELEMENT_NODE and z.nodeName == "transaction":
+							try:
+								transaction[url] = int(z.getAttribute('id'))
+							except:
+								pass
+						if z.nodeType == z.ELEMENT_NODE and z.nodeName == "step":
+							step = int(z.getAttribute('id'))
+							if z.getAttribute('status') == 'SUCCESS':
+								val = steps.setdefault(url, step)
+								if val < step:
+									steps[url] = step
+					for z in y.childNodes:
+						if z.nodeType == z.ELEMENT_NODE and z.nodeName == "step":
+							found = True
+							status = z.getAttribute('status')
+							if status != 'SUCCESS':
+								if status == 'UNKNOWN':
+									if (utime + timeout) < time.time() and do_timeout:
+										return (1, "Upload still in unknown status after %s seconds." %(timeout))
+									unknown = True
+								else:
+									return (2, "%s" %(z.getAttribute('message')))
+								
+	if not found:
+		return (2, "Malformed status xml." %(timeout))
+	elif not unknown:
+		#All states are SUCCESS
+		return (3, "")
+	return (0, "")
+
+def nagios_output(command_file, hostname, service, res, msg, verbose):
+	os.stat(command_file)
+	cf = open(command_file, 'a')
+	str = "%s PROCESS_HOST_CHECK_RESULT;%s;%s;%s;%s" %(int(time.time()), hostname, service, res, msg)
+	cf.write("%s\n" %(str))
+	cf.close()
+	if verbose:
+		print "%s" %(str)
+
+def nagios_cfg_command_file():
+	command_file = None
+	match = re.compile('[ \t]*command_file[ \t]*=[ \t]*(.*)')
+	nagioscfg = open('/etc/nagios/nagios.cfg', 'r')
+	for line in nagioscfg.readlines():
+		m = match.match(line)
+		if m != None:
+			command_file = m.group(1)
+			break
+	nagioscfg.close()
+	return command_file
+
+def main():
+	config = getconfig()
+	web_session_remote = websessionremote.web_session_remote()
+	myemsl.loadkeytab.load_keytab(config.get('nagios', 'keytab'), config.get('nagios', 'user'))
+	upload_ok = False
+	files_ok = False
+	delete_ok = True
+	parser = OptionParser()
+	parser.add_option("-V", "--version", action="store_true", dest="version", help="Display version")
+	parser.add_option("-v", "--verbose", default=False, action="store_true", dest="verbose", help="Be verbose")
+	parser.add_option("-H", "--hostname", default=None, action="store", dest="hostname", help="Hostname to status")
+	(options, args) = parser.parse_args()
+	if not options.hostname:
+		print "You must specify a hostname"
+		return 3
+	verbose = options.verbose
+	command_file = nagios_cfg_command_file()
+	res = 0
+	gdb = gdbm.open("/var/lib/myemsl/nagios/status/%s.db" %(options.hostname), "r")
+	critical = False
+	critical_message = None
+	report_unknown = False
+	timeout = 60 * 60 * 24
+#	timeout = 60
+	
+	db = {}
+	k = gdb.firstkey()
+	while k != None:
+		db[k] = int(float(gdb[k]))
+		k = gdb.nextkey(k)
+	gdb.close()
+
+	res = 0
+	processed = 0
+	transactions = {}
+	steps = {}
+	to_process = sorted(db, cmp=lambda x,y: db[y]-db[x]) #urls sorted by time descending
+	for k in to_process:
+		if verbose:
+			print "Trying:", k, db[k]
+		try:
+			(res, msg) = get_status(k, timeout, db[k], transactions, steps, web_session_remote=web_session_remote)
+			if res > 0:
+				break
+		except:
+			raise
+		processed += 1
+	if verbose:
+		print "Pending:"
+		for x in to_process[:processed]:
+			print "  %s" %(x)
+		print "Processed:"
+		for x in to_process[processed:]:
+			print "  %s" %(x)
+	unknowns = 0
+	for x in to_process[processed:]:
+		if not transactions.has_key(x):
+			try:
+				(tres, msg) = get_status(x, 0, 0, transactions, steps, do_timeout=False, web_session_remote=web_session_remote)
+				if tres < 2:
+					unknowns = 1
+				elif not transactions.has_key(x):
+					if verbose:
+						print "Just remove %s from list" %(x)
+					gdb = gdbm.open("/var/lib/myemsl/nagios/status/%s.db" %(options.hostname), "w")
+					del gdb[x]
+					gdb.sync()
+					gdb.close()
+			except:
+				unknowns = 1
+				pass
+	if verbose:
+		print "Transactions:"
+		for x in sorted(transactions.values(), reverse=True):
+			print "  %s" %(x)
+
+	found = False
+	for x in to_process:
+		if steps.has_key(x) and steps[x] >= 5 and transactions.has_key(x):
+			server = 'my.emsl.pnl.gov'
+			try:
+				m = re.search('http.?://([^/]*)', x)
+				server = m.group(1)
+			except:
+				pass
+			file = myemsl.getfileremote.get_file_remote(server, "/transaction/%s/data/Nagios Test.txt" %(transactions[x]), web_session_remote=web_session_remote)
+			if verbose:
+				print "Processing file transaction/%s/data/Nagios Test.txt from %s" %(transactions[x], x)
+				print file.strip()
+			if file == 'This is a test from Nagios.\n':
+				file_ok = True
+				if verbose:
+					print "File OK"
+			else:
+				file_ok = False
+				if verbose:
+					print "File NOT OK"
+			found = True
+			break
+	if not found:
+		file_ok = True
+		if verbose:
+			print "Processed file OK"
+	#Don't remove the most recent processed item until all uknowns are cleared
+	for x in to_process[processed + unknowns:]:
+		if transactions.has_key(x):
+			if verbose:
+				print "Delete %s" %(transactions[x])
+			try:
+				myemsl.nagiosrmtransremote.nagios_rm_trans_remote(transactions[x], web_session_remote=web_session_remote)
+				if verbose:
+					print "Success, removing %s from list" %(x)
+				gdb = gdbm.open("/var/lib/myemsl/nagios/status/%s.db" %(options.hostname), "w")
+				del gdb[x]
+				gdb.sync()
+				gdb.close()
+			except Exception, e:
+				if verbose:
+					print "Error removing transaction %s: %s" %(x, e)
+				delete_ok = False
+	if len(to_process[processed + unknowns:]) > 0:
+		while True:
+			try:
+				gdb = gdbm.open("/var/lib/myemsl/nagios/status/%s.db" %(options.hostname), "w")
+				gdb.reorganize()
+				gdb.sync()
+				gdb.close()
+				break
+			except gdbm.error, e:
+				if e.args[0] == 11:
+					time.sleep(1)
+					continue
+				raise
+	if res == 0 or res == 3:
+		res = 0 #Convert a definitive success to a nagios ok
+		msg = "Upload process OK"
+	nagios_output(command_file, options.hostname, 'myemsl_upload_process', res, msg, options.verbose)
+	if file_ok:
+		msg = 'Processed file OK'
+		tres = 0
+	else:
+		tres = 2
+		msg = 'Processed file NOT OK'
+		if res == 0:
+			res = 2
+	nagios_output(command_file, options.hostname, 'myemsl_upload_process_file', tres, msg, options.verbose)
+	if delete_ok:
+		tres = 0
+		msg = 'Deleted file(s) OK'
+	else:
+		tres = 2
+		msg = 'Deleted file(s) NOT OK'
+		if res == 0:
+			res = 2
+	nagios_output(command_file, options.hostname, 'myemsl_upload_process_delete', tres, msg, options.verbose)
+	return res
+
+if __name__ == '__main__':
+	res = 0
+	try:
+		res = main()
+		if res > 0:
+			print "SERVICE STATUS: Upload status error."
+		else:
+			print "SERVICE STATUS: Upload status ok."
+	except Exception, e:
+		print "SERVICE STATUS: MyEMSL upload status checker unknown error."
+		print e
+		res = 3
+	sys.exit(res)

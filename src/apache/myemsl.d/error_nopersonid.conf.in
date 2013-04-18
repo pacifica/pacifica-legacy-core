@@ -1,0 +1,11 @@
+Alias /myemsl/error/nopersonid /var/www/myemsl/error/nopersonid
+
+<Directory /var/www/myemsl/error/nopersonid>
+    AllowOverride All
+    Options Indexes FollowSymLinks MultiViews Includes
+    Order deny,allow
+    DirectoryIndex index.html index.php index.shtml
+    AddType text/html .shtml
+    AddHandler server-parsed .shtml
+</Directory>
+

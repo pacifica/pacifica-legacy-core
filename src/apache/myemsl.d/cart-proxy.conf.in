@@ -1,0 +1,14 @@
+<Proxy *>
+Order deny,allow
+Allow from all
+</Proxy>
+
+include /etc/myemsl/cart-proxy.conf
+
+<Location /myemsl/cart/download>
+        ProxyPassReverse /
+</Location>
+
+<Location /myemsl/api/2/cart>
+        ProxyPassReverse /
+</Location>

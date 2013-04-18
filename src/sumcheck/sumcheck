@@ -1,0 +1,84 @@
+#!/usr/bin/python
+
+import sys
+import os
+import pg
+import pgdb
+import glob
+import pipes
+import xattr
+import tempfile
+import myemsl.token
+import myemsl.callcurl
+import myemsl.getservices
+import myemsl.getunixuser
+
+from optparse import OptionParser
+
+from subprocess import PIPE, Popen
+from myemsl.getconfig import getconfig
+config = getconfig()
+services = myemsl.getservices.getservices()
+from myemsl.dbconnect import do_sql_select as do_sql
+
+parser = OptionParser()
+parser.add_option("-p", "--prefix", dest="prefix", help="MyEMSL Prefix", default="/srv/myemsl-ingest")
+
+(options, args) = parser.parse_args()
+
+sql = """
+SELECT
+  items.item_id,
+  hashsums.hashsum
+FROM
+  myemsl.files,
+  myemsl.items,
+  myemsl.hashsums
+WHERE
+  myemsl.files.item_id = myemsl.items.item_id and
+  myemsl.hashsums.item_id = myemsl.items.item_id and
+  myemsl.hashsums.hashtype = 'sha1' and
+  myemsl.files.vtime is NULL;
+"""
+rows = do_sql(sql, myemsl_schema_versions=['1.0'])
+
+def cancel_download(x):
+	return -1
+
+os.chdir("/")
+for item_id, sha1 in rows:
+	token = myemsl.token.simple_items_token_gen([item_id], duration=60)
+#FIXME Update foo/bar when uuids become part of the protocol.
+	url = "%sfoo/bar/%s/0?locked&levels" %(services['item'], item_id)
+	url = url.encode('utf-8')
+	headers = {}
+	available = False
+	try:
+		myemsl.callcurl.call_curl(url, method="HEAD", auth="bearer", token=token, headers=headers)
+		available = True
+	except myemsl.callcurl.CurlException, e:
+		if e.http_code == 404:
+			sys.stderr.write("404 on item %s\n" %(item_id))
+			continue
+		if e.http_code != 503:
+			raise
+
+	if int(headers['X-MyEMSL-Levels']) < int(headers['X-MyEMSL-Levels-Total']):
+		continue
+	if not available:
+		myemsl.callcurl.call_curl(url, method="GET", auth="bearer", token=token, getread=cancel_download)
+	(bfdesc, bfname) = tempfile.mkstemp()
+	os.write(bfdesc, "#!/bin/sh\n")
+	os.write(bfdesc, "#SBATCH --uid=%s\n" %(myemsl.getunixuser.get_unix_user()))
+	os.write(bfdesc, "#SBATCH -o /tmp/output.%j\n")
+	os.write(bfdesc, "#SBATCH -e /tmp/error.%j\n")
+	os.write(bfdesc, "#SBATCH --open-mode=append\n")
+	os.write(bfdesc, "#SBATCH -p lopri\n")
+	os.write(bfdesc, "#SBATCH -J CHECKSUM\n")
+	os.write(bfdesc, "srun -n 1 /usr/bin/python /usr/libexec/myemsl/sumcheck/sumcheck_job -i "+str(item_id)+" -s " + pipes.quote(sha1))
+	os.close(bfdesc)
+	p1 = Popen(["/usr/bin/sbatch", bfname], stdout=PIPE)
+	jobid = p1.communicate()
+	os.unlink(bfname)
+	jobid = int(jobid[0].split()[3])
+

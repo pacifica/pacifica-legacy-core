@@ -1,0 +1,37 @@
+****** DEPRECATED ******
+
+The "query" service is available to perform queries on data stored in MyEMSL.
+
+To perform a query, append your query string to the end of the “query” service
+url. See the “query” protocol document for details of the query format.
+
+The query service returns query information back in xml documents that look
+like the following:
+<?xml version="1.0"?>
+<myemsl-readdir version="1.0.0">
+  <dir name="filter" type="0"/>
+  <dir name="filter2" type="0"/>
+  <dir name="filter3" type="0"/>
+  <dir name="data" type="4"/>
+</myemsl-readdir>
+
+Or:
+<?xml version="1.0"?>
+<myemsl-readdir version="1.0.0">
+  <dir name="Clean" type="2"/>
+  <file name="Phenakite .38um_001.tif" location="39822/bundle/8/Phenakite
+.38um_001.tif" itemid="43" size="976162"/>
+  <file name="Phenakite .38um_009.tif" location="39822/bundle/9/Phenakite
+.38um_009.tif" itemid="55" size="976166"/>
+</myemsl-readdir>
+
+The following dir types are defined:
+ 0. DOCUMENT_FILTERS – The specified DIR is a filter.
+ 1. DOCUMENT_FILTER_ARGS – The specified DIR is an argument to a filter.
+ 2. DOCUMENT_REGULAR – The specified DIR is considered a regular dir.
+ 4. DOCUMENT_DATA – The specified DIR is the special, “data” filter.
+
+Notes:
+	Due to the dynamic nature of the service, you are only guaranteed to
+be able to finitely recurse on dirs of type DOCUMENT_REGULAR or DOCUMENT_DATA.
+

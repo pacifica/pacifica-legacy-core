@@ -1,0 +1,5 @@
+[myemsl-devel-local]
+name=myemsl-devel-local
+baseurl=file:///srv/myemsl-devel
+enabled=1
+gpgcheck=0

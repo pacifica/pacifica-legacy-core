@@ -1,0 +1,10 @@
+<Location /myemsl/nagiosrmtrans>
+#FIXME Enforce service is svc-nagios
+	Options Indexes FollowSymLinks MultiViews
+	Order deny,allow
+	include @WEBAUTH_MYEMSL@
+	Require valid-user
+	SetHandler mod_python
+	PythonInterpreter main_interpreter
+	PythonHandler myemsl.handler.nagiosrmtrans
+</Location>

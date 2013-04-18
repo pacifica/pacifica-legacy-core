@@ -1,0 +1,8 @@
+ErrorDocument 401 /myemsl/error/401
+<Location /myemsl/error/401>
+	Options Indexes FollowSymLinks MultiViews
+	Order deny,allow
+	SetHandler mod_python
+	PythonInterpreter main_interpreter
+	PythonHandler myemsl.handler.401
+</Location>

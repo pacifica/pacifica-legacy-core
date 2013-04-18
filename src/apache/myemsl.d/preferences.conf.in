@@ -1,0 +1,33 @@
+
+<Location /myemsl/notification>
+    Options Indexes FollowSymLinks MultiViews
+    Order deny,allow
+    include @WEBAUTH_MYEMSL@
+    Require valid-user
+    SetHandler mod_python
+    PythonHandler myemsl.handler.notification
+</Location>
+
+
+Alias /myemsl/preferences /var/www/myemsl/preferences
+
+<Directory /var/www/myemsl/preferences>
+    AllowOverride All
+    Options Indexes FollowSymLinks MultiViews Includes
+    Order deny,allow
+    DirectoryIndex index.html index.php index.shtml
+    include @WEBAUTH_MYEMSL@
+    Require valid-user
+
+    AddType text/html .shtml
+    AddHandler server-parsed .shtml
+
+   #SetHandler mod_python
+   AddHandler mod_python .py
+   PythonHandler proposals
+   PythonDebug On
+   #PythonInterpreter main_interpreter
+
+   PythonPath "sys.path + ['/var/www/myemsl/preferences']"
+</Directory>
+

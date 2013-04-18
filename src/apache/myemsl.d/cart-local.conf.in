@@ -1,0 +1,22 @@
+Alias /myemsl/cart/download "/srv/amalgam"
+<Directory /srv/amalgam>
+	Options None
+	Order deny,allow
+	include @WEBAUTH_MYEMSL@
+
+	PythonAuthzHandler myemsl.authzpersondir.cart
+	Require myemsl.authzpersondir.cart
+</Directory>
+
+<Location /myemsl/api/2/cart>
+	Options Indexes FollowSymLinks MultiViews
+	Order deny,allow
+	<LimitExcept GET POST DELETE>
+		deny from all
+	</LimitExcept>
+	include @WEBAUTH_MYEMSL@
+	Require valid-user
+	SetHandler mod_python
+	PythonInterpreter main_interpreter
+	PythonHandler myemsl.handler.cart2
+</Location>

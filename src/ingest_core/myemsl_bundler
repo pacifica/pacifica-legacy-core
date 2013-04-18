@@ -1,0 +1,131 @@
+#!/usr/bin/python
+
+import os
+import sys
+import stat
+import os.path
+import hashlib
+import zipfile
+import tarfile
+import tempfile
+from optparse import OptionParser
+
+instruments = {"chinook":34076}
+
+def cwd_cb(option, opt, value, parser):
+	parser.values.cwd = os.path.abspath(value)
+	if parser.values.debug:
+		print "cwd set to %s" %(parser.values.cwd)
+
+def instrument_cb(option, opt, value, parser):
+	parser.values.instrument = value
+
+def file_cb(option, opt, value, parser):
+	cwd = parser.values.cwd
+	file = os.path.normpath(os.path.join(cwd, value))
+	common = os.path.commonprefix([file, cwd])
+	if common != cwd:
+		print "File outside of current working directory. Aborting"
+		sys.exit(1);
+	if parser.values.debug:
+		print "item %s" %(file)
+	mode = os.stat(file)[stat.ST_MODE]
+        if not stat.S_ISDIR(mode) and not stat.S_ISREG(mode):
+            raise Exception('Unknown file type %s' %(file))
+	shortfile = file[len(cwd) + 1:]
+	parser.values.files.append((cwd, shortfile, mode))
+
+parser = OptionParser()
+parser.add_option("-c", "--cwd", dest="cwd", default=os.getcwd(), type="string", callback=cwd_cb, action="callback", help="Current working directory")
+parser.add_option("-i", "--instrument", dest="instrument", default=None, type="string", callback=instrument_cb, action="callback", help="Instrument")
+parser.add_option("-b", "--bundle", dest="bundle", help="Bundle to produce")
+parser.add_option("-p", "--proposal", dest="proposal", help="Proposal number")
+parser.add_option("-f", "--file", dest="files", default=[], type="string", callback=file_cb, action="callback", help="Add file or directory")
+parser.add_option("-z", "--zip", dest="zip", default=False, action="store_true", help="Generate zip type bundle")
+parser.add_option("-d", "--debug", dest="debug", default=False, action="store_true", help="See debug info")
+
+(options, args) = parser.parse_args()
+if not options.bundle:
+	print "You must specify a bundle"
+	sys.exit(1)
+
+if options.zip:
+	bundle = zipfile.ZipFile(options.bundle, mode="w")
+else:
+	bundle = tarfile.open(options.bundle, mode="w")
+
+metadata="{\"version\":\"1.0.0\",\"eusInfo\":{"
+if options.proposal:
+	metadata += "\"proposalID\":\"%s\"" %(options.proposal)
+	if options.instrument:
+		metadata += ", "
+if options.instrument:
+	metadata += "\"instrumentName\":\"%s\"" %(options.instrument)
+	if instruments.has_key(options.instrument):
+		metadata += "\", instrumentId\":\"%s\"" %(instruments[options.instrument])
+metadata += "},\"file\":[\n"
+
+def process_file(bundle, sha1s, fullname, arcname):
+	if fullname == 'metadata.txt':
+		print "You may not have a /metadata.txt file in the bundle"
+		sys.exit(0)
+	f = open(fullname, 'r')
+	h = hashlib.sha1()
+	while True:
+		chunk = f.read(1024)
+		if not chunk:
+			break
+		h.update(chunk)
+	hash = h.hexdigest()
+	f.close()
+	if sha1s.has_key(arcname):
+		if hash != sha1s[arcname]:
+			print "Different file with the same name already in archive!"
+			sys.exit(1)
+	else:
+		sha1s[arcname] = hash
+		if options.zip:
+			bundle.write(fullname, arcname=arcname)
+		else:
+			bundle.add(fullname, arcname=arcname)
+
+sha1s = {}
+for file in options.files:
+	if stat.S_ISDIR(file[2]):
+		os.chdir(os.path.join(file[0], file[1]))
+		f = []
+		for (root, dirs, files) in os.walk("."):
+			if root == '.':
+				f += ["%s" %(i) for i in files]
+			else:
+				root = root[2:]
+				f += ["%s/%s" %(root, i) for i in files]
+		for subfile in f:
+			fullname = os.path.join(file[0], file[1], subfile)
+			arcname = os.path.join(file[1], subfile)
+			process_file(bundle, sha1s, fullname, arcname)
+	else:
+		fullname = os.path.join(file[0], file[1])
+		arcname = file[1]
+		process_file(bundle, sha1s, fullname, arcname)
+comma = ","
+for (i, val) in enumerate(sha1s.items()):
+	if i == len(sha1s) - 1:
+		comma = ""
+	subdir =  os.path.dirname(val[0])
+	if not subdir or subdir[0] != "/":
+		subdir = "/"+subdir
+	metadata += "{\"sha1Hash\":\"%s\",\"fileName\":\"%s\", \"destinationDirectory\":\"%s\"}%s\n" %(val[1], os.path.basename(val[0]), subdir , comma)
+metadata += "]}"
+if options.debug:
+	print metadata
+if options.zip:
+	bundle.writestr("metadata.txt", metadata)
+else:
+	f = tempfile.TemporaryFile(mode="w+")
+	f.write(metadata)
+	f.seek(0)
+	ti = bundle.gettarinfo(arcname="metadata.txt", fileobj=f)
+	bundle.addfile(ti, f)
+	f.close()
+bundle.close()

@@ -1,0 +1,128 @@
+#!/usr/bin/python
+
+import time
+from myemsl.elasticsearch import *
+from myemsl.elasticsearch.unitgen import *
+
+unitdesc = """
+{
+	"settings": {
+		"index": {
+			"number_of_shards": 5,
+			"number_of_replicas": 0
+		},
+		"analysis": {
+			"analyzer": {
+				"a1": {
+					"type": "custom",
+					"tokenizer": "standard",
+					"filter" : ["lowercase", "my_filter"]
+				}
+			},
+			"filter": {
+				"my_filter": {
+					"type": "nGram",
+					"min_gram": 2,
+					"max_gram": 20
+				}
+			}
+		}
+	},
+	"mappings": {
+		"unit" : {
+			"_source": {"enabled": true},
+			"_all": {
+				"type": "string",
+				"null_value": "na",
+				"index": "analyzed",
+				"index_analyzer": "a1",
+				"search_analyzer": "default"
+			},
+			"properties": {
+				"name" : {
+					"type" : "multi_field",
+					"fields" : {
+						"name": {
+							"type": "string"
+						},
+						"untouched": {
+							"type": "string",
+							"null_value": "na",
+							"index": "analyzed",
+							"analyzer": "keyword"
+						}
+					}
+				},
+				"namep" : {
+					"type" : "multi_field",
+					"fields" : {
+						"namep": {
+							"type": "string"
+						},
+						"untouched": {
+							"type": "string",
+							"null_value": "na",
+							"index": "analyzed",
+							"analyzer": "keyword"
+						}
+					}
+				},
+				"type" : {
+					"type" : "multi_field",
+					"fields" : {
+						"type": {
+							"type": "string"
+						},
+						"untouched": {
+							"type": "string",
+							"null_value": "na",
+							"index": "analyzed",
+							"analyzer": "keyword"
+						}
+					}
+				}
+			}
+		}
+	}
+}"""
+
+def build_unit_index(callback):
+	for unit_name, units in unitgen().iteritems():
+		for unit in units:
+			if 'mods' in unit:
+				mods_symb = []
+				mods_name = []
+				for mod in unit['mods']:
+					mods_symb.append(mod['symb'])
+					mods_name.append(mod['name'])
+				del unit['mods']
+				unit['mods_symb'] = ' '.join(mods_symb)
+				unit['mods_name'] = ' '.join(mods_name)
+			unit['_id'] = unit['usymb']
+			callback(unit)
+
+def main():
+#FIXME get this from config
+	prefix = "myemsl_unit_index"
+	index = "%s_%i" %(prefix, int(time.time()))
+	res = create_index(index, desc=unitdesc)
+	if res != 200:
+		sys.stderr.write("Failed to create unit index: %s\n", index)
+		sys.exit(-1)
+	b = bulkupload(index, type="unit")
+	c = chunkit(b.callback, 1000)
+	build_unit_index(c.add)
+	c.flush()
+#	retval, code = get_alias()
+#        if code != 200 and code != 404:
+#                print "Failed to get alias with code %s" %(code)
+#                sys.exit(code)
+#	if code == 200:
+#		res = delete_index(retval)
+#	code = create_alias(index, config.get('elasticsearch', 'alias'))
+#        if code != 200:
+#                print "Failed to create alias with code %s" %(code)
+#                sys.exit(code)
+
+if __name__ == "__main__":
+	main()

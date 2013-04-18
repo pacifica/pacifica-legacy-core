@@ -1,0 +1,1125 @@
+# Just works for rhel5-x86_64 systems.
+
+Name: @PACKAGE_NAME@
+Version: @VERSION@
+Release: %{LOCALREVISION}
+Summary: MyEMSL Data Management and Integration Tools
+Group: System Environment/Base
+License: UNKNOWN
+Source: %{name}-%{version}.tar.gz
+Requires: glib2, httpd, mod_python
+BuildRequires: glib2-devel, swig, libarchive-devel, python-devel, pacifica-builddeps >= 021, fuse-libs, fuse, fuse-devel
+BuildRoot: %{_tmppath}/@PACKAGE_NAME@-%{version}-%{release}
+
+%if 0%{?rhel} && 0%{?rhel} <= 5
+%{!?python_sitelib: %global python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")}
+%{!?python_sitearch: %global python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
+%{?filter_setup:
+%filter_provides_in %{python_sitearch}.*\.so$
+%filter_setup
+}
+%endif
+
+%if %(test "x%{dist}" = 'x.el6' && echo 1 || echo 0)
+BuildRequires: java-1.7.0-openjdk
+%else
+	%if %(test x`echo "%{dist}" | cut -c1-3` = 'x.fc' && echo 1 || echo 0)
+BuildRequires: java-1.7.0-openjdk
+	%else
+BuildRequires: java-1.6.0-openjdk
+	%endif
+%endif
+
+%description
+MyEMSL is a Data Management and set of Data Integration Tools for use at EMSL.
+
+%package        devel-doc
+Summary:        Developer documenation package for MyEMSL
+Group:          System Environment/Base
+
+%description    devel-doc
+Developer documentation package for MyEMSL
+
+%package        devel
+Summary:        Devel package for MyEMSL
+Group:          System Environment/Base
+Requires:       createrepo
+
+%description    devel
+Devel package for MyEMSL
+
+%package        notification
+Summary:        Notification Services for MyEMSL
+Group:          System Environment/Base
+Requires: inn, python-cheetah
+
+%description    notification
+Notification Daemon for MyEMSL
+
+%package        client
+Summary:        MyEMSL client
+Group:          System Environment/Base
+Requires:	%{name}-common, postgresql-python
+
+%description    client
+MyEMSL client
+
+%package        client-server
+Summary:        Server for downloading the client
+Group:          System Environment/Base
+Requires:	createrepo, yum-utils
+
+%description    client-server
+Server for downloading MyEMSL client software
+
+%package        database-backup
+Summary:        Scripts for backing up the database
+Group:          System Environment/Base
+Requires:	coreutils, postgresql, %{name}-ingestor-core
+
+%description    database-backup
+Scripts for backing up the database
+
+%package        database-schema
+Summary:        Database Schema for MyEMSL
+Group:          System Environment/Base
+Requires:	sudo
+
+%description    database-schema
+Database Schema for MyEMSL
+
+%package        database
+Summary:        Database for MyEMSL
+Group:          System Environment/Base
+Requires: %{name}-database, %{name}-common
+
+%description    database
+Database for MyEMSL
+
+%package        web-nagiosrmtrans-ssl
+Summary:        Nagios Remove Transaction Service
+Group:          System Environment/Base
+Requires: %{name}-web-ssl, buhfs
+
+%description    web-nagiosrmtrans-ssl
+Nagios Remove Transaction Service
+
+%package        web-notify-ssl
+Summary:        Notification Service
+Group:          System Environment/Base
+Requires: %{name}-web-ssl, %{name}-elasticsearch-sync
+
+%description    web-notify-ssl
+Notify Service
+
+%package -n     nagios-plugins-myemsl
+Summary:        Nagios Test Scripts
+Group:          System Environment/Base
+Requires: myemsl-common
+BuildRequires: httpd
+
+%description -n nagios-plugins-myemsl
+Nagios Test Scripts
+
+%package        web-eushandoff-ssl
+Summary:        EUS Handoff Service
+Group:          System Environment/Base
+
+%description    web-eushandoff-ssl
+EUS Handoff Service
+
+%package        eus2myemsl
+Summary:        EUS User/PW to MyEMSL Service
+Group:          System Environment/Base
+Requires: PyPAM
+
+%description    eus2myemsl
+EUS User/PW to MyEMSL Service
+
+%package        web-services
+Summary:        Services description
+Group:          System Environment/Base
+Requires: %{name}-web %{name}-web-services-common
+#BuildArch: noarch
+
+%description    web-services
+Services description for MyEMSL
+
+%package        web-services-ssl
+Summary:        Services description over ssl
+Group:          System Environment/Base
+Requires: %{name}-web-ssl %{name}-web-services-common
+#BuildArch: noarch
+
+%description    web-services-ssl
+Services description for MyEMSL over ssl
+
+%package        web-services-common
+Summary:        Common Services Code
+Group:          System Environment/Base
+Requires: %{name}-web-common
+
+%description    web-services-common
+Services description for MyEMSL
+
+%package        web-sample-ingest
+Summary:        Sample ingest page
+Group:          System Environment/Base
+Requires: %{name}-web-sample-ingest-common %{name}-web
+#BuildArch: noarch
+
+%description    web-sample-ingest
+Sample ingest page for MyEMSL
+
+%package        web-sample-ingest-ssl
+Summary:        Sample ingest page
+Group:          System Environment/Base
+Requires: %{name}-web-sample-ingest-common %{name}-web-ssl
+#BuildArch: noarch
+
+%description    web-sample-ingest-ssl
+Sample ingest page SSL for MyEMSL
+
+%package        web-sample-ingest-common
+Summary:        Common Sample Ingest Program
+Group:          System Environment/Base
+Requires: %{name}-web-common, %{name}-ingestor-core
+
+%description    web-sample-ingest-common
+Common sample ingest page for MyEMSL
+
+%package        web-test
+Summary:        Test code
+Group:          System Environment/Base
+Requires: %{name}-web %{name}-web-test-common
+#BuildArch: noarch
+
+%description    web-test
+Test code for MyEMSL
+
+%package        web-test-ssl
+Summary:        Test code over ssl
+Group:          System Environment/Base
+Requires: %{name}-web-ssl %{name}-web-test-common
+#BuildArch: noarch
+
+%description    web-test-ssl
+Test code for MyEMSL over ssl
+
+%package        web-test-common
+Summary:        Common Test Code
+Group:          System Environment/Base
+Requires: %{name}-web-common
+
+%description    web-test-common
+Test code for MyEMSL
+
+%package        web-ingestor
+Summary:        Ingestor programs
+Group:          System Environment/Base
+Requires: %{name}-web-ingestor-common %{name}-web
+#BuildArch: noarch
+
+%description    web-ingestor
+Ingestor programs for MyEMSL
+
+%package        web-ingestor-ssl
+Summary:        Ingestor programs
+Group:          System Environment/Base
+Requires: %{name}-web-ingestor-common %{name}-web-ssl
+#BuildArch: noarch
+
+%description    web-ingestor-ssl
+Ingestor programs for MyEMSL
+
+%package        web-ingestor-common
+Summary:        Common Ingestor Code
+Group:          System Environment/Base
+Requires: %{name}-web-common, %{name}-ingestor-core, libxslt-python
+
+%description    web-ingestor-common
+Ingestor programs for MyEMSL
+
+%package        ingestor-core
+Summary:        Ingestor core programs
+Group:          System Environment/Base
+Requires: %{name}-common, python-simplejson, slurm, slurm-munge, munge, unzip, tar, %{name}-archive
+
+%description    ingestor-core
+Ingestor core programs for MyEMSL
+
+#FIXME The archive series of packages is only needed while myemsl 1.0 archive locations are still supported.
+%package        archive-standalone
+Summary:        Standalone Archive
+Group:          System Environment/Base
+Requires:	%{name}-common
+Provides:	%{name}-archive
+
+%description    archive-standalone
+Standalone Archive for MyEMSL
+
+%package        archive-hpss
+Summary:        HPSS Archive
+Group:          System Environment/Base
+Requires:	%{name}-common
+Provides:	%{name}-archive
+
+%description    archive-hpss
+HPSS Archive for MyEMSL
+
+%package        sumcheck
+Summary:        Sumcheck programs
+Group:          System Environment/Base
+Requires: %{name}-common
+
+%description    sumcheck
+Sumcheck programs for MyEMSL
+
+%package        cartd
+Summary:        Cart processing programs
+Group:          System Environment/Base
+Requires: %{name}-server-common, python-service-poke >= 1.0.2, amalgam >= 0.0.5, python-cheetah
+
+%description    cartd
+
+Cart processing programs for MyEMSL
+
+%package        web-query
+Summary:        Query programs
+Group:          System Environment/Base
+Requires: %{name}-query-common %{name}-web
+#BuildArch: noarch
+
+%description    web-query
+Query programs for MyEMSL
+
+%package        web-query-ssl
+Summary:        Query SSL programs
+Group:          System Environment/Base
+Requires: %{name}-query-common %{name}-web-ssl
+#BuildArch: noarch
+
+%description    web-query-ssl
+Query SSL programs for MyEMSL
+
+%package        web-query-raw-ssl
+Summary:        Query raw SSL programs
+Group:          System Environment/Base
+Requires: %{name}-query-common %{name}-web-ssl
+Conflicts: %{name}-web-query-raw
+#BuildArch: noarch
+
+%description    web-query-raw-ssl
+Query raw SSL programs for MyEMSL
+
+%package        query-common
+Summary:        Common Query code
+Group:          System Environment/Base
+Requires: %{name}-common, python-simplejson
+
+%description    query-common
+Common Query code for MyEMSL
+
+%package        web-elasticsearch
+Summary:        Elastic Search code
+Group:          System Environment/Base
+Requires: %{name}-web-elasticsearch-common %{name}-web
+#BuildArch: noarch
+
+%description    web-elasticsearch
+Elastic Search for MyEMSL
+
+%package        web-elasticsearch-ssl
+Summary:        Elastic Search code
+Group:          System Environment/Base
+Requires: %{name}-web-elasticsearch-common %{name}-web-ssl
+#BuildArch: noarch
+
+%description    web-elasticsearch-ssl
+Elastic Search for MyEMSL
+
+%package        web-elasticsearch-common
+Summary:        Common Elastic Search code
+Group:          System Environment/Base
+Requires: %{name}-web-common
+
+%description    web-elasticsearch-common
+Elastic Search code for MyEMSL
+
+%package        elasticsearch-sync
+Summary:        MyEMSL Elastic Search sync processes
+Group:          System Environment/Base
+Requires: %{name}-web-elasticsearch-common, pymssql, service-poke >= 1.0.2
+
+%description    elasticsearch-sync
+MyEMSL Elastic Search sync processes for MyEMSL
+
+%package        web-elasticsearch-proxy
+Summary:        Elastic Search proxy code
+Group:          System Environment/Base
+Requires: %{name}-web-elasticsearch-common %{name}-web
+#BuildArch: noarch
+
+%description    web-elasticsearch-proxy
+Elastic Search proxy for MyEMSL
+
+%package        web-elasticsearch-proxy-ssl
+Summary:        Elastic Search code
+Group:          System Environment/Base
+Requires: %{name}-web-elasticsearch-common %{name}-web-ssl
+#BuildArch: noarch
+
+%description    web-elasticsearch-proxy-ssl
+Elastic Search proxy for MyEMSL
+
+%package        web-predicate
+Summary:        predicate related programs
+Group:          System Environment/Base
+Requires: %{name}-web-predicate-common %{name}-web
+#BuildArch: noarch
+
+%description    web-predicate
+Predicate related things for MyEMSL
+
+%package        web-predicate-ssl
+Summary:        Predicate related SSL programs
+Group:          System Environment/Base
+Requires: %{name}-web-predicate-common %{name}-web-ssl
+#BuildArch: noarch
+
+%description    web-predicate-ssl
+Predicate related SSL things for MyEMSL
+
+%package        web-predicate-common
+Summary:        Common predicate code
+Group:          System Environment/Base
+Requires: %{name}-web-common
+
+%description    web-predicate-common
+Predicate related common code for MyEMSL
+
+%package        web-cart
+Summary:        Cart programs
+Group:          System Environment/Base
+Requires: %{name}-web-cart-common %{name}-web elasticsearch
+#BuildArch: noarch
+
+%description    web-cart
+Cart for MyEMSL
+
+%package        web-cart-ssl
+Summary:        Cart SSL programs
+Group:          System Environment/Base
+Requires: %{name}-web-cart-common %{name}-web-ssl
+#BuildArch: noarch
+
+%description    web-cart-ssl
+Cart for MyEMSL
+
+%package        web-cart-proxy
+Summary:        Cart Proxy programs
+Group:          System Environment/Base
+Requires: %{name}-web-cart-proxy-common %{name}-web elasticsearch
+#BuildArch: noarch
+
+%description    web-cart-proxy
+Cart Proxy for MyEMSL
+
+%package        web-cart-proxy-ssl
+Summary:        Cart Proxy SSL programs
+Group:          System Environment/Base
+Requires: %{name}-web-cart-proxy-common %{name}-web-ssl
+#BuildArch: noarch
+
+%description    web-cart-proxy-ssl
+Cart Proxy for MyEMSL
+
+%package        web-cart-proxy-common
+Summary:        Common Proxy cart code
+Group:          System Environment/Base
+Requires: %{name}-web-common, %{name}-server-common
+
+%description    web-cart-proxy-common
+Common Proxy Cart code for MyEMSL
+
+%package        web-cart-common
+Summary:        Common cart code
+Group:          System Environment/Base
+Requires: %{name}-web-common, %{name}-server-common, amalgam >= 0.0.6
+
+%description    web-cart-common
+Common Cart code for MyEMSL
+
+%package        web-iteminfo
+Summary:        Item Info programs
+Group:          System Environment/Base
+Requires: %{name}-web-iteminfo-common %{name}-web
+#BuildArch: noarch
+
+%description    web-iteminfo
+Item Info for MyEMSL
+
+%package        web-iteminfo-ssl
+Summary:        Item Info SSL programs
+Group:          System Environment/Base
+Requires: %{name}-web-iteminfo-common %{name}-web-ssl
+#BuildArch: noarch
+
+%description    web-iteminfo-ssl
+Item Info SSL for MyEMSL
+
+%package        web-iteminfo-common
+Summary:        Common Query code
+Group:          System Environment/Base
+Requires: %{name}-web-common
+
+%description    web-iteminfo-common
+Common Item Info code for MyEMSL
+
+%package        web-item
+Summary:        Item programs
+Group:          System Environment/Base
+Requires: %{name}-web-item-common %{name}-web
+#BuildArch: noarch
+
+%description    web-item
+Item Info for MyEMSL
+
+%package        web-item-ssl
+Summary:        Item SSL programs
+Group:          System Environment/Base
+Requires: %{name}-web-item-common %{name}-web-ssl
+#BuildArch: noarch
+
+%description    web-item-ssl
+Item Info SSL for MyEMSL
+
+%package        web-item-common
+Summary:        Common Query code
+Group:          System Environment/Base
+Requires: %{name}-web-common %{name}-archive mod_xsendfile
+
+%description    web-item-common
+Common Item Info code for MyEMSL
+
+%package        web-personinfo
+Summary:        Person Info programs
+Group:          System Environment/Base
+Requires: %{name}-web-personinfo-common %{name}-web
+#BuildArch: noarch
+
+%description    web-personinfo
+Person Info for MyEMSL
+
+%package        web-personinfo-ssl
+Summary:        Pesrson Info SSL programs
+Group:          System Environment/Base
+Requires: %{name}-web-personinfo-common %{name}-web-ssl
+#BuildArch: noarch
+
+%description    web-personinfo-ssl
+Person Info SSL for MyEMSL
+
+%package        web-personinfo-common
+Summary:        Common Query code
+Group:          System Environment/Base
+Requires: %{name}-web-common
+
+%description    web-personinfo-common
+Common Person Info code for MyEMSL
+
+%package        web-personinfo-raw-ssl
+Summary:        Person info raw SSL programs
+Group:          System Environment/Base
+Requires: %{name}-web-personinfo-common %{name}-web-ssl
+#BuildArch: noarch
+
+%description    web-personinfo-raw-ssl
+Person info raw SSL programs for MyEMSL
+
+%package        web
+Summary:        Base web config
+Group:          System Environment/Base
+Requires: /etc/myemsl/webauth.conf %{name}-web-common
+#BuildArch: noarch
+
+%description    web
+Base web config for MyEMSL
+
+%package        web-ssl
+Summary:        Base ssl web config
+Group:          System Environment/Base
+Requires: /etc/myemsl/webauth-ssl.conf %{name}-web-common mod_ssl
+#BuildArch: noarch
+
+%description    web-ssl
+Base web ssl config for MyEMSL
+
+%package        web-common
+Summary:        Base web common config
+Group:          System Environment/Base
+Requires: httpd, %{name}-server-common, mod_python
+#BuildArch: noarch
+
+%description    web-common
+Base web common config for MyEMSL
+
+%package        server-common
+Summary:        Base server common files
+Group:          System Environment/Base
+Requires: %{name}-common, postgresql-python, slurm, pyxattr
+#FIXME remove slurm requirement later.
+#BuildArch: noarch
+
+%description    server-common
+Base server common files for MyEMSL
+
+%package        web-kerberos
+Summary:        Website Kerberos configuration
+Group:          System Environment/Base
+Requires: mod_auth_kerb
+
+%description    web-kerberos
+Website Kerberos configuration bits for MyEMSL
+
+%package        common
+Summary:        Common Components
+Group:          System Environment/Base
+Requires: python-hashlib, python-pycurl, python-importlib
+
+%description    common
+Common components for MyEMSL
+
+%prep
+%setup -q -n @PACKAGE_NAME@-%{version}
+
+%build
+%configure 
+%{__make} %{_smp_mflags}
+
+%install
+make install DESTDIR=%{buildroot}
+rm -rf %{buildroot}/usr/lib/python2.7/site-packages/myemsl-@VERSION@-py2.7.egg-info || true
+dir=%{buildroot}/%{_defaultdocdir}/myemsl
+for package in ingestor-core ingestor query database-schema database cart iteminfo personinfo common sumcheck eushandoffhandler notify
+do
+	mkdir -p $dir/$package
+	./svnver.sh . > $dir/$package/svnver.txt
+	./svnbranch.sh . > $dir/$package/svnbranch.txt
+done
+rm -vf %{python_sitelib}/%{name}-*egg-info
+
+%clean
+rm -rf %{buildroot}
+
+%files archive-standalone
+%defattr(-,root,root)
+%{_libexecdir}/myemsl/mount.d/50-item-standalone
+
+%files archive-hpss
+%defattr(-,root,root)
+%{_libexecdir}/myemsl/mount.d/50-item-hpss
+%{_libexecdir}/myemsl/mount.d/25-ingest
+
+%files ingestor-core
+%defattr(-,root,root)
+%{_defaultdocdir}/myemsl/ingestor-core
+%attr(4111,root,root) %{_bindir}/myemsl_ingest
+%attr(4111,root,root) %{_bindir}/myemsl_status
+%{_datadir}/%{name}/*.xsl
+%{_libexecdir}/myemsl/ingest/ingest_vni
+%{_libexecdir}/myemsl/ingest/status_vni
+%{_libexecdir}/myemsl/ingest/ingest_job
+%{_bindir}/myemsl_bundler
+/%{python_sitelib}/myemsl/ingest/__init__.py*
+%{_libexecdir}/myemsl/outage.d/50-slurm
+/%{python_sitelib}/myemsl/archive.py*
+/%{python_sitelib}/_myemsl_archive.py
+/%{python_sitelib}/_myemsl_archive.pyc
+/%{python_sitelib}/_myemsl_archive.pyo
+/%{python_sitearch}/__myemsl_archive.a
+/%{python_sitearch}/__myemsl_archive.la
+/%{python_sitearch}/__myemsl_archive.so
+/%{python_sitearch}/__myemsl_archive.so.0
+/%{python_sitearch}/__myemsl_archive.so.0.0.0
+
+%files sumcheck
+%{_defaultdocdir}/myemsl/sumcheck
+%{_sysconfdir}/cron.hourly/myemsl_sumcheck
+%{_libexecdir}/myemsl/sumcheck/sumcheck
+%{_libexecdir}/myemsl/sumcheck/sumcheck_job
+
+%files -n nagios-plugins-myemsl
+%defattr(0755,root,root)
+%{_libdir}/nagios/plugins/check_myemsl_upload*
+/%{python_sitelib}/myemsl/nagiosrmtransremote/__init__.py*
+%defattr(0644,root,root)
+%{_prefix}/lib/myemsl/nagios/nagios_test.tar
+
+%files web-nagiosrmtrans-ssl
+%{_prefix}/lib/myemsl/apache/myemsl-ssl.d/nagiosrmtrans.conf
+%defattr(0644,root,root)
+/%{python_sitelib}/myemsl/service/nagiosrmtrans/__init__.py*
+/%{python_sitelib}/myemsl/handler/nagiosrmtrans/__init__.py*
+%defattr(4750,root,apache)
+%{_libexecdir}/myemsl/mount.d/50-nagios
+%{_bindir}/myemsl_nagios_rmtrans
+%defattr(0755,root,root)
+
+%files web-services
+%{_prefix}/lib/myemsl/apache/myemsl.d/services.conf
+
+%files web-services-ssl
+%{_prefix}/lib/myemsl/apache/myemsl-ssl.d/services.conf
+
+%files web-services-common
+%defattr(0644,root,root)
+%config(noreplace) %{_sysconfdir}/myemsl/services.xml
+
+%files web-eushandoff-ssl
+%{_prefix}/lib/myemsl/apache/myemsl-ssl.d/eushandoff.conf
+%{_defaultdocdir}/myemsl/eushandoffhandler
+%defattr(0644,root,root)
+/%{python_sitelib}/myemsl/handler/eushandoff/__init__.py*
+
+%files web-test
+%{_prefix}/lib/myemsl/apache/myemsl.d/test.conf
+
+%files web-test-ssl
+%{_prefix}/lib/myemsl/apache/myemsl-ssl.d/test.conf
+
+%files web-test-common
+%{_localstatedir}/www/myemsl/test/*
+
+%files eus2myemsl
+/%{python_sitelib}/myemsl/euslogin/__init__.py*
+/%{python_sitelib}/myemsl/eus2login/__init__.py*
+/%{python_sitelib}/myemsl/eus2myemsl/__init__.py*
+/%{python_sitelib}/myemsl/pam/__init__.py*
+
+%files web-sample-ingest
+%{_prefix}/lib/myemsl/apache/myemsl.d/sampleingest.conf
+
+%files web-sample-ingest-ssl
+%{_prefix}/lib/myemsl/apache/myemsl-ssl.d/sampleingest.conf
+
+%files web-sample-ingest-common
+%defattr(-,root,root)
+%{_localstatedir}/www/myemsl/sample-ingest/*
+
+%files web-ingestor
+%{_prefix}/lib/myemsl/apache/myemsl.d/ingest.conf
+%{_prefix}/lib/myemsl/apache/myemsl.d/status.conf
+
+%files web-ingestor-ssl
+%{_prefix}/lib/myemsl/apache/myemsl-ssl.d/ingest.conf
+%{_prefix}/lib/myemsl/apache/myemsl-ssl.d/status.conf
+
+%files web-ingestor-common
+%{_defaultdocdir}/myemsl/ingestor
+%defattr(0644,root,root)
+%{_prefix}/lib/myemsl/apache/outage.d/sstp.d/ingest
+/%{python_sitelib}/myemsl/authzpersondir/stage.*
+/%{python_sitelib}/myemsl/service/sstp/*
+/%{python_sitelib}/myemsl/handler/sstp/*
+%{_localstatedir}/www/myemsl/status/*
+%attr(4111,root,root) %{_bindir}/myemsl_mkstagedir
+%defattr(-,root,root)
+%dir %{_localstatedir}/www/myemsl
+%dir %{_localstatedir}/www/myemsl/cgi-bin
+%dir %{_localstatedir}/www/myemsl/status
+%{_localstatedir}/www/myemsl/cgi-bin/*
+%defattr(0755,apache,apache)
+%dir %{_localstatedir}/www/myemsl/staging
+
+%files web-query
+%defattr(0644,root,root)
+%{_prefix}/lib/myemsl/apache/myemsl.d/query.conf
+%{_prefix}/lib/myemsl/apache/myemsl.d/dmspath.conf
+
+%files web-query-ssl
+%defattr(0644,root,root)
+%{_prefix}/lib/myemsl/apache/myemsl-ssl.d/query.conf
+%{_prefix}/lib/myemsl/apache/myemsl-ssl.d/dmspath.conf
+
+%files web-query-raw-ssl
+%defattr(0644,root,root)
+%{_prefix}/lib/myemsl/apache/myemsl-ssl.d/query-raw.conf
+
+%files query-common
+%{_defaultdocdir}/myemsl/query
+%defattr(0755,root,root)
+/%{python_sitelib}/myemsl/service/query*
+/%{python_sitelib}/myemsl/handler/query*
+/%{python_sitelib}/myemsl/service/dmspath*
+/%{python_sitelib}/myemsl/handler/dmspath*
+%{_prefix}/lib/myemsl/wsgi-scripts/query-raw.wsgi
+%{_prefix}/lib/myemsl/wsgi-scripts/query.wsgi
+%defattr(0755,root,root)
+
+%files elasticsearch-sync
+%{_sysconfdir}/cron.hourly/myemsl_elasticsearch_sync
+%{_sysconfdir}/init.d/myemsl_elasticsearch
+%{_prefix}/share/myemsl/elasticsearch-service-poke.ini
+%{_prefix}/libexec/myemsl/elasticsearch_sync
+%{_bindir}/myemsl_elasticsearch_sync
+%{_bindir}/myemsl_unitsearch_import
+%config(noreplace) %{_localstatedir}/lib/myemsl/dms.json
+
+%files web-elasticsearch
+%defattr(0644,root,root)
+%{_prefix}/lib/myemsl/apache/myemsl.d/elasticsearch.conf
+%{_prefix}/lib/myemsl/apache/myemsl.d/simple-search.conf
+%{_prefix}/lib/myemsl/apache/myemsl.d/proposal-finder.conf
+
+%files web-elasticsearch-ssl
+%defattr(0644,root,root)
+%{_prefix}/lib/myemsl/apache/myemsl-ssl.d/elasticsearch.conf
+%{_prefix}/lib/myemsl/apache/myemsl-ssl.d/simple-search.conf
+%{_prefix}/lib/myemsl/apache/myemsl-ssl.d/proposal-finder.conf
+
+%files web-elasticsearch-proxy
+%defattr(0644,root,root)
+%{_prefix}/lib/myemsl/apache/myemsl.d/elasticsearch-proxy.conf
+%{_prefix}/lib/myemsl/apache/myemsl.d/simple-search.conf
+%{_prefix}/lib/myemsl/apache/myemsl.d/proposal-finder.conf
+
+%files web-elasticsearch-proxy-ssl
+%defattr(0644,root,root)
+%{_prefix}/lib/myemsl/apache/myemsl-ssl.d/elasticsearch-proxy.conf
+%{_prefix}/lib/myemsl/apache/myemsl-ssl.d/simple-search.conf
+%{_prefix}/lib/myemsl/apache/myemsl-ssl.d/proposal-finder.conf
+
+%files web-elasticsearch-common
+%defattr(0755,root,root)
+%{_sysconfdir}/security/limits.d/99-elasticsearch.conf
+/%{python_sitelib}/myemsl/elasticsearch/*
+/%{python_sitelib}/myemsl/service/elasticsearch*
+/%{python_sitelib}/myemsl/service/itemauth*
+/%{python_sitelib}/myemsl/handler/elasticsearch*
+/%{python_sitelib}/myemsl/handler/itemauth*
+%{_localstatedir}/www/myemsl/search/simple/index.shtml
+%{_localstatedir}/www/myemsl/proposal-finder/index.shtml
+%{_localstatedir}/www/myemsl/proposal-finder/layout.html
+%{_localstatedir}/www/myemsl/proposal-finder/test-selector.shtml
+%{_localstatedir}/www/myemsl/api/1/elasticsearch/generic-finder.js
+%{_localstatedir}/www/myemsl/api/1/elasticsearch/generic-finder-layout.html
+%{_localstatedir}/www/myemsl/api/1/elasticsearch/generic-input-plus-finder.js
+%{_localstatedir}/www/myemsl/api/1/elasticsearch/generic-local-predicate-wizard.js
+%{_localstatedir}/www/myemsl/api/1/elasticsearch/generic-local-predicate-wizard-layout.html
+%{_localstatedir}/www/myemsl/api/1/elasticsearch/generic-predicate-input.js
+%{_localstatedir}/www/myemsl/api/1/myemsl-widgets-standalone.js
+%{_localstatedir}/www/myemsl/api/1/myemsl-widgets-standalone.min.js
+%{_localstatedir}/www/myemsl/api/1/myemsl-widgets.css
+%{_localstatedir}/www/myemsl/api/1/myemsl-widgets.js
+%{_localstatedir}/www/myemsl/api/1/myemsl-widgets.min.js
+%{_localstatedir}/www/myemsl/api/1/myemsl-widgets-main.js
+%{_localstatedir}/www/myemsl/api/1/myemsl-search-pager-helper.js
+%{_localstatedir}/www/myemsl/api/1/myemsl-search-pager.js
+%config(noreplace) %{_sysconfdir}/myemsl/elasticsearch-proxy.conf
+
+%defattr(0755,root,root)
+
+%files web-predicate
+%defattr(0644,root,root)
+%{_prefix}/lib/myemsl/apache/myemsl.d/predicate.conf
+
+%files web-predicate-ssl
+%defattr(0644,root,root)
+%{_prefix}/lib/myemsl/apache/myemsl-ssl.d/predicate.conf
+
+%files web-predicate-common
+%{_defaultdocdir}/myemsl/iteminfo
+%defattr(0755,root,root)
+/%{python_sitelib}/myemsl/service/predicate*
+/%{python_sitelib}/myemsl/handler/predicate*
+%defattr(0755,root,root)
+
+%files web-cart
+%defattr(0644,root,root)
+%{_prefix}/lib/myemsl/apache/myemsl.d/cart.conf
+%{_prefix}/lib/myemsl/apache/myemsl.d/cart-local.conf
+
+%files web-cart-ssl
+%defattr(0644,root,root)
+%{_prefix}/lib/myemsl/apache/myemsl-ssl.d/cart.conf
+%{_prefix}/lib/myemsl/apache/myemsl-ssl.d/cart-local.conf
+
+%files web-cart-proxy
+%defattr(0644,root,root)
+%{_prefix}/lib/myemsl/apache/myemsl.d/cart.conf
+%{_prefix}/lib/myemsl/apache/myemsl.d/cart-proxy.conf
+
+%files web-cart-proxy-ssl
+%defattr(0644,root,root)
+%{_prefix}/lib/myemsl/apache/myemsl-ssl.d/cart.conf
+%{_prefix}/lib/myemsl/apache/myemsl-ssl.d/cart-proxy-ssl.conf
+
+%files web-cart-common
+%{_defaultdocdir}/myemsl/cart
+%defattr(0755,root,root)
+/%{python_sitelib}/myemsl/service/cart*
+/%{python_sitelib}/myemsl/handler/cart*
+/%{python_sitelib}/myemsl/authzpersondir/cart.*
+%{_libexecdir}/myemsl/mount.d/75-amalgam
+%{_libdir}/libfusemod_myemslauth.so*
+%{_libdir}/libfusemod_myemslauth.*a
+%{_localstatedir}/www/myemsl/admin/cart
+%defattr(0755,root,root)
+
+%files web-cart-proxy-common
+%{_defaultdocdir}/myemsl/cart
+%defattr(0755,root,root)
+/%{python_sitelib}/myemsl/service/cart*
+/%{python_sitelib}/myemsl/handler/cart*
+%{_localstatedir}/www/myemsl/admin/cart
+%config(noreplace) %{_sysconfdir}/myemsl/cart-proxy.conf
+%defattr(0755,root,root)
+
+%files web-iteminfo
+%defattr(0644,root,root)
+%{_prefix}/lib/myemsl/apache/myemsl.d/iteminfo.conf
+
+%files web-iteminfo-ssl
+%defattr(0644,root,root)
+%{_prefix}/lib/myemsl/apache/myemsl-ssl.d/iteminfo.conf
+
+%files web-iteminfo-common
+%{_defaultdocdir}/myemsl/iteminfo
+%defattr(0755,root,root)
+/%{python_sitelib}/myemsl/service/qrs*
+/%{python_sitelib}/myemsl/service/iteminfo*
+/%{python_sitelib}/myemsl/handler/qrs*
+/%{python_sitelib}/myemsl/handler/iteminfo*
+%defattr(0755,root,root)
+
+%files web-item
+%defattr(0644,root,root)
+%{_prefix}/lib/myemsl/apache/myemsl.d/item.conf
+
+%files web-item-ssl
+%defattr(0644,root,root)
+%{_prefix}/lib/myemsl/apache/myemsl-ssl.d/item.conf
+
+%files web-item-common
+%{_defaultdocdir}/myemsl/iteminfo
+%defattr(0755,root,root)
+/%{python_sitelib}/myemsl/auth/modpython/item*
+/%{python_sitelib}/myemsl/service/itemserverposix*
+%{_libexecdir}/myemsl/itemauthgenkeys
+%{_libexecdir}/myemsl/itemtokengen
+%defattr(0755,root,root)
+
+%files web-personinfo
+%defattr(0644,root,root)
+%{_prefix}/lib/myemsl/apache/myemsl.d/personinfo.conf
+
+%files web-personinfo-ssl
+%defattr(0644,root,root)
+%{_prefix}/lib/myemsl/apache/myemsl-ssl.d/personinfo.conf
+
+%files web-personinfo-common
+%{_defaultdocdir}/myemsl/personinfo
+%defattr(0755,root,root)
+/%{python_sitelib}/myemsl/service/personinfo/*
+/%{python_sitelib}/myemsl/handler/personinfo*
+
+%files web-personinfo-raw-ssl
+%defattr(0644,root,root)
+%{_prefix}/lib/myemsl/apache/myemsl-ssl.d/personinforaw.conf
+%defattr(0755,root,root)
+
+%files web-notify-ssl
+%{_defaultdocdir}/myemsl/notify
+%attr(0644,root,root) %{_prefix}/lib/myemsl/apache/myemsl-ssl.d/notify.conf
+%defattr(0755,root,root)
+/%{python_sitelib}/myemsl/service/notify*
+/%{python_sitelib}/myemsl/handler/notify*
+
+%files client-server
+%attr(0644,root,root) %{_prefix}/lib/myemsl/apache/myemsl.d/client.conf
+%attr(0644,root,root) %{_prefix}/lib/myemsl/apache/myemsl-ssl.d/client.conf
+%{_sysconfdir}/cron.hourly/client-update.cron
+
+%files database-backup
+%{_sysconfdir}/cron.daily/myemsl-dbbackup.cron
+%{_sbindir}/myemsldbdump
+
+%files web
+%{_prefix}/lib/myemsl/apache/myemsl.d/auth.conf
+%{_prefix}/lib/myemsl/apache/myemsl.d/logout.conf
+%{_prefix}/lib/myemsl/apache/myemsl.d/testauth.conf
+%{_prefix}/lib/myemsl/apache/myemsl.d/outage.conf
+%{_prefix}/lib/myemsl/apache/myemsl.d/error_nopersonid.conf
+%{_prefix}/lib/myemsl/apache/myemsl.d/401.conf
+%{_prefix}/lib/myemsl/apache/myemsl.d/preferences.conf
+%{_prefix}/lib/myemsl/apache/myemsl.d/api.conf
+%{_prefix}/lib/myemsl/apache/myemsl.d/admin.conf
+%{_sysconfdir}/httpd/conf.d/myemsl.conf
+
+%files web-ssl
+%{_prefix}/lib/myemsl/apache/myemsl-ssl.d/auth.conf
+%{_prefix}/lib/myemsl/apache/myemsl-ssl.d/logout.conf
+%{_prefix}/lib/myemsl/apache/myemsl-ssl.d/testauth.conf
+%{_prefix}/lib/myemsl/apache/myemsl-ssl.d/outage.conf
+%{_prefix}/lib/myemsl/apache/myemsl-ssl.d/error_nopersonid.conf
+%{_prefix}/lib/myemsl/apache/myemsl-ssl.d/preferences.conf
+%{_prefix}/lib/myemsl/apache/myemsl-ssl.d/api.conf
+%{_prefix}/lib/myemsl/apache/myemsl-ssl.d/admin.conf
+%{_sysconfdir}/httpd/conf.d/myemsl-ssl.conf
+%config(noreplace) %{_sysconfdir}/myemsl/webssl.conf
+%{_prefix}/lib/myemsl/apache/myemsl-ssl.conf
+
+%files web-common
+%defattr(0755,root,root)
+%dir %{_localstatedir}/www/myemsl/testauth
+%{_localstatedir}/www/myemsl/testauth/index.html
+%defattr(0644,root,root)
+%config(noreplace) %{_sysconfdir}/myemsl/webservername.conf
+%config(noreplace) %{_sysconfdir}/myemsl/webredirect.conf
+%defattr(0755,root,root)
+%{_localstatedir}/www/myemsl/api/1/css/ui-lightness/*
+%{_localstatedir}/www/myemsl/api/1/json2.js
+%{_localstatedir}/www/myemsl/api/1/modernizr.js
+%{_localstatedir}/www/myemsl/api/1/jquery.timeago.js
+%{_localstatedir}/www/myemsl/api/1/jquery-jtemplates.js
+%{_localstatedir}/www/myemsl/api/1/jquery.min.js
+%{_localstatedir}/www/myemsl/api/1/jquery-ui.min.js
+%{_localstatedir}/www/myemsl/api/1/jquery.ui.selectmenu.js
+%{_localstatedir}/www/myemsl/api/1/jaysun.js
+%{_localstatedir}/www/myemsl/api/1/require.js
+%{_localstatedir}/www/myemsl/error/nopersonid/*
+%{_localstatedir}/www/myemsl/preferences/index.shtml
+%{_localstatedir}/www/myemsl/preferences/scripts/show-proposals.js
+%{_localstatedir}/www/myemsl/static/*
+%{_localstatedir}/www/myemsl/admin/switchuser/*
+/%{python_sitelib}/myemsl/brand*
+/%{python_sitelib}/myemsl/token*
+/%{python_sitelib}/myemsl/userrewritehandler*
+/%{python_sitelib}/myemsl/auth/__init__.py*
+/%{python_sitelib}/myemsl/auth/modpython/__init__.py*
+/%{python_sitelib}/myemsl/authenhandler*
+/%{python_sitelib}/myemsl/authzpersondir/__init__.*
+/%{python_sitelib}/myemsl/handler/auth*
+/%{python_sitelib}/myemsl/handler/logout*
+/%{python_sitelib}/myemsl/service/outage*
+/%{python_sitelib}/myemsl/service/notification/__init__.*
+/%{python_sitelib}/myemsl/service/admin/__init__.*
+/%{python_sitelib}/myemsl/service/admin/switchuser/__init__.*
+/%{python_sitelib}/myemsl/handler/outage*
+/%{python_sitelib}/myemsl/handler/401*
+/%{python_sitelib}/myemsl/handler/notification/__init__.*
+/%{python_sitelib}/myemsl/handler/admin/__init__.*
+/%{python_sitelib}/myemsl/handler/admin/switchuser/__init__.*
+%{_prefix}/lib/myemsl/apache/webauth-myemsl.conf
+%{_prefix}/lib/myemsl/apache/webauth-storage.conf
+%{_prefix}/lib/myemsl/apache/myemsl.d/static.conf
+%{_prefix}/lib/myemsl/apache/myemsl-ssl.d/static.conf
+
+%files web-kerberos
+%defattr(0644,root,root)
+%{_sysconfdir}/httpd/conf.d/myemsl-krb.conf
+%config(noreplace) %{_sysconfdir}/myemsl/webauth-common.conf
+%config(noreplace) %{_sysconfdir}/myemsl/webauth.conf
+%config(noreplace) %{_sysconfdir}/myemsl/webauth-ssl.conf
+
+%files database-schema
+%{_defaultdocdir}/myemsl/database-schema
+%{_prefix}/lib/myemsl/pgsql_schema
+%defattr(0755,root,root)
+%{_prefix}/lib/myemsl/dbcreate.sh
+
+%files database
+%{_defaultdocdir}/myemsl/database
+/%{python_sitelib}/myemsl/service/getuser
+/%{python_sitelib}/myemsl/handler/getuser
+/%{python_sitelib}/myemsl/handler/transaction
+/%{python_sitelib}/myemsl/service/transaction
+%defattr(0644,root,root)
+%{_prefix}/lib/myemsl/apache/myemsl-ssl.d/getuser.conf
+%{_prefix}/lib/myemsl/apache/myemsl-ssl.d/transaction.conf
+
+%files client
+%{_sysconfdir}/cron.daily/myemsl-client.cron
+
+%files notification
+%{_sysconfdir}/init.d/notification-service
+%{_prefix}/sbin/emsl-notify
+
+%files server-common
+%{_sbindir}/myemsldbadm
+%{_sbindir}/myemsloutage
+%{_sbindir}/myemslmount
+%{_sbindir}/myemsl_ec2_standalone_service_sync
+/%{python_sitelib}/myemsl/cart/__init__.py*
+/%{python_sitelib}/myemsl/permission/__init__.py*
+/%{python_sitelib}/myemsl/service/admin/*
+/%{python_sitelib}/myemsl/handler/admin/*
+%{_libexecdir}/myemsl/servergenkeys
+
+%files cartd
+%{_libexecdir}/myemsl/cart_process2
+%{_libexecdir}/myemsl/cartd
+%{_libexecdir}/myemsl/cartd_child
+%{_libexecdir}/myemsl/cartd_worker
+%{_datadir}/myemsl/cartd-service-poke.ini
+%{_libexecdir}/myemsl/outage.d/50-cartd
+%{_sysconfdir}/cron.hourly/myemsl_cart_process
+%{_sysconfdir}/myemsl/email.cart.admin.template
+%{_sysconfdir}/myemsl/email.cart.user.template
+%config(noreplace) %{_sysconfdir}/myemsl/logging.cartd.conf
+
+%files devel
+%{_sysconfdir}/yum.repos.d/myemsl-devel-local.repo
+%{_defaultdocdir}/myemsl/examples
+%{_sbindir}/myemsl-devel-local
+%{_sbindir}/myemsl-devel-network-register
+/srv/myemsl-devel
+
+%post devel
+createrepo /srv/myemsl-devel
+
+%files devel-doc
+%{_defaultdocdir}/myemsl-devel
+
+%post notification
+chkconfig --add notification-service
+
+%files common
+%{_defaultdocdir}/myemsl/common
+/%{python_sitelib}/myemsl/__init__.py*
+/%{python_sitelib}/myemsl/util.py*
+/%{python_sitelib}/myemsl/logging.py*
+/%{python_sitelib}/myemsl/catchall.py*
+/%{python_sitelib}/myemsl/id2filename.py*
+/%{python_sitelib}/myemsl/getunixuser/__init__.py*
+/%{python_sitelib}/myemsl/getuserremote/__init__.py*
+/%{python_sitelib}/myemsl/websessionremote/__init__.py*
+/%{python_sitelib}/myemsl/eushandoff/__init__.py*
+/%{python_sitelib}/myemsl/uploader/__init__.py*
+/%{python_sitelib}/myemsl/bundler/__init__.py*
+/%{python_sitelib}/myemsl/getstatusremote/__init__.py*
+/%{python_sitelib}/myemsl/getfileremote/__init__.py*
+/%{python_sitelib}/myemsl/loadkeytab/__init__.py*
+/%{python_sitelib}/myemsl/getconfig/__init__.py*
+/%{python_sitelib}/myemsl/getservices/__init__.py*
+/%{python_sitelib}/myemsl/dbconnect/__init__.py*
+/%{python_sitelib}/myemsl/metadata/__init__.py*
+/%{python_sitelib}/myemsl/inoutage/__init__.py*
+/%{python_sitelib}/myemsl/service/auth/__init__.py*
+/%{python_sitelib}/myemsl/handler/__init__.py*
+/%{python_sitelib}/myemsl/service/__init__.py*
+/%{python_sitelib}/myemsl/getpermission/__init__.py*
+/%{python_sitelib}/myemsl/callcurl/__init__.py*
+/%{python_sitelib}/myemsl/prefixtree/__init__.py*
+%{_bindir}/myemsl_getunixuser
+%{_bindir}/myemslupload
+%{_bindir}/myemslbundler
+%defattr(0644,root,root)
+%config(noreplace) %{_sysconfdir}/myemsl/general.ini
+%config(noreplace) %{_sysconfdir}/myemsl/secret.ini
+%config(noreplace) %{_sysconfdir}/myemsl/logging.conf
+%config(noreplace) %{_sysconfdir}/myemsl/email.template
+%if 0%{?rhel} && 0%{?rhel} > 5
+%{python_sitelib}/%{name}-*egg-info
+%endif

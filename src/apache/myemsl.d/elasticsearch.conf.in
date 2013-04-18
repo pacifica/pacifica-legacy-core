@@ -1,0 +1,30 @@
+<Proxy *>
+Order deny,allow
+Allow from all
+</Proxy>
+
+#FIXME lock this down.
+ProxyPass /myemsl/elasticsearch-raw/ http://localhost:9200/
+<Location /myemsl/elasticsearch-raw/>
+        ProxyPassReverse /
+</Location>
+
+<Location /myemsl/elasticsearch>
+	Options Indexes FollowSymLinks MultiViews
+	Order deny,allow
+	include @WEBAUTH_MYEMSL@
+	Require valid-user
+	SetHandler mod_python
+	PythonInterpreter main_interpreter
+	PythonHandler myemsl.handler.elasticsearch
+</Location>
+
+<Location /myemsl/itemauth>
+	Options Indexes FollowSymLinks MultiViews
+	Order deny,allow
+	include @WEBAUTH_MYEMSL@
+	Require valid-user
+	SetHandler mod_python
+	PythonInterpreter main_interpreter
+	PythonHandler myemsl.handler.itemauth
+</Location>

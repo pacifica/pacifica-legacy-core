@@ -1,0 +1,67 @@
+#!/usr/bin/python
+
+import sys
+import os
+import pg
+import pgdb
+import glob
+import xattr
+import tempfile
+import hashlib
+import myemsl.token
+import myemsl.callcurl
+
+import simplejson as json
+
+from optparse import OptionParser
+
+from subprocess import PIPE, Popen
+from myemsl.getconfig import getconfig
+config = getconfig()
+
+import myemsl.getservices
+services = myemsl.getservices.getservices()
+
+from myemsl.dbconnect import do_sql_insert as do_sql
+
+parser = OptionParser()
+parser.add_option("-i", "--itemid", dest="itemid", help="MyEMSL Item ID")
+parser.add_option("-s", "--hash", dest="hash", help="MyEMSL Item Hash")
+
+def update_file(truth = False):
+	if truth:
+		state="t"
+	else:
+		state="f"
+	sql = """
+	UPDATE
+	  myemsl.files
+	SET
+	  verified = '%s',
+	  vtime = now()
+	WHERE
+	  item_id = %s
+	""" % (state, options.itemid) 
+	do_sql(sql, myemsl_schema_versions=['1.0'])
+
+(options, args) = parser.parse_args()
+
+item_id = options.itemid
+hashsum = options.hash
+
+token = myemsl.token.simple_items_token_gen([item_id], duration=60)
+#FIXME Update foo/bar when uuids become part of the protocol.
+url = "%sfoo/bar/%s/0?locked&levels" %(services['item'], item_id)
+url = url.encode('utf-8')
+h = hashlib.sha1()
+
+def update_hash(data):
+	h.update(data)
+
+myemsl.callcurl.call_curl(url, method="GET", auth="bearer", token=token, getread=update_hash)
+
+if h.hexdigest() == hashsum:
+	update_file(True)
+else:
+	update_file(False)
+sys.exit(0)

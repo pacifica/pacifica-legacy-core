@@ -1,0 +1,11 @@
+<Location /myemsl/item>
+	AuthType Bearer
+	AuthName "MyEMSL Item Bearer Token"
+	PythonAuthenHandler myemsl.auth.modpython.item
+	Require valid-user
+	XSendFile on
+	XSendFilePath /srv/myemsl-item
+	SetHandler mod_python
+	PythonInterpreter main_interpreter
+	PythonHandler myemsl.service.itemserverposix
+</Location>

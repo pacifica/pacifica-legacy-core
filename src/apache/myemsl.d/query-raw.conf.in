@@ -1,0 +1,10 @@
+<Location /myemsl/query-raw>
+	Options Indexes FollowSymLinks MultiViews
+	Order deny,allow
+	SSLVerifyClient require
+	SSLVerifyDepth 1
+	SSLCACertificateFile /etc/myemsl/keys/server/local.crt
+	SetHandler mod_python
+	PythonInterpreter main_interpreter
+	PythonHandler myemsl.handler.queryraw
+</Location>

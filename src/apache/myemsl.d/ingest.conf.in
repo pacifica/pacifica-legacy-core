@@ -1,0 +1,26 @@
+DavLockDB /var/tmp/DavLock
+
+Alias /myemsl/staging "/var/www/myemsl/staging"
+<Directory /var/www/myemsl/staging>
+	Dav On
+	Options Indexes FollowSymLinks MultiViews
+	AllowOverride None
+	Order deny,allow
+	include @WEBAUTH_STORAGE@
+	AddHandler mod_python .py
+#	AuthzDefaultAuthoritative Off
+#	AuthzUserAuthoritative Off
+
+	PythonAuthzHandler myemsl.authzpersondir.stage
+	Require myemsl.authzpersondir.stage
+</Directory>
+
+ScriptAlias /myemsl/cgi-bin/ "/var/www/myemsl/cgi-bin/"
+<Directory /var/www/myemsl/cgi-bin>
+	Dav On
+	Options Indexes FollowSymLinks MultiViews
+	AllowOverride None
+	Order deny,allow
+	include @WEBAUTH_STORAGE@
+	Require valid-user
+</Directory>

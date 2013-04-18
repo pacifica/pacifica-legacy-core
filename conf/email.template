@@ -1,0 +1,24 @@
+## This file is an email template used to generate emails 
+##
+## This is a comment and will not appear in the final email.
+##
+## Variables:
+## 
+## proposalId - the proposal id number
+## transactionURL - the URL to view the transaction
+## unsubscribeURL - the URL to unsubscribe
+## filesPerLine - list of uploaded files separated by new lines
+##
+## To use a variable, put a dollar sign in front of it:
+## $proposalId
+##
+Proposal $proposalId has new files available in MyEMSL.
+
+The data is available here:
+$transactionURL
+
+Added or Changed Files
+=====================================
+$filesPerLine
+To unsubscribe from this mailing list, go here:
+$unsubscribeURL

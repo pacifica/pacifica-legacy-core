@@ -1,0 +1,17 @@
+#!/usr/bin/python
+
+import os
+import sys
+import ConfigParser
+
+config = ConfigParser.SafeConfigParser()
+config.read('myemsl_testdb.ini')
+
+if __name__ == '__main__':
+	host = config.get('metadata', 'host')
+	port = []
+	if host.find(":") > 0:
+		(host, newport) = host.split(':')
+		port += ['-p', newport]
+	os.environ['PGPASSWORD'] = config.get('metadata', 'password')	
+	os.execvp('psql', ['psql', '-U', config.get('metadata', 'user'), '-h', host, config.get('metadata', 'database')] + port + sys.argv[1:])

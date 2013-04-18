@@ -1,0 +1,6 @@
+Alias /myemsl/client "/var/www/myemsl/client"
+<Directory /var/www/myemsl/client>
+	Options Indexes FollowSymLinks MultiViews
+	AllowOverride None
+	Order deny,allow
+</Directory>

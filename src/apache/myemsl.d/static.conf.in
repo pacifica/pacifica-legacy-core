@@ -1,0 +1,7 @@
+Alias /myemsl/static /var/www/myemsl/static
+
+<Directory /var/www/myemsl/static>
+    Options Indexes FollowSymLinks MultiViews
+    Order deny,allow
+</Directory>
+

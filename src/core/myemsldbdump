@@ -1,0 +1,11 @@
+#!/usr/bin/python
+
+import os
+import sys
+from myemsl.getconfig import getconfig
+
+config = getconfig()
+
+if __name__ == '__main__':
+	os.environ['PGPASSWORD'] = config.get('metadata', 'password')	
+	os.execvp('pg_dump', ['pg_dump', '-Fc', '-U', config.get('metadata', 'user'), '-h', config.get('metadata', 'host'), config.get('metadata', 'database')] + sys.argv[1:])

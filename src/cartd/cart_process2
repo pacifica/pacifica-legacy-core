@@ -1,0 +1,319 @@
+#!/usr/bin/python
+
+import smtplib
+try:
+	from email.mime.text import MIMEText
+	from email.mime.image import MIMEImage 
+	from email.mime.multipart import MIMEMultipart 
+except ImportError:
+	from email.MIMEText import MIMEText
+	from email.MIMEImage import MIMEImage
+	from email.MIMEMultipart import MIMEMultipart
+
+from Cheetah.Template import Template
+
+import os
+import re
+import sys
+import errno
+import pycurl
+import signal
+import smtplib
+import StringIO
+import tempfile
+import subprocess
+import servicepoke
+import myemsl.cart
+import myemsl.util
+from myemsl.dbconnect import myemsldb_connect
+from myemsl.getconfig import getconfig
+from myemsl.getservices import getservices
+from myemsl.dbconnect import do_sql_select
+from myemsl.dbconnect import do_sql_insert
+import myemsl.logging
+
+def do_stuff(logger):
+	services = getservices()
+	config = getconfig()
+	disk_size = config.cartd.disk_size
+
+	def cartd_poke():
+		file = open('/var/run/myemsl_cartd2.pid', 'r')
+		pid = file.readlines()
+		file.close()
+		os.kill(int(pid[0]), signal.SIGUSR1)
+
+	rows = do_sql_select('select count(cart_id) from myemsl.cart where state = \'download_expiring\';', myemsl_schema_versions=['1.7'])
+	for row in rows:
+		if row[0] > 0:
+			cartd_poke()
+
+#Update all sumbitted cart's sizes.
+	do_sql_insert("""
+UPDATE
+	myemsl.cart
+SET
+	size = a.size
+FROM
+	(
+	SELECT
+		c.cart_id AS cart_id,
+		sum(f.size) AS size
+	FROM
+		myemsl.cart AS c,
+		myemsl.files AS f,
+		myemsl.cart_items AS ci
+	WHERE
+		c.size IS NULL
+	AND
+		c.state = 'submitted'
+	AND
+		ci.cart_id = c.cart_id
+	AND
+		f.item_id = ci.item_id
+	GROUP BY
+		c.cart_id
+	) AS a
+WHERE
+	myemsl.cart.cart_id = a.cart_id
+	""", 0, myemsl_schema_versions=['1.6'])
+
+#Update item counts
+	do_sql_insert("""
+UPDATE
+	myemsl.cart
+SET
+	items = a.items
+FROM
+	(
+	SELECT
+		c.cart_id AS cart_id,
+		count(ci.item_id) AS items
+	FROM
+		myemsl.cart AS c,
+		myemsl.cart_items AS ci
+	WHERE
+		c.items IS NULL
+	AND
+		c.state = 'submitted'
+	AND
+		ci.cart_id = c.cart_id
+	GROUP BY
+		c.cart_id
+	) AS a
+WHERE
+	myemsl.cart.cart_id = a.cart_id
+	""", 0, myemsl_schema_versions=['1.6'])
+
+	def cart_admin_notify():
+		logger.info("admin changed.", rowcount)
+		email_template = open(config.get('cart_admin', 'email_template'), 'r').read()
+		testing_email = None
+		if config.has_option('cart_admin', 'testing_email'):
+			testing_email = config.get('cart_admin', 'testing_email')
+		email_subject = config.get('cart_admin', 'email_subject')
+		email_from = config.get('cart_admin', 'email_from')
+		smtp_server = config.get('cart_admin', 'email_smtp_server')
+		namespace = {'adminCartLink':services['admin_cart']}
+#FIXME unhardcode cart admins.
+		notification_list = ','.join(['Kevin.Fox@pnnl.gov', 'David.Brown@pnnl.gov'])
+		if testing_email == None:
+			to = notification_list
+			contents = ''
+		else:
+			to = testing_email
+			contents = "If you had not configured /etc/myemsl/general.ini, section [cart_admin], option testing_email=%s, the following people would have been notified:\n" %(testing_email)
+			contents += notification_list
+			contents += '\n  The original message will appear below.\n'
+			contents += '-------------------------------------------\n'
+		contents += str(Template(email_template, searchList=[namespace]))
+		contents = re.sub("\n","\r\n", contents)
+		msg = MIMEMultipart()
+		msg['Subject'] = str(Template(email_subject, searchList=[namespace]))
+		msg['From'] = email_from
+		msg['Bcc'] = to
+		mime_text = MIMEText(contents, 'plain')
+		msg.attach(mime_text)
+		smtp = smtplib.SMTP(smtp_server)
+		smtp.sendmail(email_from, to, msg.as_string())
+		smtp.quit()
+
+#Set admin state on big carts.
+	sql = """
+UPDATE
+	myemsl.cart
+SET
+	state = 'admin',
+	last_mtime = now()
+WHERE
+	myemsl.cart.size > %(max_size)i
+AND
+	state = 'submitted'
+	"""
+	do_sql_insert(sql, 0, myemsl_schema_versions=['1.6'], params={'max_size': config.cartd.max_size})
+
+	cnx = myemsldb_connect(myemsl_schema_versions=['1.6'])
+	cursor = cnx.cursor()
+	sql = """
+UPDATE
+	myemsl.cart
+SET
+	state = 'admin_notified',
+	last_mtime = now()
+WHERE
+	state = 'admin'
+	"""
+	cursor.execute(sql)
+	rowcount = cursor.rowcount
+	cnx.commit()
+	cnx.close()
+	if rowcount != 0:
+		cart_admin_notify()
+
+	do_sql_insert("update myemsl.cart set state = 'expiring' where state = 'email' and last_email is not null and last_email + '%i hour' <= now()" %(config.cartd.expire_hours), 0, myemsl_schema_versions=['1.7'])
+
+	def amalgam_pending_filename(pendingdir, cart_id):
+		return "%s/%s.amalgam" %(pendingdir, cart_id)
+
+	def amalgam_ready_filename(readydir, person_id, cart_id):
+		return "%s/%s/%s.amalgam" %(readydir, person_id, cart_id)
+
+	cartd_readydir = config.cartd.readydir
+	cartd_pendingdir = config.cartd.pendingdir
+	cartd_amalgam_readydir = config.cartd.amalgam_readydir
+	cartd_amalgam_pendingdir = config.cartd.amalgam_pendingdir
+
+	rows = do_sql_select('select cart_id, person_id from myemsl.cart where state = \'expiring\';', myemsl_schema_versions=['1.7'])
+	for row in rows:
+		cart_id = row[0]
+		person_id = row[1]
+		try:
+			logger.info("Expiring Cart %i" %(cart_id))
+			myemsl.util.try_remove(amalgam_pending_filename(cartd_amalgam_pendingdir, cart_id))
+			myemsl.util.try_remove(amalgam_ready_filename(cartd_amalgam_readydir, person_id, cart_id))
+			do_sql_insert("update myemsl.cart set state = 'expired' where cart_id = %(cart_id)i", 0, myemsl_schema_versions=['1.7'], params={'cart_id': cart_id})
+			rows2 = do_sql_select('select item_id from myemsl.cart_items where cart_id = %(cart_id)i;', myemsl_schema_versions=['1.7'], params={'cart_id': cart_id})
+			for item_id in rows2:
+				name = myemsl.cart.cart_item2hash(cart_id, item_id)
+				myemsl.util.try_remove("%s/%s" %(cartd_pendingdir, name))
+				myemsl.util.try_remove("%s/%s" %(cartd_readydir, name))
+		except Exception, e:
+			logger.exception("Unknown exception while expiring cart %i. Logging..." %(cart_id))
+
+#disk_size
+	used_size = 0
+	rows = do_sql_select('select sum(size) from myemsl.cart where quota = true', myemsl_schema_versions=['1.6'])
+	for row in rows:
+		if row[0]:
+			used_size = row[0]
+
+	size_left = disk_size - used_size
+	logger.info("Quota left: %s" %(size_left))
+
+	sql = """
+UPDATE
+	myemsl.cart
+SET
+	state = 'downloading',
+	quota = true
+WHERE cart_id IN (
+	SELECT
+		cart_id
+	FROM (
+		SELECT
+			cart_id,
+			person_id,
+			sum(size) OVER (PARTITION BY size) as ssize
+		FROM
+			myemsl.cart
+		WHERE
+			state = 'submitted'
+	) AS A
+	WHERE
+		ssize <= %(size_left)i
+)
+	"""
+	cnx = myemsldb_connect(myemsl_schema_versions=['1.6'])
+	cursor = cnx.cursor()
+	cursor.execute(sql, params={'size_left':size_left})
+	rowcount = cursor.rowcount
+	cnx.commit()
+	cnx.close()
+	if rowcount != 0:
+		logger.debug("Processing %s carts." %(rowcount))
+		cartd_poke()
+
+	rows = do_sql_select('select cart_id, person_id from myemsl.cart where state = \'amalgam\';', myemsl_schema_versions=['1.6'])
+	for row in rows:
+		cart_id = row[0]
+		person_id = row[1]
+		logger.info("amalgam: %s %s" %(cart_id, person_id))
+		file = amalgam_pending_filename(cartd_amalgam_pendingdir, cart_id)
+		cwd = cartd_readydir
+		process = subprocess.Popen(['/usr/bin/amalgambuild', '-s', '-0a', file], shell=False, stdin=subprocess.PIPE, cwd=cwd)
+		cart_rows = do_sql_select('select ci.item_id, f.name, f.subdir, ci.cart_id from myemsl.cart_items as ci, myemsl.files as f where ci.cart_id = %(cart_id)i and ci.item_id = f.item_id;', myemsl_schema_versions=['1.6'], params={'cart_id':cart_id})
+		for crow in cart_rows:
+			item_id = crow[0]
+			name = crow[1]
+			subdir = crow[2]
+			cart_id = crow[3]
+			if subdir != '' and subdir != None:
+				subdir = '/' + subdir
+			process.stdin.write("%s%s/%s\0" %(item_id, subdir, name))
+			process.stdin.write("%s-%s\0" %(cart_id, item_id))
+		process.stdin.close()
+		res = process.wait()
+		logger.info("Res was %d" %(res))
+		workingdir = "%s/%s" %(cartd_amalgam_readydir, person_id)
+		myemsl.util.try_mkdir(workingdir)
+		if res == 0:
+			os.rename(file, "%s/%s.amalgam" %(workingdir, cart_id))
+			do_sql_insert("update myemsl.cart set state= 'email' where cart_id = %(cart_id)s", 0, myemsl_schema_versions=['1.6'], params={'cart_id':cart_id})
+	rows = do_sql_select('select cart_id, person_id, email_address from myemsl.cart where state = \'email\' and last_email is null and email_address != \'\';', myemsl_schema_versions=['1.6'])
+	for row in rows:
+		cart_id = row[0]
+		person_id = row[1]
+		email_address = row[2]
+		email_template = open(config.get('cart_user', 'email_template'), 'r').read()
+		testing_email = None
+		if config.has_option('cart_user', 'testing_email'):
+			testing_email = config.get('cart_user', 'testing_email')
+		email_subject = config.get('cart_user', 'email_subject')
+		email_from = config.get('cart_user', 'email_from')
+		smtp_server = config.get('cart_user', 'email_smtp_server')
+		namespace = {'cartLink':"%s%s/%s.amalgam/%s.tar" %(services['cart_download'], person_id, cart_id, cart_id)}
+#FIXME unhardcode cart admins.
+		notification_list = email_address
+		if testing_email == None:
+			to = notification_list
+			contents = ''
+		else:
+			to = testing_email
+			contents = "If you had not configured /etc/myemsl/general.ini, section [cart_user], option testing_email=%s, the following people would have been notified:\n" %(testing_email)
+			contents += notification_list
+			contents += '\n  The original message will appear below.\n'
+			contents += '-------------------------------------------\n'
+		contents += str(Template(email_template, searchList=[namespace]))
+		contents = re.sub("\n","\r\n", contents)
+		msg = MIMEMultipart()
+		msg['Subject'] = str(Template(email_subject, searchList=[namespace]))
+		msg['From'] = email_from
+		msg['Bcc'] = to
+		mime_text = MIMEText(contents, 'plain')
+		msg.attach(mime_text)
+		smtp = smtplib.SMTP(smtp_server)
+		smtp.sendmail(email_from, to, msg.as_string())
+		smtp.quit()
+		do_sql_insert("update myemsl.cart set last_email = now() where cart_id = %(cart_id)s", 0, myemsl_schema_versions=['1.6'], params={'cart_id':cart_id})
+def main():
+	myemsl.logging.configLogger('cartd')
+	logger = myemsl.logging.getLogger('myemsl.cartd.process')
+	try:
+		logger.info("cart_process2 running.")
+		do_stuff(logger)
+	except Exception, e:
+		logger.exception("Unknown exception happened. Logging...")
+		raise
+
+if __name__ == '__main__':
+	main()

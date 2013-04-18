@@ -1,0 +1,51 @@
+#!/usr/bin/python
+
+import sys,os
+import libxml2
+import libxslt
+import subprocess
+from optparse import OptionParser
+
+parser = OptionParser(description="MyEMSL filestreamer")
+
+parser.add_option('--file-xslt', dest='filexslt', default="./filelist.xslt", type=str, help="file stream xslt to get file list")
+parser.add_option('--myemsl-prefix', dest='prefix', default="/myemsl", type=str, help="myemsl mount point")
+
+(options, args) = parser.parse_args()
+
+xslt = options.filexslt
+
+d = "\n".join(sys.stdin.readlines())
+
+styledoc = libxml2.parseFile(xslt)
+style = libxslt.parseStylesheetDoc(styledoc)
+doc = libxml2.parseMemory(d, len(d))
+
+result = style.applyStylesheet(doc, None)
+
+e = str(result).find('>')
+
+result = str(result)[e+1:].strip()
+
+submitter = doc.xpathEval('/myemsl/submitter')
+transaction = doc.xpathEval('/myemsl/transaction')
+proposal = doc.xpathEval('/myemsl/proposal')
+submitter = submitter[0].content
+transaction = transaction[0].content
+proposal = proposal[0].content
+
+try:
+	os.mkdir(transaction, 0755)
+# TODO except the right thing and fail on anything else
+except:
+	pass
+
+p = open(transaction+"/file.lst", "w")
+for file in result.split('\n'):
+	p.write(options.prefix+"/"+submitter+"/bundle/"+transaction+"/"+file+"\n")
+p.close()
+
+print "SUBMITTER="+submitter
+print "TRANSACTION="+transaction
+print "FILELIST="+transaction+"/file.lst"
+print "PROPOSAL="+proposal

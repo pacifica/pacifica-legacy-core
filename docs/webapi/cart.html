@@ -1,0 +1,34 @@
+<html>
+<body>
+<p>The cart api exists at the root specified in services. It is protected with the standard MyEMSL authentication mechanism.</p>
+
+<p>The following GET method request locations and behaviors are:</p>
+
+<p>PATH = /<br />
+Returns a list of all cart_id's associated with you.
+The following http get options are optional:</p>
+<ol>
+	<li>detail&lt;=true&gt;: Same as what /<cartid> returns for each entry that would be listed in /</li>
+	<li>state=admin: Show all carts that exist in the system in the 'admin' state. You must have cart admin privilege.</li>
+</ol>
+
+<p>
+PATH = /&lt;cart_id&gt;<br />
+Returns the state, last modified time, and if state=available, the url to download the cart from.</p>
+
+<p>The following PUT method request locations are supported:</p>
+<p>PATH = /<br />
+If no http get options are specified, a json document is expected that contains an item section which is an array of item_id's and an auth_token that authorizes the listed items. If no get option named cart_id is specified, a new cart is returned.</p>
+<p>The following get options change the default behavior:</p>
+<ol>
+	<li>cart_id=&lt;cart_id&gt;: uses the specified cart instead of making a new one.</li>
+	<li>submit: Submits the cart for processing. If the option email_addr=&lt;something&gt; is specified, when the cart is available for download, an email will be sent to the specified recipient.</li>
+	<li>resubmit: If you are an admin you may resubmit carts for processing after an error.</li>
+</ol>
+
+<p>The following DELETE method request locations are supported:</p>
+<p>PATH = /&lt;cart_id&gt;<br />
+Mark a cart for expiration.</p>
+</body>
+</html>
+

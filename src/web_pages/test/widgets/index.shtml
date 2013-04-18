@@ -1,0 +1,11 @@
+<!--#include virtual="/myemsl/brand/brand_header.inc"-->
+	<title>MyEMSL Widget Test</title>
+	<link rel="stylesheet" href="../qunit.css">
+<!--#include virtual="/myemsl/brand/brand_middle.inc"-->
+<div id="main">
+	<div id="qunit"></div>
+	<script src="../qunit.js"></script>
+	<script src="../../api/1/myemsl-search-pager-helper.js"></script>
+	<script src="tests.js"></script>
+</div>
+<!--#include virtual="/myemsl/brand/brand_footer.inc"-->

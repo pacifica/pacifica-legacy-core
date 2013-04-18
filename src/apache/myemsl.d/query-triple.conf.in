@@ -1,0 +1,11 @@
+ProxyRequests Off
+
+<Proxy *>
+Order deny,allow
+Allow from all
+</Proxy>
+
+# this needs to be changed to the host we want
+ProxyPass /myemsl/query/triple http://localhost/openrdf-sesame/repositories/MyEMSL
+ProxyPassReverse /myemsl/query/triple http://localhost/openrdf-sesame/repositories/MyEMSL
+
