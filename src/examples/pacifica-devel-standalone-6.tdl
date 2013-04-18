@@ -20,7 +20,9 @@
     </repository>
  </repositories>
  <packages>
-<!-- End Service Poke -->
+   <package name="ceph-devel" />
+   <package name="ceph" />
+   <package name="iotop" />
    <package name="make" />
    <package name="screen" />
    <package name="vim" />
@@ -29,6 +31,61 @@
    <package name="httpd" />
  </packages>
  <files>
+  <file name="/etc/ceph/ceph.conf" type="raw">
+[global]
+	;auth supported = cephx
+	auth supported = none
+	auth cluster required = none
+	auth service required = none
+	auth client hrequired = none
+        max open files = 131072
+        log file = /var/log/ceph/$name.log
+        pid file = /var/run/ceph/$name.pid
+[mon]
+        mon data = /srv/ceph/mon/$name
+        osd pool default size = 3
+        osd pool default crush rule = 0
+[mon.a]
+	host = ceph0
+	mon addr = 127.0.0.1:6789
+
+[mon.b]
+	host = ceph0
+	mon addr = 127.0.0.1:6790
+
+[mon.c]
+	host = ceph0
+	mon addr = 127.0.0.1:6791
+
+[osd]
+	osd data = /srv/ceph/data/$id
+
+	osd journal = /srv/ceph/data/$name/journal
+	osd journal size = 100 ;MB
+
+        journal dio = false ;This is for testing. Disable direct io.
+
+        osd recovery max active = 1
+
+        osd mkfs type = ext4
+	osd mount options ext4 = rw,noatime,user_xattr
+	filestore xattr use omap = true
+
+[osd.0]
+	host = ceph0
+	devs = /dev/loop0
+
+[osd.1]
+	host = ceph0
+	devs = /dev/loop1
+
+[osd.2]
+	host = ceph0
+	devs = /dev/loop2
+[osd.3]
+	host = ceph0
+	devs = /dev/loop3
+  </file>
   <file name="/root/standalone.gui" type="raw">#!/bin/bash
 mount -o remount,rw /
 sed -i 's/^id:.*:initdefault:$/id:5:initdefault:/' /etc/inittab
@@ -91,7 +148,7 @@ rpm --import /etc/pki/rpm-gpg/*
 
 cat &gt; rpmtransaction &lt;&lt;EOF
 upgrade
-install fuse
+groupinstall 'Development tools'
 run -y
 EOF
 yum shell &lt; &lt;(cat rpmtransaction; echo Y)
@@ -104,6 +161,20 @@ cat /tmp/grub.conf >> /boot/grub/grub.conf
 rm /tmp/grub.conf
 
 echo >> /etc/fuse.conf
+
+for x in `seq 0 3`; do
+	dd if=/dev/zero of=/srv/datavol.$x bs=$((1024*1024)) count=512
+	losetup /dev/loop$x /srv/datavol.$x
+	mkdir -p /srv/ceph/data/$x
+done
+mkdir -p /srv/ceph/mon/a
+mkdir -p /srv/ceph/mon/b
+mkdir -p /srv/ceph/mon/c
+cd /etc/ceph
+sed -i 's/^\(127\.0\.0\.1.*\)/\1 ceph0/' /etc/hosts
+hostname ceph0
+mkcephfs -a -c /etc/ceph/ceph.conf --mkfs -k ceph.keyring
+/etc/init.d/ceph restart
 
 chmod +x /root/standalone
 chmod +x /root/standalone.gui
