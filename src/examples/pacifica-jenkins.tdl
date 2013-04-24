@@ -58,6 +58,62 @@
    <package name="rpmdevtools" />
  </packages>
  <files>
+  <file name="/root/gdb-config.xml" type="raw">&lt;?xml version='1.0' encoding='UTF-8'?>
+&lt;matrix-project>
+  &lt;actions/>
+  &lt;description>&lt;/description>
+  &lt;keepDependencies>false&lt;/keepDependencies>
+  &lt;properties/>
+  &lt;scm class="hudson.scm.NullSCM"/>
+  &lt;canRoam>true&lt;/canRoam>
+  &lt;disabled>false&lt;/disabled>
+  &lt;blockBuildWhenDownstreamBuilding>false&lt;/blockBuildWhenDownstreamBuilding>
+  &lt;blockBuildWhenUpstreamBuilding>false&lt;/blockBuildWhenUpstreamBuilding>
+  &lt;triggers class="vector"/>
+  &lt;concurrentBuild>false&lt;/concurrentBuild>
+  &lt;axes>
+    &lt;hudson.matrix.TextAxis>
+      &lt;name>DIST&lt;/name>
+      &lt;values>
+        &lt;string>epel-5-x86_64&lt;/string>
+        &lt;string>epel-6-x86_64&lt;/string>
+      &lt;/values>
+    &lt;/hudson.matrix.TextAxis>
+  &lt;/axes>
+  &lt;builders>
+    &lt;hudson.tasks.Shell>
+      &lt;command>MOCK=/usr/bin/mock
+if [ ! -f gdb-7.5.1-37.fc18.src.rpm ]
+then
+    wget http://dl.fedoraproject.org/pub/fedora/linux/updates/18/SRPMS/gdb-7.5.1-37.fc18.src.rpm
+fi
+export CREATEREPOOPTS=
+if [ &quot;$DIST&quot; = &apos;epel-5-x86_64&apos; ]; then export CREATEREPOOPTS=&apos;-s sha&apos;; 
+fi
+rm -rf packages/&quot;$DIST&quot; || true
+mkdir -p packages/&quot;$DIST&quot;/srpms
+mkdir -p packages/&quot;$DIST&quot;/bin
+rm -rf src || true
+mkdir -p src
+cd src
+rpm2cpio ../gdb-7.5.1-37.fc18.src.rpm | cpio -idv
+cd ..
+$MOCK -r &quot;$DIST&quot; --buildsrpm --spec src/gdb.spec --sources &quot;`pwd`&quot;/src
+mv &quot;/var/lib/mock/$DIST/result/&quot;*.src.rpm packages/&quot;$DIST&quot;/srpms/
+$MOCK -r &quot;$DIST&quot; --result `pwd`/packages/&quot;$DIST&quot;/bin `pwd`/packages/&quot;$DIST&quot;/srpms/*.src.rpm
+mkdir -p /var/lib/jenkins/&quot;$DIST&quot;/
+cp -a packages/&quot;$DIST&quot;/bin/* /var/lib/jenkins/&quot;$DIST&quot;/
+createrepo $CREATEREPOOPTS /var/lib/jenkins/&quot;$DIST&quot;/
+&lt;/command>
+    &lt;/hudson.tasks.Shell>
+  &lt;/builders>
+  &lt;publishers/>
+  &lt;buildWrappers/>
+  &lt;executionStrategy class="hudson.matrix.DefaultMatrixExecutionStrategyImpl">
+    &lt;runSequentially>false&lt;/runSequentially>
+  &lt;/executionStrategy>
+&lt;/matrix-project>
+  </file>
   <file name="/root/pacifica-devel-vm-config.xml" type="raw">&lt;?xml version='1.0' encoding='UTF-8'?>
 &lt;project>
   &lt;actions/>
@@ -1298,6 +1354,7 @@ java -jar jenkins-cli.jar -s http://127.0.0.1:8080/ create-job elasticsearch-dow
 java -jar jenkins-cli.jar -s http://127.0.0.1:8080/ create-job elasticsearch &lt; elasticsearch-config.xml
 java -jar jenkins-cli.jar -s http://127.0.0.1:8080/ create-job service-poke &lt; service-poke-config.xml
 java -jar jenkins-cli.jar -s http://127.0.0.1:8080/ create-job slurm &lt; slurm-config.xml
+java -jar jenkins-cli.jar -s http://127.0.0.1:8080/ create-job gdb &lt; gdb-config.xml
 java -jar jenkins-cli.jar -s http://127.0.0.1:8080/ create-job pacifica-builddeps &lt; pacifica-builddeps-config.xml
 java -jar jenkins-cli.jar -s http://127.0.0.1:8080/ create-job pacifica-auth &lt; pacifica-auth-config.xml
 java -jar jenkins-cli.jar -s http://127.0.0.1:8080/ create-job pacifica-web-basicauth &lt; pacifica-web-basicauth-config.xml
