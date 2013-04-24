@@ -11,6 +11,7 @@ from optparse import OptionParser
 
 from subprocess import PIPE, Popen
 from myemsl.dbconnect import myemsldb_connect
+from xml.sax.saxutils import escape
 from myemsl.getconfig import getconfig_secret
 config = getconfig_secret()
 
@@ -94,7 +95,7 @@ xml += "\t<status username='"+options.username+"'>\n"
 if trans:
 	xml += "\t\t<transaction id='"+str(trans)+"' />\n"
 for step in range(0, len(steps)-1):
-	xml += "\t\t<step id='"+str(step)+"' message='"+str(steps[step]['MESSAGE'])+"' status='"+str(steps[step]['STATUS'])+"' />\n"
+	xml += "\t\t<step id='"+str(step)+"' message='"+escape(str(steps[step]['MESSAGE']))+"' status='"+escape(str(steps[step]['STATUS']))+"' />\n"
 xml += "\t</status>\n"
 xml += "</myemsl>\n"
 
