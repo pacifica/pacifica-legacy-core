@@ -309,7 +309,7 @@ install myemsl-web-services-ssl myemsl-web-services-common myemsl-web-personinfo
            postgresql-server vim-enhanced elinks expect screen glib2-devel libattr-devel \
            postgresql-devel gdb strace myemsl-devel-doc \
            fuse-devel libarchive-devel subversion \
-           curl-devel php-devel libxml2-devel libxslt-devel \
+           curl-devel php-devel libxml2-devel libxslt-devel pprof \
            gdm mercurial firefox iotop reptyr myemsl-elasticsearch-sync \
            python-devel createrepo elasticsearch myemsl-web-elasticsearch-ssl \
            myemsl-web-item-ssl myemsl-archive-standalone mod_xsendfile alpine \

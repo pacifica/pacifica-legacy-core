@@ -58,7 +58,7 @@
    <package name="rpmdevtools" />
  </packages>
  <files>
-  <file name="/root/gdb-config.xml" type="raw">&lt;?xml version='1.0' encoding='UTF-8'?>
+  <file name="/root/pprof-config.xml" type="raw">&lt;?xml version='1.0' encoding='UTF-8'?>
 &lt;matrix-project>
   &lt;actions/>
   &lt;description>&lt;/description>
@@ -77,6 +77,51 @@
       &lt;values>
         &lt;string>epel-5-x86_64&lt;/string>
         &lt;string>epel-6-x86_64&lt;/string>
+        &lt;string>fedora-18-x86_64&lt;/string>
+      &lt;/values>
+    &lt;/hudson.matrix.TextAxis>
+  &lt;/axes>
+  &lt;builders>
+    &lt;hudson.tasks.Shell>
+      &lt;command>FILE=gperftools-2.0-1.i386.rpm
+if [ ! -f $FILE ]
+then
+    wget http://gperftools.googlecode.com/files/$FILE
+fi
+export CREATEREPOOPTS=
+if [ &quot;$DIST&quot; = &apos;epel-5-x86_64&apos; ]; then export CREATEREPOOPTS=&apos;-s sha&apos;; 
+fi
+mkdir -p /var/lib/jenkins/&quot;$DIST&quot;/
+cp -a $FILE /var/lib/jenkins/&quot;$DIST&quot;/
+createrepo $CREATEREPOOPTS /var/lib/jenkins/&quot;$DIST&quot;/
+&lt;/command>
+    &lt;/hudson.tasks.Shell>
+  &lt;/builders>
+  &lt;publishers/>
+  &lt;buildWrappers/>
+  &lt;executionStrategy class="hudson.matrix.DefaultMatrixExecutionStrategyImpl">
+    &lt;runSequentially>false&lt;/runSequentially>
+  &lt;/executionStrategy>
+&lt;/matrix-project>
+    &lt;/file>
+  &lt;file name="/root/gdb-config.xml" type="raw">&lt;?xml version='1.0' encoding='UTF-8'?>
+&lt;matrix-project>
+  &lt;actions/>
+  &lt;description>&lt;/description>
+  &lt;keepDependencies>false&lt;/keepDependencies>
+  &lt;properties/>
+  &lt;scm class="hudson.scm.NullSCM"/>
+  &lt;canRoam>true&lt;/canRoam>
+  &lt;disabled>false&lt;/disabled>
+  &lt;blockBuildWhenDownstreamBuilding>false&lt;/blockBuildWhenDownstreamBuilding>
+  &lt;blockBuildWhenUpstreamBuilding>false&lt;/blockBuildWhenUpstreamBuilding>
+  &lt;triggers class="vector"/>
+  &lt;concurrentBuild>false&lt;/concurrentBuild>
+  &lt;axes>
+    &lt;hudson.matrix.TextAxis>
+      &lt;name>DIST&lt;/name>
+      &lt;values>
+        &lt;string>epel-5-x86_64&lt;/string>
       &lt;/values>
     &lt;/hudson.matrix.TextAxis>
   &lt;/axes>
@@ -1355,6 +1400,7 @@ java -jar jenkins-cli.jar -s http://127.0.0.1:8080/ create-job elasticsearch &lt
 java -jar jenkins-cli.jar -s http://127.0.0.1:8080/ create-job service-poke &lt; service-poke-config.xml
 java -jar jenkins-cli.jar -s http://127.0.0.1:8080/ create-job slurm &lt; slurm-config.xml
 java -jar jenkins-cli.jar -s http://127.0.0.1:8080/ create-job gdb &lt; gdb-config.xml
+java -jar jenkins-cli.jar -s http://127.0.0.1:8080/ create-job pprof &lt; pprof-config.xml
 java -jar jenkins-cli.jar -s http://127.0.0.1:8080/ create-job pacifica-builddeps &lt; pacifica-builddeps-config.xml
 java -jar jenkins-cli.jar -s http://127.0.0.1:8080/ create-job pacifica-auth &lt; pacifica-auth-config.xml
 java -jar jenkins-cli.jar -s http://127.0.0.1:8080/ create-job pacifica-web-basicauth &lt; pacifica-web-basicauth-config.xml
