@@ -308,7 +308,7 @@ install myemsl-web-services-ssl myemsl-web-services-common myemsl-web-personinfo
            go libbuhfsutil-devel libbuhfsutil \
            postgresql-server vim-enhanced elinks expect screen glib2-devel libattr-devel \
            postgresql-devel gdb strace myemsl-devel-doc \
-           fuse-devel libarchive-devel subversion \
+           fuse-devel libarchive-devel subversion graphviz \
            curl-devel php-devel libxml2-devel libxslt-devel pprof \
            gdm mercurial firefox iotop reptyr myemsl-elasticsearch-sync \
            python-devel createrepo elasticsearch myemsl-web-elasticsearch-ssl \
