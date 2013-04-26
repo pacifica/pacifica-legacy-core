@@ -18,6 +18,24 @@ AX_SWIG_PYTHON
 PKG_CHECK_MODULES([FUSE],[fuse >= 2.7.0])
 PKG_CHECK_MODULES([GLIB],[glib-2.0])
 
+AC_ARG_WITH([rmds], AS_HELP_STRING([--with-rmds], [Build with the Raw MDS]))
+
+AS_IF([test "x$with_rmds" = "xyes"], [
+	PKG_CHECK_MODULES([JSON],[json])
+	AC_CHECK_HEADER(fcgiapp.h, , [AC_MSG_ERROR([Couldn't find fcgiapp.h...you must install fcgi])])
+	AC_CHECK_HEADER(rados/librados.h, , [AC_MSG_ERROR([Could not find librados. Please install ceph])])
+	LIBRADOS_CFLAGS=""
+	LIBRADOS_LIBS="-lrados"
+	FCGI_CFLAGS=""
+	FCGI_LIBS="-lfcgi"
+	AC_SUBST(LIBRADOS_CFLAGS)
+	AC_SUBST(LIBRADOS_LIBS)
+	AC_SUBST(FCGI_CFLAGS)
+	AC_SUBST(FCGI_LIBS)
+	AC_PROG_CXX
+])
+AM_CONDITIONAL([WITH_RMDS], [test "x$with_rmds"])
+
 PACKAGE_NAME=AC_PACKAGE_NAME
 AC_SUBST(PACKAGE_NAME)
 
@@ -160,6 +178,7 @@ AC_OUTPUT([
 		src/libexec/mount.d/Makefile
 		src/elasticsearch/Makefile
 		src/fuse-myemslauth/Makefile
+		src/rmds/Makefile
 		docs/Makefile
 		docs/format/Makefile
 		docs/plugins/Makefile
