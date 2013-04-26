@@ -24,6 +24,7 @@ def authenhandler(req):
 		res = eus2login.eus2login(user, password)
 		if not res.has_key('person_id') or not res['person_id']:
 			return apache.HTTP_UNAUTHORIZED
+		logger.info("Authentication username: %s personid: %s", req.user, res['person_id'])
 #FIXME add myemsl_id mapping in when we have it
 		req.user = res['person_id']
 	else:

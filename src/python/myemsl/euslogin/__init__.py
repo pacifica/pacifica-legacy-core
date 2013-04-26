@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+import urllib
 import pycurl
 import re
 
@@ -12,7 +13,7 @@ class AHandler:
 def eus_auth(encusername, password):
 	
 	foo = AHandler()
-	data = "encodedUserId=%s&password=%s" %(encusername, password)
+	data = urllib.urlencode({'encodedUserId':encusername, 'password':password})
 	c = pycurl.Curl()
 #	c.setopt(pycurl.PROXY, "localhost:10000")
 #	c.setopt(pycurl.PROXYTYPE, pycurl.PROXYTYPE_SOCKS5)
