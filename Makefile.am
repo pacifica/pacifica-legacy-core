@@ -10,6 +10,7 @@ EXTRA_DIST = myemsl.spec svnver.sh svnbranch.sh
 
 DEV=1
 REVISION=1
+OTHERREVISION=1
 
 rpm: dist
 	mkdir -p packages
@@ -20,7 +21,12 @@ rpm: dist
 	then \
 		rpmbuild -ta @PACKAGE_NAME@-@VERSION@.tar.gz --define '_rpmdir '`pwd`'/packages/bin' --define '_srcrpmdir '`pwd`'/packages/src' --define "LOCALREVISION ${REVISION}" --define ' rhel 5'; \
 	else \
-		rpmbuild -ta @PACKAGE_NAME@-@VERSION@.tar.gz --define '_rpmdir '`pwd`'/packages/bin' --define '_srcrpmdir '`pwd`'/packages/src' --define "LOCALREVISION `./svnver.sh $(top_srcdir)`" --define ' rhel 5'; \
+		LOCALREVISION="`git rev-list HEAD | wc -l`"; \
+		if [ $$LOCALREVISION -lt ${OTHERREVISION} ]; then \
+			LOCALREVISION=${OTHERREVISION}; \
+		fi;\
+		echo revision="$$LOCALREVISION"; \
+		rpmbuild -ta @PACKAGE_NAME@-@VERSION@.tar.gz --define '_rpmdir '`pwd`'/packages/bin' --define '_srcrpmdir '`pwd`'/packages/src' --define "LOCALREVISION `echo $$LOCALREVISION`" --define ' rhel 5'; \
 	fi
 
 rpms: rpm
