@@ -35,12 +35,17 @@ MOCKDIST=fedora-18-x86_64
 MOCK=/usr/bin/mock
 
 mock: dist
-	rm -rf packages/$(MOCKDIST)" || true
+	rm -rf packages/"$(MOCKDIST)" || true
 	mkdir -p packages/"$(MOCKDIST)"/srpms
 	mkdir -p packages/"$(MOCKDIST)"/bin
-	$(MOCK) -r "$(MOCKDIST)" --buildsrpm --spec myemsl.spec --sources "`pwd`" --define "LOCALREVISION `./svnver.sh .`"
-	mv "/var/lib/mock/$(MOCKDIST)/result/"*.src.rpm packages/"$(MOCKDIST)"/srpms/
-	$(MOCK) -r "$(MOCKDIST)" --result "$(CURDIR)"/packages/"$(MOCKDIST)"/bin --define "LOCALREVISION `./svnver.sh .`" "$(CURDIR)"/packages/"$(MOCKDIST)"/srpms/*.src.rpm ;\
-	if [ $$? -ne 0 ]; then \
-		cat "$(CURDIR)"/packages/"$(MOCKDIST)"/bin/build.log; \
-	fi
+	LOCALREVISION="`git rev-list HEAD | wc -l`"; \
+	if [ $$LOCALREVISION -lt ${OTHERREVISION} ]; then \
+		LOCALREVISION=${OTHERREVISION}; \
+	fi; \
+	echo revision="$$LOCALREVISION"; \
+	$(MOCK) -r "$(MOCKDIST)" --buildsrpm --spec myemsl.spec --sources "`pwd`" --define "LOCALREVISION `echo $$LOCALREVISION`"; \
+	mv "/var/lib/mock/$(MOCKDIST)/result/"*.src.rpm packages/"$(MOCKDIST)"/srpms/; \
+	$(MOCK) -r "$(MOCKDIST)" --result "$(CURDIR)"/packages/"$(MOCKDIST)"/bin --define "LOCALREVISION `echo $$LOCALREVISION`" "$(CURDIR)"/packages/"$(MOCKDIST)"/srpms/*.src.rpm; \
+if [ $$? -ne 0 ]; then \
+	cat "$(CURDIR)"/packages/"$(MOCKDIST)"/bin/build.log; \
+fi
