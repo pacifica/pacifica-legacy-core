@@ -25,6 +25,7 @@ rpm: dist
 		if [ $$LOCALREVISION -lt ${OTHERREVISION} ]; then \
 			LOCALREVISION=${OTHERREVISION}; \
 		fi;\
+		LOCALREVISION="git$$LOCALREVISION"; \
 		echo revision="$$LOCALREVISION"; \
 		rpmbuild -ta @PACKAGE_NAME@-@VERSION@.tar.gz --define '_rpmdir '`pwd`'/packages/bin' --define '_srcrpmdir '`pwd`'/packages/src' --define "LOCALREVISION `echo $$LOCALREVISION`" --define ' rhel 5'; \
 	fi
@@ -42,6 +43,7 @@ mock: dist
 	if [ $$LOCALREVISION -lt ${OTHERREVISION} ]; then \
 		LOCALREVISION=${OTHERREVISION}; \
 	fi; \
+	LOCALREVISION="git$$LOCALREVISION"; \
 	echo revision="$$LOCALREVISION"; \
 	$(MOCK) -r "$(MOCKDIST)" --buildsrpm --spec myemsl.spec --sources "`pwd`" --define "LOCALREVISION `echo $$LOCALREVISION`"; \
 	mv "/var/lib/mock/$(MOCKDIST)/result/"*.src.rpm packages/"$(MOCKDIST)"/srpms/; \
