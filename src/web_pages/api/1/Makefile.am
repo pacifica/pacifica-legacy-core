@@ -62,7 +62,7 @@ builddir:
 	(cat jqueryuiheader /usr/lib/pacifica/builddeps/jQuery-Timepicker-Addon/jquery-ui-sliderAccess.js jqueryfooter) > builddir/jquery.ui.sliderAccess.js
 	(cat jqueryuiheader /usr/lib/pacifica/builddeps/jquery.ui.selectmenu.js jqueryfooter) > builddir/jquery.ui.selectmenu.js
 
-myemsl-widgets.js: myemsl-widgets-base.js builddir
+myemsl-widgets.js: builddir/jaysun.js builddir/jquery.ui.selectmenu.js myemsl-widgets-base.js builddir
 	java -classpath /usr/lib/pacifica/builddeps/r.js/lib/rhino/js.jar:/usr/lib/pacifica/builddeps/r.js/lib/closure/compiler.jar org.mozilla.javascript.tools.shell.Main /usr/lib/pacifica/builddeps/r.js/dist/r.js -o app.build.js
 	cat tmp/myemsl-widgets-base.js > myemsl-widgets.js
 

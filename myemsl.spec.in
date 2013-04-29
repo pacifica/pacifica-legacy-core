@@ -609,7 +609,7 @@ Common components for MyEMSL
 
 %install
 make install DESTDIR=%{buildroot}
-rm -rf %{buildroot}/usr/lib/python2.7/site-packages/myemsl-@VERSION@-py2.7.egg-info || true
+rm -rf %{buildroot}/usr/lib/python2.[67]/site-packages/myemsl-@VERSION@-py2.[67].egg-info || true
 dir=%{buildroot}/%{_defaultdocdir}/myemsl
 for package in ingestor-core ingestor query database-schema database cart iteminfo personinfo common sumcheck eushandoffhandler notify
 do
