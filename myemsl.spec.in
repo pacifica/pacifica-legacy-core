@@ -21,13 +21,19 @@ BuildRoot: %{_tmppath}/@PACKAGE_NAME@-%{version}-%{release}
 %endif
 
 %if %(test "x%{dist}" = 'x.el6' && echo 1 || echo 0)
+%global use_rdms 1
 BuildRequires: java-1.7.0-openjdk
 %else
+	%global use_rdms 0
 	%if %(test x`echo "%{dist}" | cut -c1-3` = 'x.fc' && echo 1 || echo 0)
 BuildRequires: java-1.7.0-openjdk
 	%else
 BuildRequires: java-1.6.0-openjdk
 	%endif
+%endif
+
+%if %{use_rmds}
+BuildRequires: fcgi-devel ceph-devel json-c-devel
 %endif
 
 %description
@@ -594,7 +600,11 @@ Common components for MyEMSL
 %setup -q -n @PACKAGE_NAME@-%{version}
 
 %build
+%if %{use_rmds}
+%configure --with-rmds
+%else
 %configure 
+%endif
 %{__make} %{_smp_mflags}
 
 %install
