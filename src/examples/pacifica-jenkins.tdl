@@ -58,6 +58,49 @@
    <package name="rpmdevtools" />
  </packages>
  <files>
+  <file name="/root/ceph-config.xml" type="raw">&lt;?xml version='1.0' encoding='UTF-8'?>
+&lt;matrix-project>
+  &lt;actions/>
+  &lt;description>&lt;/description>
+  &lt;keepDependencies>false&lt;/keepDependencies>
+  &lt;properties/>
+  &lt;scm class="hudson.scm.NullSCM"/>
+  &lt;canRoam>true&lt;/canRoam>
+  &lt;disabled>false&lt;/disabled>
+  &lt;blockBuildWhenDownstreamBuilding>false&lt;/blockBuildWhenDownstreamBuilding>
+  &lt;blockBuildWhenUpstreamBuilding>false&lt;/blockBuildWhenUpstreamBuilding>
+  &lt;triggers class="vector"/>
+  &lt;concurrentBuild>false&lt;/concurrentBuild>
+  &lt;axes>
+    &lt;hudson.matrix.TextAxis>
+      &lt;name>DIST&lt;/name>
+      &lt;values>
+        &lt;string>epel-6-x86_64&lt;/string>
+      &lt;/values>
+    &lt;/hudson.matrix.TextAxis>
+  &lt;/axes>
+  &lt;builders>
+    &lt;hudson.tasks.Shell>
+      &lt;command>VERSION=0.56.4-0
+rm -rf packages/&quot;$DIST&quot; || true
+mkdir -p packages/&quot;$DIST&quot;/bin
+cd packages/&quot;$DIST&quot;/bin
+for file in ceph ceph-debug ceph-devel ceph-fuse ceph-radosgw ceph-test libcephfs-java libcephfs-jni libcephfs1 librados2 librbd1 python-ceph rest-bench;
+do
+    wget http://ceph.com/rpm/el6/x86_64/$file-$VERSION.el6.x86_64.rpm
+done
+cp -a *.rpm /var/lib/jenkins/&quot;$DIST&quot;/
+createrepo /var/lib/jenkins/&quot;$DIST&quot;/
+&lt;/command>
+    &lt;/hudson.tasks.Shell>
+  &lt;/builders>
+  &lt;publishers/>
+  &lt;buildWrappers/>
+  &lt;executionStrategy class="hudson.matrix.DefaultMatrixExecutionStrategyImpl">
+    &lt;runSequentially>false&lt;/runSequentially>
+  &lt;/executionStrategy>
+&lt;/matrix-project>
+  </file>
   <file name="/root/pprof-config.xml" type="raw">&lt;?xml version='1.0' encoding='UTF-8'?>
 &lt;matrix-project>
   &lt;actions/>
@@ -288,6 +331,9 @@ createrepo $CREATEREPOOPTS /var/lib/jenkins/&quot;$DIST&quot;/
         &lt;string>qt47&lt;/string>
         &lt;string>service-poke&lt;/string>
         &lt;string>slurm&lt;/string>
+        &lt;string>gdb&lt;/string>
+        &lt;string>pprof&lt;/string>
+        &lt;string>ceph&lt;/string>
       &lt;/jobNames>
       &lt;jobFilters/>
       &lt;columns>
@@ -1401,6 +1447,7 @@ java -jar jenkins-cli.jar -s http://127.0.0.1:8080/ create-job service-poke &lt;
 java -jar jenkins-cli.jar -s http://127.0.0.1:8080/ create-job slurm &lt; slurm-config.xml
 java -jar jenkins-cli.jar -s http://127.0.0.1:8080/ create-job gdb &lt; gdb-config.xml
 java -jar jenkins-cli.jar -s http://127.0.0.1:8080/ create-job pprof &lt; pprof-config.xml
+java -jar jenkins-cli.jar -s http://127.0.0.1:8080/ create-job ceph &lt; ceph-config.xml
 java -jar jenkins-cli.jar -s http://127.0.0.1:8080/ create-job pacifica-builddeps &lt; pacifica-builddeps-config.xml
 java -jar jenkins-cli.jar -s http://127.0.0.1:8080/ create-job pacifica-auth &lt; pacifica-auth-config.xml
 java -jar jenkins-cli.jar -s http://127.0.0.1:8080/ create-job pacifica-web-basicauth &lt; pacifica-web-basicauth-config.xml
