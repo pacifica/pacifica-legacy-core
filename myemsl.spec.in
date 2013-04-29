@@ -21,10 +21,10 @@ BuildRoot: %{_tmppath}/@PACKAGE_NAME@-%{version}-%{release}
 %endif
 
 %if %(test "x%{dist}" = 'x.el6' && echo 1 || echo 0)
-%global use_rdms 1
+%global use_rmds 1
 BuildRequires: java-1.7.0-openjdk
 %else
-	%global use_rdms 0
+	%global use_rmds 0
 	%if %(test x`echo "%{dist}" | cut -c1-3` = 'x.fc' && echo 1 || echo 0)
 BuildRequires: java-1.7.0-openjdk
 	%else
