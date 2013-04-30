@@ -1,7 +1,7 @@
 webfcgidir = $(pkgmyemslwebrootdir)/fcgi-bin
 webfcgi_PROGRAMS = rmds.fcgi
 
-noinst_PROGRAMS = testdelete testread testmerge testcreate
+noinst_PROGRAMS = testdelete testread testmerge testcreate env.fcgi
 
 lib_LTLIBRARIES = libpacifica_rmds.la
 
@@ -25,3 +25,6 @@ testmerge_LDADD = libpacifica_rmds.la
 
 rmds_fcgi_SOURCES = fcgi.c common.h
 rmds_fcgi_LDADD = libpacifica_rmds.la $(FCGI_LIBS)
+
+env_fcgi_SOURCES = env.c
+env_fcgi_LDADD = $(FCGI_LIBS) $(JSON_LIBS)

@@ -37,11 +37,13 @@ void *process(void *a)
 	char **envp;
 	char *data;
 	char *str;
+	const char *cstr;
 	long to_process;
 	long offset;
 	int res;
 	FCGX_Request req;
 	json_object *json;
+	json_object *json_out;
 	FCGX_InitRequest(&req, 0, 0);
 	while(1)
 	{
@@ -56,24 +58,41 @@ void *process(void *a)
 			bad_request_error(&req);
 			continue;
 		}
+		json_out = json_object_new_object();
+		if(!json_out)
+		{
+			bad_request_error(&req);
+			continue;
+		}
+		str = FCGX_GetParam("REQUEST_URI", req.envp);
+		if(!str)
+		{
+			bad_request_error(&req);
+			json_object_put(json_out);
+			continue;
+		}
+		json_object_object_add(json_out, "REQUEST_URL", json_object_new_string(str));
 		if(!strcmp(str, "POST") || !strcmp(str, "PUT"))
 		{
 			str = FCGX_GetParam("CONTENT_LENGTH", req.envp);
 			if(!str)
 			{
 				bad_request_error(&req);
+				json_object_put(json_out);
 				continue;
 			}
 			to_process = strtol(str, NULL, 10);
 			if(to_process > MAX_UPLOAD)
 			{
 				bad_request_error(&req);
+				json_object_put(json_out);
 				continue;
 			}
 			data = malloc(sizeof(char) * to_process);
 			if(!data)
 			{
 				internal_error(&req);
+				json_object_put(json_out);
 				continue;
 			}
 			res = FCGX_GetStr(data, to_process, req.in);
@@ -81,6 +100,7 @@ void *process(void *a)
 			{
 				bad_request_error(&req);
 				free(data);
+				json_object_put(json_out);
 				continue;
 			}
 			json = json_tokener_parse(data);
@@ -88,37 +108,17 @@ void *process(void *a)
 			{
 				bad_request_error(&req);
 				free(data);
+				json_object_put(json_out);
 				continue;
 			}
 			json_object_put(json);
 			free(data);
 		}
 
-		str = FCGX_GetParam("REQUEST_URI", req.envp);
-		if(!str)
-		{
-			bad_request_error(&req);
-			continue;
-		}
 		return_header(&req, 200, NULL, "application/json");
-		FCGX_FPrintF(req.out, "{\n");
-//FIXME jsonurlencode...
-		FCGX_FPrintF(req.out, "\"URL\": \"%s\",\n", str);
-		FCGX_FPrintF(req.out, "\"ENV\": [\n");
-
-		for(envp = req.envp; *envp != NULL; envp++)
-		{
-//FIXME jsonurlencode...
-			FCGX_FPrintF(req.out, "\"%s\"", *envp);
-			if(envp[1] != NULL)
-			{
-				FCGX_FPrintF(req.out, ",\n", *envp);
-			}
-			else
-			{
-				FCGX_FPrintF(req.out, "]}\n", *envp);
-			}
-		}
+		cstr = json_object_to_json_string_ext(json_out, JSON_C_TO_STRING_PRETTY);
+		FCGX_FPrintF(req.out, "%s\n", cstr);
+		json_object_put(json_out);
 		FCGX_Finish_r(&req);
 	}
 	return NULL;
