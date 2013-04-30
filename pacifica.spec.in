@@ -1147,6 +1147,6 @@ chkconfig --add notification-service
 %config(noreplace) %{_sysconfdir}/myemsl/secret.ini
 %config(noreplace) %{_sysconfdir}/myemsl/logging.conf
 %config(noreplace) %{_sysconfdir}/myemsl/email.template
-%if 0%{?rhel} && 0%{?rhel} > 5
-%{python_sitelib}/%{name}-*egg-info
-%endif
+#if 0%{?rhel} && 0%{?rhel} > 5
+#{python_sitelib}/%{name}-*egg-info
+#endif
