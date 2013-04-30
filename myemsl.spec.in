@@ -588,6 +588,16 @@ Requires: mod_auth_kerb
 %description    web-kerberos
 Website Kerberos configuration bits for MyEMSL
 
+%if %{use_rmds}
+%package -n     pacifica-web-rmds-ssl
+Summary:        Pacifica Raw Meta Data Server
+Group:          System Environment/Base
+Requires: myemsl-web-ssl mod_fcgid
+
+%description -n pacifica-web-rmds-ssl
+Pacifica Raw Meta Data Server
+%endif
+
 %package        common
 Summary:        Common Components
 Group:          System Environment/Base
@@ -1094,6 +1104,13 @@ createrepo /srv/myemsl-devel
 
 %post notification
 chkconfig --add notification-service
+
+%if %{use_rmds}
+%files -n pacifica-web-rmds-ssl
+%{_libdir}/libpacifica_rmds*
+%{_localstatedir}/www/myemsl/fcgi-bin/rmds.fcgi
+%{_prefix}/lib/myemsl/apache/myemsl-ssl.d/rmds.conf
+%endif
 
 %files common
 %{_defaultdocdir}/myemsl/common

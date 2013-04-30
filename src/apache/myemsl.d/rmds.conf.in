@@ -1,0 +1,11 @@
+RewriteEngine  on
+RewriteRule    ^/myemsl/api/1/rmds.*$  /myemsl/fcgi-bin/rmds.fcgi  [PT]
+
+alias /myemsl/fcgi-bin/ /var/www/myemsl/fcgi-bin/
+<Directory /var/www/myemsl/fcgi-bin/>
+	SetHandler fcgid-script
+	AddHandler fastcgi-script .fcgi
+	Options +ExecCGI
+	Order allow,deny
+	Allow from all
+</Directory>

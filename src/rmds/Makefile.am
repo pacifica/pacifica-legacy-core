@@ -1,4 +1,7 @@
-noinst_PROGRAMS = testdelete testread testmerge testcreate index.fcgi
+webfcgidir = $(pkgmyemslwebrootdir)/fcgi-bin
+webfcgi_PROGRAMS = rmds.fcgi
+
+noinst_PROGRAMS = testdelete testread testmerge testcreate
 
 lib_LTLIBRARIES = libpacifica_rmds.la
 
@@ -20,5 +23,5 @@ testcreate_LDADD = libpacifica_rmds.la
 testmerge_SOURCES = testmerge.cpp common.h
 testmerge_LDADD = libpacifica_rmds.la
 
-index_fcgi_SOURCES = fcgi.c common.h
-index_fcgi_LDADD = libpacifica_rmds.la $(FCGI_LIBS)
+rmds_fcgi_SOURCES = fcgi.c common.h
+rmds_fcgi_LDADD = libpacifica_rmds.la $(FCGI_LIBS)

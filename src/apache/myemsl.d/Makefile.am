@@ -11,7 +11,7 @@ EXTRA_DIST = eushandoff.conf.in getuser.conf.in \
              proposal-finder.conf.in static.conf.in api.conf.in \
              predicate.conf.in test.conf.in elasticsearch-proxy.conf.in \
              cart-local.conf.in cart-proxy.conf.in cart-proxy-ssl.conf.in \
-             dmspath.conf.in admin.conf.in
+             dmspath.conf.in admin.conf.in rmds.conf.in
 
 pkgmyemslweb_DATA = web/ingest.conf web/query.conf web/testauth.conf \
                     web/iteminfo.conf web/status.conf web/outage.conf \
@@ -28,7 +28,7 @@ pkgmyemslweb_DATA = web/ingest.conf web/query.conf web/testauth.conf \
 
 pkgmyemslssl_DATA = ssl/ingest.conf ssl/query.conf ssl/query-raw.conf \
                     ssl/testauth.conf ssl/iteminfo.conf ssl/getuser.conf \
-                    ssl/status.conf ssl/eushandoff.conf \
+                    ssl/status.conf ssl/eushandoff.conf ssl/rmds.conf \
                     ssl/nagiosrmtrans.conf ssl/outage.conf ssl/auth.conf \
                     ssl/logout.conf ssl/notify.conf ssl/transaction.conf \
                     ssl/error_nopersonid.conf ssl/sampleingest.conf \

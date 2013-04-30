@@ -1,5 +1,5 @@
 if WITH_RMDS
-	MAYBE_RMDS = rmds
+MAYBE_RMDS = rmds
 endif
 
 SUBDIRS = sstp ingest_core sumcheck core nagios python apache \
