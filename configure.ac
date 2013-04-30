@@ -34,7 +34,7 @@ AS_IF([test "x$with_rmds" = "xyes"], [
 	AC_SUBST(FCGI_LIBS)
 	AC_PROG_CXX
 ])
-AM_CONDITIONAL([WITH_RMDS], [test "x$with_rmds"])
+AM_CONDITIONAL([WITH_RMDS], [test "x$with_rmds" != "x"])
 
 PACKAGE_NAME=AC_PACKAGE_NAME
 AC_SUBST(PACKAGE_NAME)
