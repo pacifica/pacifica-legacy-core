@@ -1,9 +1,11 @@
 #include <stdlib.h>
 #include <malloc.h>
+#include <string.h>
 #include <fcgiapp.h>
 #include <json.h>
 
 #define MAX_UPLOAD (1024 * 1024 * 10)
+#define URL_PREFIX "/myemsl/api/1/rmds/"
 
 void return_header(FCGX_Request *req, int status, char *status_str, char *content_type)
 {
@@ -37,9 +39,13 @@ void *process(void *a)
 	char **envp;
 	char *data;
 	char *str;
+	char *tstr;
+	char *tstr2;
+	char *method;
 	const char *cstr;
 	long to_process;
 	long offset;
+	long item_id;
 	int res;
 	FCGX_Request req;
 	json_object *json;
@@ -52,8 +58,8 @@ void *process(void *a)
 		{
 			break;
 		}
-		str = FCGX_GetParam("REQUEST_METHOD", req.envp);
-		if(!str)
+		method = FCGX_GetParam("REQUEST_METHOD", req.envp);
+		if(!method)
 		{
 			bad_request_error(&req);
 			continue;
@@ -71,8 +77,32 @@ void *process(void *a)
 			json_object_put(json_out);
 			continue;
 		}
+		if(strncmp(str, URL_PREFIX, strlen(URL_PREFIX)))
+		{
+			bad_request_error(&req);
+			json_object_put(json_out);
+			continue;
+		}
+		tstr = strchr(str + strlen(URL_PREFIX), '/');
+		if(!tstr)
+		{
+			bad_request_error(&req);
+			json_object_put(json_out);
+			continue;
+		}
+		/* str + strlen(URL_PREFIX) to tstr is now the uuid of the instance. */
+		for(tstr2 = tstr + 1; *tstr2 != '\0' && (*tstr2 >= '0' && *tstr2 <= '9'); tstr2++);
+		if(tstr2 == tstr + 1 || (*tstr2 != '\0' && *tstr2 != '?'))
+		{
+			bad_request_error(&req);
+			json_object_put(json_out);
+			continue;
+		}
+		/* tstr + 1 to tstr2 is item_id. */
+		item_id = strtol(tstr + 1, NULL, 10);
 		json_object_object_add(json_out, "REQUEST_URL", json_object_new_string(str));
-		if(!strcmp(str, "POST") || !strcmp(str, "PUT"))
+		json_object_object_add(json_out, "ITEM_ID", json_object_new_int64(item_id));
+		if(!strcmp(method, "POST") || !strcmp(method, "PUT"))
 		{
 			str = FCGX_GetParam("CONTENT_LENGTH", req.envp);
 			if(!str)
