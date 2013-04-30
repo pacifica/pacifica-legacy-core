@@ -49,5 +49,7 @@ mock: dist
 	mv "/var/lib/mock/$(MOCKDIST)/result/"*.src.rpm packages/"$(MOCKDIST)"/srpms/; \
 	$(MOCK) -r "$(MOCKDIST)" --result "$(CURDIR)"/packages/"$(MOCKDIST)"/bin --define "LOCALREVISION `echo $$LOCALREVISION`" "$(CURDIR)"/packages/"$(MOCKDIST)"/srpms/*.src.rpm; \
 if [ $$? -ne 0 ]; then \
+	code=$$?; \
 	cat "$(CURDIR)"/packages/"$(MOCKDIST)"/bin/build.log; \
+	exit $$code; \
 fi
