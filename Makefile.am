@@ -6,7 +6,7 @@ dist-hook:
 	$(top_srcdir)/svnver.sh $(top_srcdir) > $(distdir)/svnver.txt
 	$(top_srcdir)/svnbranch.sh $(top_srcdir) > $(distdir)/svnbranch.txt
 
-EXTRA_DIST = myemsl.spec svnver.sh svnbranch.sh
+EXTRA_DIST = pacifica.spec svnver.sh svnbranch.sh
 
 DEV=1
 REVISION=1
@@ -45,7 +45,7 @@ mock: dist
 	fi; \
 	LOCALREVISION="git$$LOCALREVISION"; \
 	echo revision="$$LOCALREVISION"; \
-	$(MOCK) -r "$(MOCKDIST)" --buildsrpm --spec myemsl.spec --sources "`pwd`" --define "LOCALREVISION `echo $$LOCALREVISION`"; \
+	$(MOCK) -r "$(MOCKDIST)" --buildsrpm --spec pacifica.spec --sources "`pwd`" --define "LOCALREVISION `echo $$LOCALREVISION`"; \
 	mv "/var/lib/mock/$(MOCKDIST)/result/"*.src.rpm packages/"$(MOCKDIST)"/srpms/; \
 	$(MOCK) -r "$(MOCKDIST)" --result "$(CURDIR)"/packages/"$(MOCKDIST)"/bin --define "LOCALREVISION `echo $$LOCALREVISION`" "$(CURDIR)"/packages/"$(MOCKDIST)"/srpms/*.src.rpm; \
 if [ $$? -ne 0 ]; then \

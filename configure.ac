@@ -186,5 +186,5 @@ AC_OUTPUT([
 		docs/webapi/Makefile
 		test/Makefile
 		conf/Makefile
-		myemsl.spec
+		pacifica.spec
 ])
