@@ -160,7 +160,7 @@ void *process(void *a)
 			sprintf(longbuffer, "%ld", item_id);
 			while(1)
 			{
-				res = atomic_read_cb(io, longbuffer, 1, _document, _error, &cbd);
+				res = atomic_read_cb(io, longbuffer, 1024 * 1024, _document, _error, &cbd);
 				if(res != READ_ERROR_TYPE_OK)
 				{
 					if(res == READ_ERROR_TYPE_CHANGED)
