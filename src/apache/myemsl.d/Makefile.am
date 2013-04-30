@@ -1,3 +1,7 @@
+if WITH_RMDS
+MAYBE_RMDS = ssl/rmds.conf
+endif
+
 EXTRA_DIST = eushandoff.conf.in getuser.conf.in \
              ingest.conf.in iteminfo.conf.in nagiosrmtrans.conf.in \
              outage.conf.in query.conf.in query-raw.conf.in \
@@ -28,7 +32,7 @@ pkgmyemslweb_DATA = web/ingest.conf web/query.conf web/testauth.conf \
 
 pkgmyemslssl_DATA = ssl/ingest.conf ssl/query.conf ssl/query-raw.conf \
                     ssl/testauth.conf ssl/iteminfo.conf ssl/getuser.conf \
-                    ssl/status.conf ssl/eushandoff.conf ssl/rmds.conf \
+                    ssl/status.conf ssl/eushandoff.conf $(MAYBE_RMDS) \
                     ssl/nagiosrmtrans.conf ssl/outage.conf ssl/auth.conf \
                     ssl/logout.conf ssl/notify.conf ssl/transaction.conf \
                     ssl/error_nopersonid.conf ssl/sampleingest.conf \
