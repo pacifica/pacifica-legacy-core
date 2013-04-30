@@ -23,7 +23,7 @@ testcreate_LDADD = libpacifica_rmds.la
 testmerge_SOURCES = testmerge.cpp common.h
 testmerge_LDADD = libpacifica_rmds.la
 
-rmds_fcgi_SOURCES = fcgi.c common.h
+rmds_fcgi_SOURCES = rmds.cpp common.h
 rmds_fcgi_LDADD = libpacifica_rmds.la $(FCGI_LIBS)
 
 env_fcgi_SOURCES = env.c

@@ -3,9 +3,21 @@
 #include <string.h>
 #include <fcgiapp.h>
 #include <json.h>
+#include <errno.h>
+
+#include "common.h"
+
+#pragma GCC diagnostic ignored "-Wwrite-strings"
 
 #define MAX_UPLOAD (1024 * 1024 * 10)
 #define URL_PREFIX "/myemsl/api/1/rmds/"
+
+const char *progname;
+
+typedef struct {
+	FCGX_Request *req;
+	int res;
+} callback_data;
 
 void return_header(FCGX_Request *req, int status, char *status_str, char *content_type)
 {
@@ -34,8 +46,22 @@ void bad_request_error(FCGX_Request *req)
 	FCGX_Finish_r(req);
 }
 
+void _document(const char *data, unsigned long size, long version, void *user_data)
+{
+	callback_data *cbd = (callback_data*)user_data;
+	return_header(cbd->req, 200, NULL, "application/json");
+	cbd->res = FCGX_PutStr(data, size, cbd->req->out);
+}
+
+void _error(const char *data, void *user_data)
+{
+	callback_data *cbd = (callback_data*)user_data;
+}
+
 void *process(void *a)
 {
+	callback_data cbd;
+	char longbuffer[24];
 	char **envp;
 	char *data;
 	char *str;
@@ -47,10 +73,19 @@ void *process(void *a)
 	long offset;
 	long item_id;
 	int res;
+	rados_t cluster;
+	rados_ioctx_t io;
 	FCGX_Request req;
 	json_object *json;
 	json_object *json_out;
 	FCGX_InitRequest(&req, 0, 0);
+	cbd.req = &req;
+	res = common_setup(progname, cluster, io);
+	if(res)
+	{
+		fprintf(stderr, "Failed to init pacifica_rmds\n");
+		return NULL;
+	}
 	while(1)
 	{
 		res = FCGX_Accept_r(&req);
@@ -102,7 +137,52 @@ void *process(void *a)
 		item_id = strtol(tstr + 1, NULL, 10);
 		json_object_object_add(json_out, "REQUEST_URL", json_object_new_string(str));
 		json_object_object_add(json_out, "ITEM_ID", json_object_new_int64(item_id));
-		if(!strcmp(method, "POST") || !strcmp(method, "PUT"))
+		if(!strcmp(method, "DELETE"))
+		{
+			sprintf(longbuffer, "%ld", item_id);
+			res = rados_remove(io, longbuffer);
+			if(res == -ENOENT)
+			{
+				return_header(&req, 404, "Not Found", "application/json");
+				FCGX_Finish_r(&req);
+				json_object_put(json_out);
+				continue;
+			}
+			else if(res != 0)
+			{
+				internal_error(&req);
+				json_object_put(json_out);
+				continue;
+			}
+		}
+		else if(!strcmp(method, "GET"))
+		{
+			sprintf(longbuffer, "%ld", item_id);
+			while(1)
+			{
+				res = atomic_read_cb(io, longbuffer, 1, _document, _error, &cbd);
+				if(res != READ_ERROR_TYPE_OK)
+				{
+					if(res == READ_ERROR_TYPE_CHANGED)
+					{
+						continue;
+					}
+					else if(res == READ_ERROR_TYPE_FNF)
+					{
+						return_header(&req, 404, "Not Found", "application/json");
+						FCGX_Finish_r(&req);
+					}
+					else
+					{
+						internal_error(&req);
+					}
+				}
+				break;
+			}
+			json_object_put(json_out);
+			continue;
+		}
+		else if(!strcmp(method, "POST") || !strcmp(method, "PUT"))
 		{
 			str = FCGX_GetParam("CONTENT_LENGTH", req.envp);
 			if(!str)
@@ -118,7 +198,7 @@ void *process(void *a)
 				json_object_put(json_out);
 				continue;
 			}
-			data = malloc(sizeof(char) * to_process);
+			data = (char*)malloc(sizeof(char) * to_process);
 			if(!data)
 			{
 				internal_error(&req);
@@ -142,6 +222,25 @@ void *process(void *a)
 				continue;
 			}
 			json_object_put(json);
+			if(!strcmp(method, "PUT"))
+			{
+				sprintf(longbuffer, "%ld", item_id);
+				res = atomic_create_data(io, longbuffer, data, sizeof(char) * to_process, 1);
+				if(res == -EEXIST)
+				{
+//FIXME should check if it is exactly the same version your trying to upload. If it is, just say ok.
+					return_header(&req, 403, "Forbidden", "application/json");
+					FCGX_Finish_r(&req);
+					free(data);
+					continue;
+				}
+				else if(res != 0)
+				{
+					internal_error(&req);
+					free(data);
+					continue;
+				}
+			}
 			free(data);
 		}
 
@@ -156,6 +255,7 @@ void *process(void *a)
 
 int main(int argc, char *argv[])
 {
+	progname = argv[0];
 	FCGX_Init();
 	process(NULL);
 	return 0;

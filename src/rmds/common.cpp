@@ -27,7 +27,7 @@ int version_get(rados_ioctx_t io, const char *key, long *version)
 	return 0;
 }
 
-int common_setup(char *progname, rados_t &cluster, rados_ioctx_t &io)
+int common_setup(const char *progname, rados_t &cluster, rados_ioctx_t &io)
 {
 	int err;
 	char poolname[] = "testpool";
@@ -59,7 +59,7 @@ int common_setup(char *progname, rados_t &cluster, rados_ioctx_t &io)
 	return 0;
 }
 
-int common_cleanup(char *progname, rados_t &cluster, rados_ioctx_t &io)
+int common_cleanup(const char *progname, rados_t &cluster, rados_ioctx_t &io)
 {
 	rados_ioctx_destroy(io);
 	rados_shutdown(cluster);
@@ -134,9 +134,9 @@ int atomic_create_data(rados_ioctx_t io, const char *key, const char *data, unsi
 	return _atomic_write(io, key, data, size, version_in, NULL, 1, NULL, NULL);
 }
 
-int atomic_read_cb(rados_ioctx_t io, const char *key, unsigned long buffsize, document_cb document, error_cb error, void *user_data)
+read_error_type atomic_read_cb(rados_ioctx_t io, const char *key, unsigned long buffsize, document_cb document, error_cb error, void *user_data)
 {
-	int res;
+	read_error_type res = READ_ERROR_TYPE_OK;
 	int err;
 	int read_err;
 	int getxattr_err;
@@ -154,7 +154,6 @@ int atomic_read_cb(rados_ioctx_t io, const char *key, unsigned long buffsize, do
 	ObjectReadOperation rop;
 	std::string document_str = "";
 	std::string error_str = "";
-	res = 0;
 	while(1)
 	{
 		rop.getxattr("version", &bl, &getxattr_err);
@@ -163,19 +162,26 @@ int atomic_read_cb(rados_ioctx_t io, const char *key, unsigned long buffsize, do
 		if(err < 0)
 		{
 			error_str.append("cannot operate on key ").append(key).append(": ").append(strerror(-err));
-			res = 1;
+			if(err == -ENOENT)
+			{
+				res = READ_ERROR_TYPE_FNF;
+			}
+			else
+			{
+				res = READ_ERROR_TYPE_OTHER;
+			}
 			break;
 		}
 		if(getxattr_err < 0)
 		{
 			error_str.append("cannot read from xattr from key ").append(key).append(": ").append(strerror(-getxattr_err));
-			res = 1;
+			res = READ_ERROR_TYPE_OTHER;
 			break;
 		}
 		if(bl.length() != sizeof(version))
 		{
 			error_str.append("xattr not the right size for key ").append(key).append(": ").append(std::to_string(static_cast<long long>(bl.length())));
-			res = 1;
+			res = READ_ERROR_TYPE_OTHER;
 			break;
 		}
 		bli = bl.begin();
@@ -188,13 +194,13 @@ int atomic_read_cb(rados_ioctx_t io, const char *key, unsigned long buffsize, do
 		else if(version != version_prev)
 		{
 			error_str.append("version changed while reading key ").append(key).append(": ").append(std::to_string(static_cast<long long>(version_decode(version_prev)))).append(" != ").append(std::to_string(static_cast<long long>(version_decode(version))));
-			res = 1;
+			res = READ_ERROR_TYPE_CHANGED;
 			break;
 		}
 		if(read_err < 0)
 		{
 			error_str.append("cannot read from key ").append(key).append(": ").append(strerror(-read_err));
-			res = 1;
+			res = READ_ERROR_TYPE_OTHER;
 			break;
 		}
 		else if(bl2.length() == 0)
