@@ -580,6 +580,30 @@ Requires: %{name}-common, postgresql-python, slurm, pyxattr
 %description    server-common
 Base server common files for MyEMSL
 
+%package        reprocess
+Summary:        Python Libraries for Reprocessing
+Group:          System Environment/Base
+Requires:	%{name}-common
+
+%description    reprocess
+Python Libraries for Reprocessing
+
+%package        web-reprocess-ssl
+Summary:        Web API for reprocessing
+Group:          System Environment/Base
+Requires:	%{name}-reprocess
+
+%description    web-reprocess-ssl
+Web APIs for defining reprocessors.
+
+%package        web-reprocess
+Summary:        Web API for reprocessing
+Group:          System Environment/Base
+Requires:	%{name}-reprocess
+
+%description    web-reprocess
+Web APIs for defining reprocessors.
+
 %package        web-kerberos
 Summary:        Website Kerberos configuration
 Group:          System Environment/Base
@@ -912,6 +936,19 @@ rm -rf %{buildroot}
 /%{python_sitelib}/myemsl/handler/qrs*
 /%{python_sitelib}/myemsl/handler/iteminfo*
 %defattr(0755,root,root)
+
+%files reprocess
+%defattr(0755,root,root)
+/%{python_sitelib}/myemsl/service/reprocess/__init__.py
+/%{python_sitelib}/myemsl/handler/reprocess/__init__.py
+
+%files web-reprocess-ssl
+%defattr(0644,root,root)
+%{_prefix}/lib/myemsl/apache/myemsl-ssl.d/reprocess.conf
+
+%files web-reprocess
+%defattr(0644,root,root)
+%{_prefix}/lib/myemsl/apache/myemsl.d/reprocess.conf
 
 %files web-item
 %defattr(0644,root,root)
