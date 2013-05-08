@@ -939,8 +939,8 @@ rm -rf %{buildroot}
 
 %files reprocess
 %defattr(0755,root,root)
-/%{python_sitelib}/myemsl/service/reprocess/__init__.py
-/%{python_sitelib}/myemsl/handler/reprocess/__init__.py
+/%{python_sitelib}/myemsl/service/reprocess/__init__.py*
+/%{python_sitelib}/myemsl/handler/reprocess/__init__.py*
 
 %files web-reprocess-ssl
 %defattr(0644,root,root)
