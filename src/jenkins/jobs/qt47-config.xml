@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers class="vector">
+    <hudson.triggers.TimerTrigger>
+      <spec>5 * * * *</spec>
+    </hudson.triggers.TimerTrigger>
+  </triggers>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>export MOCK=/usr/bin/mock
+export CREATEREPOOPTS=
+export MOCKDISTPREFIX=
+export REPOBASEDIR=/var/lib/jenkins
+if [ "$DIST" = "epel-5-x86_64" ]; then export CREATEREPOOPTS='-s sha'; fi
+if [ -f /etc/pacifica/jenkins.sh ]; then . /etc/pacifica/jenkins.sh; fi
+$MOCK -r atrpms-epel-5-x86_64 --init
+$MOCK -r atrpms-epel-5-x86_64 --install qt47-webkit-devel sqlite-devel
+mkdir -p "$REPOBASEDIR"/epel-5-x86_64/
+cp -af /var/cache/mock/atrpms-epel-5-x86_64/yum_cache/atrpms-testing/packages/*.rpm "$REPOBASEDIR"/epel-5-x86_64/
+rm -f "$REPOBASEDIR"/epel-5-x86_64/libgpg-error-*.rpm
+chcon system_u:object_r:var_lib_t:s0 "$REPOBASEDIR"/epel-5-x86_64/*.rpm
+createrepo $CREATEREPOOPTS "$REPOBASEDIR"/epel-5-x86_64/
+$MOCK -r atrpms-epel-5-x86_64 --clean
+</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>
+  
