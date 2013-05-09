@@ -261,3 +261,14 @@ ALTER TABLE "local_predicate" OWNER TO "metadata_admins";
 GRANT SELECT ON "local_predicate" to "metadata_readers";
 ALTER TABLE "local_predicate" ADD CONSTRAINT local_predicate_uniq UNIQUE (id, ver);
 
+DROP TABLE "reprocessors";
+CREATE TABLE "reprocessors" (
+	"name" character varying(64),
+        "person_id" integer references eus.users(person_id) on delete cascade,
+	"definition" xml;
+)
+WITHOUT OIDS;
+ALTER TABLE "reprocessors" OWNER TO "metadata_admins";
+GRANT SELECT ON "reprocessors" to "metadata_readers";
+ALTER TABLE "reprocessors" ADD CONSTRAINT reprocessor_key UNIQUE (name, person_id);
+
