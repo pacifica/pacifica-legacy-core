@@ -35,15 +35,16 @@ export REPODIR=/var/lib/jenkins/"$DIST"/
 if [ "$DIST" = 'epel-5-x86_64' ]; then export CREATEREPOOPTS='-s sha'; 
 fi
 if [ -f /etc/pacifica/jenkins.sh ]; then . /etc/pacifica/jenkins.sh; fi
-rm -rf elasticsearch-rpms/.git
-cp -a /var/lib/jenkins/jobs/elasticsearch-download/workspace/* .
-cd elasticsearch-rpms
+rm -rf archive.zip archive
+wget ${JENKINS_URL}/job/elasticsearch-download/lastSuccessfulBuild/artifact/*zip*/archive.zip
+unzip archive.zip
+cd archive/elasticsearch-rpms
 rm -rf packages
 mkdir -p packages/"$DIST"/srpms
 mkdir -p packages/"$DIST"/bin
 MOCK=/usr/bin/mock
 $MOCK -r "$MOCKDISTPREFIX$DIST" --buildsrpm --spec `pwd`/SPECS/elasticsearch.spec --sources "`pwd`"/SOURCES
-mv "/var/lib/mock/$DIST/result/"*.src.rpm packages/"$DIST"/srpms/
+mv "/var/lib/mock/$MOCKDISTPREFIX$DIST/result/"*.src.rpm packages/"$DIST"/srpms/
 $MOCK -r "$MOCKDISTPREFIX$DIST" --result `pwd`/packages/"$DIST"/bin `pwd`/packages/"$DIST"/srpms/*.src.rpm
 mkdir -p "$REPODIR"
 cp -a packages/"$DIST"/bin/* "$REPODIR"

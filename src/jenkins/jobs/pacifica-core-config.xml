@@ -76,7 +76,7 @@ export MOCKDISTPREFIX=
 export REPODIR=/var/lib/jenkins/"$DIST"/
 if [ "$DIST" = "epel-5-x86_64" ]; then export CREATEREPOOPTS='-s sha'; fi
 if [ -f /etc/pacifica/jenkins.sh ]; then . /etc/pacifica/jenkins.sh; fi
-bash autogen.sh
+bash autogen.sh --enable-dist-only
 make dist
 mkdir -p packages/"$DIST"/srpms
 mkdir -p packages/"$DIST"/bin
