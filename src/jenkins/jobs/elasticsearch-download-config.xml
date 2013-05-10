@@ -5,7 +5,8 @@
   <keepDependencies>false</keepDependencies>
   <properties/>
   <scm class="hudson.scm.NullSCM"/>
-  <canRoam>true</canRoam>
+  <assignedNode>pacifica</assignedNode>
+  <canRoam>false</canRoam>
   <disabled>false</disabled>
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
@@ -13,7 +14,9 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>test -d elasticsearch-rpms || git clone --depth=1 https://github.com/tavisto/elasticsearch-rpms.git
+      <command>
+#note, needs rpm rpmdevtools installed for spectool
+test -d elasticsearch-rpms || git clone --depth=1 https://github.com/tavisto/elasticsearch-rpms.git
 if [ -f /etc/pacifica/jenkins.sh ]; then . /etc/pacifica/jenkins.sh; fi
 cd elasticsearch-rpms
 git pull

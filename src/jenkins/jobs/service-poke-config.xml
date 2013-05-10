@@ -70,20 +70,18 @@
   </axes>
   <builders>
     <hudson.tasks.Shell>
-      <command>MOCK=/usr/bin/mock
+      <command>
 export CREATEREPOOPTS=
 export MOCKDISTPREFIX=
 export REPODIR=/var/lib/jenkins/"$DIST"/
 if [ "$DIST" = "epel-5-x86_64" ]; then export CREATEREPOOPTS='-s sha'; fi
 if [ -f /etc/pacifica/jenkins.sh ]; then . /etc/pacifica/jenkins.sh; fi
+bash autogen.sh --enable-dist-only
+make dist
 mkdir -p packages/"$DIST"/srpms
 mkdir -p packages/"$DIST"/bin
-bash autogen.sh
-make dist
-$MOCK -r "$MOCKDISTPREFIX$DIST" --buildsrpm --spec service-poke.spec --sources "`pwd`"
-mv "/var/lib/mock/$MOCKDISTPREFIX$DIST/result/"*.src.rpm packages/"$DIST"/srpms/
-$MOCK -r "$MOCKDISTPREFIXDIST" --result `pwd`/packages/"$DIST"/bin `pwd`/packages/"$DIST"/srpms/*.src.rpm
-cp -a packages/"$DIST"/bin/* "$REPODIR"
+make MOCKDIST="$MOCKDISTPREFIX$DIST" mock
+cp -a packages/"$MOCKDISTPREFIX$DIST"/bin/* "$REPODIR"
 createrepo $CREATEREPOOPTS "$REPODIR"
 </command>
     </hudson.tasks.Shell>

@@ -26,7 +26,12 @@ if [ ! -f ${JENKINS_JAR} ]
 then
 	curl -o ${JENKINS_JAR} ${JENKINS_URL}/jnlpJars/jenkins-cli.jar
 fi
-for jobname in qt47 go libbuhfsutil amalgam pacifica-core elasticsearch-download elasticsearch service-poke slurm gdb pprof ceph pacifica-builddeps pacifica-auth pacifica-web-basicauth pacifica-devel-brand pacifica-test-data pacifica-uploader pacifica-devel-vm;
+if [ "x${JENKINS_JOBS}" == "x" ]
+then
+	JENKINS_JOBS="qt47 go libbuhfsutil amalgam pacifica-core elasticsearch-download elasticsearch service-poke slurm gdb pprof pacifica-builddeps pacifica-auth pacifica-web-basicauth pacifica-devel-brand pacifica-test-data pacifica-uploader pacifica-devel-vm"
+fi
+
+for jobname in ${JENKINS_JOBS};
 do
 	java -jar ${JENKINS_JAR} -s ${JENKINS_URL} delete-job $jobname ${JENKINS_OPTIONS}
 	java -jar ${JENKINS_JAR} -s ${JENKINS_URL} create-job $jobname ${JENKINS_OPTIONS} < ${JENKINS_CONFIG_PREFIX}/$jobname-config.xml

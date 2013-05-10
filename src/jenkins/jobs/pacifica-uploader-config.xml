@@ -75,7 +75,7 @@ export MOCKDISTPREFIX=
 export REPODIR=/var/lib/jenkins/"$DIST"/
 if [ "$DIST" = "epel-5-x86_64" ]; then export CREATEREPOOPTS='-s sha'; fi
 if [ -f /etc/pacifica/jenkins.sh ]; then . /etc/pacifica/jenkins.sh; fi
-make mock MOCKDIST="$MOCKDISTPREIFX$DIST"
+make mock MOCKDIST="$MOCKDISTPREFIX$DIST"
 cp -a packages/"$MOCKDISTPREFIX$DIST"/bin/* "$REPODIR"
 createrepo $CREATEREPOOPTS "$REPODIR"
 </command>

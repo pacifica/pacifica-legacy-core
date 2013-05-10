@@ -29,23 +29,23 @@
   </axes>
   <builders>
     <hudson.tasks.Shell>
-      <command>SLURM_VERSION="2.5.4"
+      <command>SLURM_VERSION="2.5.6"
 export CREATEREPOOPTS=
 export MOCKDISTPREFIX=
 export REPODIR=/var/lib/jenkins/"$DIST"/
+export MOCK="/usr/bin/mock"
+export MOCKDIR="/var/lib/mock"
 if [ "$DIST" = "epel-5-x86_64" ]; then export CREATEREPOOPTS='-s sha'; fi
 if [ -f /etc/pacifica/jenkins.sh ]; then . /etc/pacifica/jenkins.sh; fi
-MOCK="/usr/bin/mock"
-MOCKDIR="/var/lib/mock/$DIST"
 wget -O slurm-$SLURM_VERSION.tar.bz2 http://www.schedmd.com/download/latest/slurm-$SLURM_VERSION.tar.bz2
 tar -xjf slurm-$SLURM_VERSION.tar.bz2 slurm-$SLURM_VERSION/slurm.spec
 rm -f *.src.rpm
 rm -rf packages
 mkdir -p packages/"$DIST"/bin
 $MOCK -r "$MOCKDISTPREFIX$DIST" --buildsrpm --spec=`pwd`/slurm-$SLURM_VERSION/slurm.spec --sources=$PWD
-cp $MOCKDIR/result/*.src.rpm .
+cp $MOCKDIR/"$MOCKDISTPREFIX$DIST"/result/*.src.rpm .
 if ! $MOCK -r "$MOCKDISTPREFIX$DIST" --result `pwd`/packages/"$DIST"/bin slurm-$SLURM_VERSION*.src.rpm; then
-  more $MOCKDIR/result/*log | cat
+  more $MOCKDIR/"$MOCKDISTPREFIX$DIST"/result/*log | cat
   exit -1
 fi
 cp -a packages/"$DIST"/bin/* "$REPODIR"
