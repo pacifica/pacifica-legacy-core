@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import os
+import os.path
 import sys
 import xml.dom.minidom
 
@@ -9,9 +10,11 @@ file = open(configfile, "r")
 config = xml.dom.minidom.parse(file)
 file.close
 
+path = os.path.dirname(os.path.abspath(__file__))
+
 views = {}
-for i in os.listdir("views"):
-	file = open("views/%s" %(i), "r")
+for i in os.listdir(path + "/views"):
+	file = open(path + "/views/%s" %(i), "r")
 	x = xml.dom.minidom.parse(file)
 	file.close()
 	for j in x.firstChild.childNodes:

@@ -17,7 +17,6 @@
     <string>slurm</string>
     <string>gdb</string>
     <string>pprof</string>
-    <string>ceph</string>
   </jobNames>
   <jobFilters/>
   <columns>
