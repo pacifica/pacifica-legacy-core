@@ -10,6 +10,19 @@ AC_PROG_CPP
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_LIBTOOL
+AC_PROG_CXX
+
+AC_ARG_ENABLE([dist-only],
+        AS_HELP_STRING([--enable-dist-only],[Don't check requirements. Only for building releases.]),
+        [
+                do_dist_only=yes;
+		export GLIB_CFLAGS="-I.";
+		export GLIB_LIBS="-L.";
+	],do_dist_only=no)
+AM_CONDITIONAL(DO_DIST_ONLY, test x"$do_dist_only" = "xyes")
+
+if [[ x"$do_dist_only" != "xyes" ]]; then
+
 AM_PATH_PYTHON
 
 AX_PKG_SWIG(1.3.0, [], [ AC_MSG_ERROR([SWIG is required to build..]) ])
@@ -34,7 +47,6 @@ AS_IF([test "x$with_rmds" = "xyes"], [
 	AC_SUBST(FCGI_LIBS)
 	AC_PROG_CXX
 ])
-AM_CONDITIONAL([WITH_RMDS], [test "x$with_rmds" != "x"])
 
 PACKAGE_NAME=AC_PACKAGE_NAME
 AC_SUBST(PACKAGE_NAME)
@@ -61,6 +73,9 @@ AC_CHECK_MEMBERS([struct fuse_operations.flag_nullpath_ok], [NULLPATH=1;WITH_FUS
 ])
 CFLAGS="$TMPCFLAGS $WITH_FUSE_NULLPATH"
 AC_SUBST(NULLPATH)
+
+fi
+AM_CONDITIONAL([WITH_RMDS], [test "x$with_rmds" != "x"])
 
 #
 # config directories in /etc we care about
