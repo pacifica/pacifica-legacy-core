@@ -1,6 +1,10 @@
 MAINTAINERCLEANFILES = Makefile.in build
 
 EXTRA_DIST = \
+pacifica/__init__.py \
+pacifica/notification/__init__.py \
+pacifica/notification/receiver.py \
+pacifica/notification/writer.py \
 myemsl/util.py \
 myemsl/archive.py \
 myemsl/dbconnect/__init__.py \

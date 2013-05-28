@@ -32,7 +32,10 @@ BuildRequires: java-1.6.0-openjdk
 	%endif
 %endif
 
-%if %{use_rmds}
+#Disable ceph code for now.
+%global use_rmds_ceph 0
+
+%if %{use_rmds_ceph}
 BuildRequires: fcgi-devel ceph-devel json-c-devel
 %endif
 
@@ -588,7 +591,7 @@ Requires: mod_auth_kerb
 %description    web-kerberos
 Website Kerberos configuration bits for MyEMSL
 
-%if %{use_rmds}
+%if %{use_rmds_ceph}
 %package -n     pacifica-web-rmds-ssl
 Summary:        Pacifica Raw Meta Data Server
 Group:          System Environment/Base
@@ -597,6 +600,30 @@ Requires: myemsl-web-ssl mod_fcgid
 %description -n pacifica-web-rmds-ssl
 Pacifica Raw Meta Data Server
 %endif
+
+%package -n     pacifica-notification-client
+Summary:        Pacifica Notification Client
+Group:          System Environment/Base
+Requires: pacifica-notification-common
+
+%description -n pacifica-notification-client
+Pacifica Notification Client
+
+%package -n     pacifica-notification-server
+Summary:        Pacifica Notification Server
+Group:          System Environment/Base
+Requires: pacifica-notification-common
+
+%description -n pacifica-notification-server
+Pacifica Notification Server
+
+%package -n     pacifica-notification-common
+Summary:        Pacifica Notification Common
+Group:          System Environment/Base
+Requires: myemsl-server-common
+
+%description -n pacifica-notification-common
+Pacifica Notification Common bits.
 
 %package        common
 Summary:        Common Components
@@ -610,7 +637,7 @@ Common components for MyEMSL
 %setup -q -n @PACKAGE_NAME@-%{version}
 
 %build
-%if %{use_rmds}
+%if %{use_rmds_ceph}
 %configure --with-rmds
 %else
 %configure 
@@ -949,6 +976,18 @@ rm -rf %{buildroot}
 %{_prefix}/lib/myemsl/apache/myemsl-ssl.d/personinforaw.conf
 %defattr(0755,root,root)
 
+%files -n pacifica-notification-client
+/%{python_sitelib}/pacifica/notification/receiver.py*
+%{_libexecdir}/pacifica/notification/receiver
+
+%files -n pacifica-notification-server
+/%{python_sitelib}/pacifica/notification/writer.py*
+%{_libexecdir}/pacifica/notification/init
+%{_libexecdir}/pacifica/notification/writer
+
+%files -n pacifica-notification-common
+/%{python_sitelib}/pacifica/notification/__init__.py*
+
 %files web-notify-ssl
 %{_defaultdocdir}/myemsl/notify
 %attr(0644,root,root) %{_prefix}/lib/myemsl/apache/myemsl-ssl.d/notify.conf
@@ -1105,7 +1144,7 @@ createrepo /srv/myemsl-devel
 %post notification
 chkconfig --add notification-service
 
-%if %{use_rmds}
+%if %{use_rmds_ceph}
 %files -n pacifica-web-rmds-ssl
 %{_libdir}/libpacifica_rmds*
 %{_localstatedir}/www/myemsl/fcgi-bin/rmds.fcgi
@@ -1114,6 +1153,7 @@ chkconfig --add notification-service
 
 %files common
 %{_defaultdocdir}/myemsl/common
+/%{python_sitelib}/pacifica/__init__.py*
 /%{python_sitelib}/myemsl/__init__.py*
 /%{python_sitelib}/myemsl/util.py*
 /%{python_sitelib}/myemsl/logging.py*

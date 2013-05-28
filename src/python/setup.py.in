@@ -4,6 +4,8 @@ from distutils.core import setup, Extension
 import sys
 
 packages = [ 
+	"pacifica",
+	"pacifica.notification",
 	"myemsl.pam",
 	"myemsl.cart",
 	"myemsl.callcurl",
