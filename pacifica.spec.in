@@ -986,6 +986,7 @@ rm -rf %{buildroot}
 /%{python_sitelib}/pacifica/notification/writer.py*
 %{_libexecdir}/pacifica/notification/init
 %{_libexecdir}/pacifica/notification/writer
+%{_libexecdir}/pacifica/notification/recoverer
 
 %files -n pacifica-notification-common
 /%{python_sitelib}/pacifica/notification/__init__.py*

@@ -11,13 +11,13 @@ class VersionClearerReceiver(Receiver):
 #FIXME make metadata collection usable with different mongodb host/database.
 		client = Connection(host, port)
 		db = client[db]
-		self.collection = pymongo.collection.Collection(db, collection, create=False)
+		self.metadata_collection = pymongo.collection.Collection(db, "%s_collection" %(collection), create=False)
 	def recover(self, db, collection, min_cur_id):
 		self.last_id = collection.find().sort('$natural', 1).limit(1).next()['ts']
 		print "Just using the oldest id: %s" %(self.last_id)
 		return 0
-	def discovered(self, tag, item_id):
-		print item_id
+	def discovered(self, tag, item_id, version):
+		self.metadata_collection.update({'_id':int(item_id), 'ver':version}, {'$set': {'nver': version}})
 
 def main():
 	parser = OptionParser()
