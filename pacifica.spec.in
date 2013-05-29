@@ -978,7 +978,9 @@ rm -rf %{buildroot}
 
 %files -n pacifica-notification-client
 /%{python_sitelib}/pacifica/notification/receiver.py*
+/%{python_sitelib}/pacifica/notification/receivers/*
 %{_libexecdir}/pacifica/notification/receiver
+%{_libexecdir}/pacifica/notification/receivers/versionclearer
 
 %files -n pacifica-notification-server
 /%{python_sitelib}/pacifica/notification/writer.py*

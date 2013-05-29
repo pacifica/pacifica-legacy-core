@@ -1,3 +1,5 @@
+from pymongo import Connection
+
 def collection_name_get(db, chanel, version=None):
 	if version == None:
 		version = db['notification_versions'].find({'_id':chanel}).next()['value']

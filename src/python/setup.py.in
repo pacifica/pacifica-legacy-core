@@ -6,6 +6,7 @@ import sys
 packages = [ 
 	"pacifica",
 	"pacifica.notification",
+	"pacifica.notification.receivers",
 	"myemsl.pam",
 	"myemsl.cart",
 	"myemsl.callcurl",

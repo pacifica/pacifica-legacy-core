@@ -1,3 +1,5 @@
+SUBDIRS = receivers
+
 pkginitd_SCRIPTS = notification-service
 sbin_SCRIPTS = emsl-notify
 

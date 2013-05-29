@@ -5,6 +5,8 @@ pacifica/__init__.py \
 pacifica/notification/__init__.py \
 pacifica/notification/receiver.py \
 pacifica/notification/writer.py \
+pacifica/notification/receivers/__init__.py \
+pacifica/notification/receivers/versionclearer.py \
 myemsl/util.py \
 myemsl/archive.py \
 myemsl/dbconnect/__init__.py \

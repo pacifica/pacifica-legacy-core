@@ -185,6 +185,7 @@ AC_OUTPUT([
 		src/pgsql_schema/Makefile
 		src/wsgi/Makefile
 		src/notification/Makefile
+		src/notification/receivers/Makefile
 		src/cartd/Makefile
 		src/examples/Makefile
 		src/devel/Makefile
