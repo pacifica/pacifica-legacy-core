@@ -601,6 +601,14 @@ Requires: myemsl-web-ssl mod_fcgid
 Pacifica Raw Meta Data Server
 %endif
 
+%package -n     pacifica-metadata-tmds
+Summary:        Pacifica Metadata Trusted Store
+Group:          System Environment/Base
+Requires: pacifica-notification-client pacifica-notification-server
+
+%description -n pacifica-metadata-tmds
+Pacifica Retadata Trusted Store
+
 %package -n     pacifica-web-rmds-notification-ssl
 Summary:        Pacifica Raw Meta Data Notification Server
 Group:          System Environment/Base
@@ -1167,9 +1175,14 @@ chkconfig --add notification-service
 /%{python_sitelib}/myemsl/service/rmds/*
 /%{python_sitelib}/myemsl/handler/rmds/*
 
+%files -n pacifica-metadata-tmds
+/%{python_sitelib}/pacifica/metadata/trustifier.py*
+/%{python_sitelib}/pacifica/notification/receivers/trustifier.py*
+
 %files common
 %{_defaultdocdir}/myemsl/common
 /%{python_sitelib}/pacifica/__init__.py*
+/%{python_sitelib}/pacifica/metadata/__init__.py*
 /%{python_sitelib}/myemsl/__init__.py*
 /%{python_sitelib}/myemsl/util.py*
 /%{python_sitelib}/myemsl/logging.py*
