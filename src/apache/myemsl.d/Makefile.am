@@ -15,7 +15,7 @@ EXTRA_DIST = eushandoff.conf.in getuser.conf.in \
              proposal-finder.conf.in static.conf.in api.conf.in \
              predicate.conf.in test.conf.in elasticsearch-proxy.conf.in \
              cart-local.conf.in cart-proxy.conf.in cart-proxy-ssl.conf.in \
-             dmspath.conf.in admin.conf.in rmds.conf.in
+             dmspath.conf.in admin.conf.in rmds.conf.in rmds2.conf.in
 
 pkgmyemslweb_DATA = web/ingest.conf web/query.conf web/testauth.conf \
                     web/iteminfo.conf web/status.conf web/outage.conf \
@@ -43,7 +43,7 @@ pkgmyemslssl_DATA = ssl/ingest.conf ssl/query.conf ssl/query-raw.conf \
                     ssl/static.conf ssl/api.conf ssl/predicate.conf \
                     ssl/client.conf ssl/test.conf ssl/admin.conf \
                     ssl/elasticsearch-proxy.conf ssl/cart-local.conf \
-                    ssl/cart-proxy-ssl.conf ssl/dmspath.conf
+                    ssl/cart-proxy-ssl.conf ssl/dmspath.conf ssl/rmds2.conf
 
 $(pkgmyemslweb_DATA):
 	$(mkdir_p) web

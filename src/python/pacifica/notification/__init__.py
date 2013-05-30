@@ -13,6 +13,11 @@ def writer_socket_get(chanel):
 
 class writer_socket_writer:
 	def __init__(self, name):
+		try:
+    			os.mkfifo(name)
+		except OSError, e:
+			if e.errno != errno.EEXIST:
+				raise
 		self.fh = os.open(name, os.O_WRONLY | os.O_NONBLOCK)
 	def write(self, data):
 		try:
