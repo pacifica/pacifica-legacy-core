@@ -6,10 +6,12 @@ pacifica/notification/__init__.py \
 pacifica/notification/receiver.py \
 pacifica/notification/writer.py \
 pacifica/notification/receivers/__init__.py \
+pacifica/notification/receivers/flattener.py \
 pacifica/notification/receivers/trustifier.py \
 pacifica/notification/receivers/versionclearer.py \
 pacifica/metadata/__init__.py \
 pacifica/metadata/trustifier.py \
+pacifica/metadata/flattener.py \
 myemsl/util.py \
 myemsl/archive.py \
 myemsl/dbconnect/__init__.py \

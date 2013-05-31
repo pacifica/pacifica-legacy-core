@@ -33,7 +33,7 @@ def main():
         add_options(parser)
         parser.parse_args()
         check_options(parser)
-	wsw = writer_socket_writer(writer_socket_get(parser.values.chanel))
+	wsw = writer_socket_writer(writer_socket_get(parser.values.chanel), sync=True)
 	client = Connection(parser.values.host, parser.values.port)
 	db = client[parser.values.db]
 	collection_name = collection_name_get(db, parser.values.chanel)
@@ -41,8 +41,7 @@ def main():
 	collection = db[parser.values.collection + "_collection"]
 	documents = collection.find({'$where': 'this.ver > this.nver'}, {'_id':1, 'ver':1})
 	for doc in documents:
-		packed = struct.pack("<2q", doc['_id'], doc['ver'])
-		wsw.write(packed)
+		wsw.entry(doc['_id'], doc['ver'])
 
 if __name__ == '__main__':
 	sys.exit(main())

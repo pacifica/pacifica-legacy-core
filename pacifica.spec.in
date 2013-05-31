@@ -607,7 +607,15 @@ Group:          System Environment/Base
 Requires: pacifica-notification-client pacifica-notification-server
 
 %description -n pacifica-metadata-tmds
-Pacifica Retadata Trusted Store
+Pacifica Metadata Trusted Store
+
+%package -n     pacifica-metadata-fmds
+Summary:        Pacifica Metadata Flattened Store
+Group:          System Environment/Base
+Requires: pacifica-notification-client pacifica-notification-server
+
+%description -n pacifica-metadata-fmds
+Pacifica Metadata Flattened Store
 
 %package -n     pacifica-web-rmds-notification-ssl
 Summary:        Pacifica Raw Meta Data Notification Server
@@ -1178,6 +1186,12 @@ chkconfig --add notification-service
 %files -n pacifica-metadata-tmds
 /%{python_sitelib}/pacifica/metadata/trustifier.py*
 /%{python_sitelib}/pacifica/notification/receivers/trustifier.py*
+%{_libexecdir}/pacifica/notification/receivers/trustifier
+
+%files -n pacifica-metadata-fmds
+/%{python_sitelib}/pacifica/metadata/flattener.py*
+/%{python_sitelib}/pacifica/notification/receivers/flattener.py*
+%{_libexecdir}/pacifica/notification/receivers/flattener
 
 %files common
 %{_defaultdocdir}/myemsl/common
