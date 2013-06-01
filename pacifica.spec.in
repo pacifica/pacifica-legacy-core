@@ -1014,6 +1014,7 @@ rm -rf %{buildroot}
 
 %files -n pacifica-notification-common
 /%{python_sitelib}/pacifica/notification/__init__.py*
+%{_libexecdir}/pacifica/notification/versionclearer_init
 
 %files web-notify-ssl
 %{_defaultdocdir}/myemsl/notify
@@ -1225,6 +1226,7 @@ chkconfig --add notification-service
 %{_bindir}/myemsl_getunixuser
 %{_bindir}/myemslupload
 %{_bindir}/myemslbundler
+%{_libexecdir}/pacifica/daemonize2
 %defattr(0644,root,root)
 %config(noreplace) %{_sysconfdir}/myemsl/general.ini
 %config(noreplace) %{_sysconfdir}/myemsl/secret.ini

@@ -1,0 +1,68 @@
+#!/bin/bash
+#
+# Init file for rmds server daemons
+#
+# chkconfig: 2345 55 25
+# description: rmds server daemon
+#
+# pidfile: /var/run/pacifica_metadata_rmds_versionclearer.pid
+
+# source function library
+. /etc/rc.d/init.d/functions
+
+RETVAL=0
+prog="versionclearer"
+
+CHANNEL=rmds
+PID_FILE=/var/run/pacifica_metadata_rmds_versionclearer.pid
+LOCKFILE=/var/lock/subsys/pacifica_metadata_rmds_versionclearer
+
+start()
+{
+	MYEMSL_UNIX_USER=`myemsl_getunixuser`
+	touch "$PID_FILE"
+	chown "root.$MYEMSL_UNIX_USER" "$PID_FILE"
+	chmod 770 "$PID_FILE"
+	status -p $PID_FILE $prog >/dev/null
+	RETVAL=$?
+	[ "$RETVAL" = 0 ] && return 0
+	daemon --user $MYEMSL_UNIX_USER /usr/libexec/pacifica/daemonize2 -p "$PID_FILE" /usr/libexec/pacifica/notification/receivers/$prog -c $CHANNEL
+	[ "$?" != 0 ] && return 1
+	touch "$LOCKFILE"
+	return 0
+}
+
+stop()
+{
+	if [ -n "`pidofproc -p $PID_FILE $prog`" ] ; then
+	    killproc -p $PID_FILE $prog >/dev/null
+	else
+	    return 1
+	fi
+	RETVAL=$?
+	[ "$RETVAL" = 0 ] && rm -f "$LOCKFILE"
+}
+
+case "$1" in
+	-u)
+		start
+		RETVAL=$?
+		;;
+	-d)
+		stop
+		;;
+	-c)
+		status -p $PID_FILE $prog >/dev/null
+		RETVAL=$?
+		if [ "$RETVAL" = 0 ]
+		then
+			RETVAL=1
+		else
+			RETVAL=0
+		fi
+		;;
+	*)
+		echo $"Unknown command"
+		RETVAL=1
+esac
+exit $RETVAL

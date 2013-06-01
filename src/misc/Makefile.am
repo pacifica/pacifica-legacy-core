@@ -4,6 +4,11 @@ ulm_SCRIPTS = itemauthgenkeys itemtokengen servergenkeys
 dist-hook:
 	rm -f $(distdir)/_myemsl_archive.py
 
+programdir = $(libexecdir)/pacifica
+program_PROGRAMS = daemonize2
+
+daemonize2_SOURCES = daemonize.c
+
 BUILT_SOURCES = archive-python.c _myemsl_archive.py
 CLEANFILES = $(BUILT_SOURCES)
 SWIG_SOURCES = archive.i

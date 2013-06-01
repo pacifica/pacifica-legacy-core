@@ -47,11 +47,32 @@ class ingest:
 			if attr == 'job_offset':
 				v = self.config.getint('ingest', attr)
 			else:
-				v = self.config.get('cartd', attr)
+				v = self.config.get('ingest', attr)
 		except:
 			if attr == 'job_offset':
 				v = 0
 			else:
+				raise
+		return v
+
+class notification:
+	def __init__(self, config, channel):
+		self.config = config
+		self.channel = channel
+	def __getattr__(self, attr):
+		try:
+			section = "notification_%s" %(self.channel)
+			if attr == 'port':
+				v = self.config.getint(section, attr)
+			else:
+				v = self.config.get(section, attr)
+		except:
+			try:
+				if attr == 'port':
+					v = self.config.getint("notification_defaults", attr)
+				else:
+					v = self.config.get("notification_defaults", attr)
+			except:
 				raise
 		return v
 
@@ -60,6 +81,11 @@ def getconfig():
 	config.read('/etc/myemsl/general.ini')
 	config.cartd = cartd(config)
 	config.ingest = ingest(config)
+	return config
+
+def getconfig_notification(channel):
+	config = getconfig()
+	config.notification = notification(config, channel)
 	return config
 
 def getconfig_secret():
