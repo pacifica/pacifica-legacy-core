@@ -45,6 +45,25 @@ def schema_get(schema):
 				"extended_metadata": {
 					"dynamic": true,
 					"properties": { 
+						"gov_pnnl_erica/irn": {
+							"dynamic": true,
+							"properties": {
+								"id": {
+									"type" : "multi_field",
+									"fields" : {
+										"id": {
+											"type": "string"
+										},
+										"untouched": {
+											"type": "string",
+											"null_value": "na",
+											"index": "analyzed",
+											"analyzer": "keyword"
+										}
+									}
+								}
+							}
+						},
 						"gov_pnnl_emsl_instrument": {
 							"dynamic": true,
 							"properties": {

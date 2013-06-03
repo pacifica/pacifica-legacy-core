@@ -240,6 +240,8 @@ select group_set_id, g.group_id, type, name, proposal_id from (select group_set_
 			if row[2][:len("Instrument.")] == "Instrument.":
 				gs['groups'].append([row[1], "Instrument", row[2][len("Instrument."):]])
 				gs['extended_metadata']['gov_pnnl_emsl_instrument'].append(row[2][len("Instrument."):])
+			elif row[2][:len("gov_pnnl_erica/irn")] == "gov_pnnl_erica/irn":
+				gs['extended_metadata']['gov_pnnl_erica/irn'] = json.loads(row[3])
 			else:
 				gs['groups'].append([row[1], row[2], row[3]])
 				e = extended_metadata_reference.get(row[2])

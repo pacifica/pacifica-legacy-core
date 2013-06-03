@@ -26,6 +26,7 @@ class metadata:
 		cnx.close()
 
 		mdp.register_join('gov_pnnl_emsl_proposal', myemsl.elasticsearch.metadata.entry_to_id)
+		mdp.register_join('gov_pnnl_erica/irn', myemsl.elasticsearch.metadata.entry_to_id)
 
 		mdp.emsl_basic_metadata = self
 
