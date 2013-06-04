@@ -350,7 +350,8 @@ select instrument_id, name_short from eus.instruments;
 		entry['last'] = last
 		entry['submitterid'] = row[1]
 		aged = "false"
-		if row[8] == 't':
+#FIXME make this a bool in elasticsearch later
+		if row[8]:
 			aged = "true"
 		entry['aged'] = aged
 		users = {row[1]:1}
