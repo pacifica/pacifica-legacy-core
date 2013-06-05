@@ -19,6 +19,7 @@ api_DATA = myemsl-widgets.js \
 	/usr/lib/pacifica/builddeps/jquery-ui/js/jquery-ui.min.js \
 	/usr/lib/pacifica/builddeps/jquery-jtemplates.js \
 	builddir/jaysun.js \
+	/usr/lib/pacifica/builddeps/base64.min.js \
 	/usr/lib/pacifica/builddeps/r.js/require.js
 
 EXTRA_DIST = myemsl-widgets-base.js \
