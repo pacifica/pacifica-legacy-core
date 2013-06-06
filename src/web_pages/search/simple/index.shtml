@@ -3,9 +3,25 @@
 		<link rel="stylesheet" href="/myemsl/api/1/css/ui-lightness/jquery-ui.min.css" type="text/css" media="all"></link>
 		<script src="/myemsl/api/1/require.js"></script>
 		<script src="/myemsl/api/1/myemsl-widgets-main.js"></script>
+<!--FIXME need base64 polyfill-->
+		<script src="/myemsl/api/1/base64.min.js"></script>
 		<script type="text/javascript">
 			require(['myemsl.generic-finder'], function(m) {
-				$('#container').myemslProposalFinderForm({'widget':'simple_items'});
+				var new_facets_set = [];
+				var rawdata = window.location.href.split('/myemsl/search/simple/')
+				if(history && history.replaceState) {
+					history.replaceState(null, document.title, rawdata[0] + '/myemsl/search/simple/');
+				}
+				if(rawdata.length > 1 && rawdata[1].length > 0) {
+					var data = rawdata[1].split('#')[0];
+					var str = window.atob(data);
+					var values = JSON.parse(str);
+					var facets_set = values['pacifica-search-simple']['facets_set']
+					for(var i in facets_set) {
+						new_facets_set.push({'facet':facets_set[i]['key'], 'term':facets_set[i]['value'], 'query_term':facets_set[i]['key'] + ':"' + facets_set[i]['value'] + '"'});
+					}
+				}
+				$('#container').myemslProposalFinderForm({'widget':'simple_items', 'facets_set':new_facets_set});
 			});
 		</script>
 	<!--#include virtual="/myemsl/brand/brand_middle.inc"-->

@@ -165,6 +165,7 @@ AC_OUTPUT([
 		src/web_pages/admin/cart/Makefile
 		src/web_pages/admin/switchuser/Makefile
 		src/web_pages/proposal-finder/Makefile
+		src/web_pages/publication/Makefile
 		src/web_pages/test/Makefile
 		src/web_pages/test/browser/Makefile
 		src/web_pages/test/widgets/Makefile

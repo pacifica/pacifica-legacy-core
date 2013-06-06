@@ -870,6 +870,7 @@ rm -rf %{buildroot}
 /%{python_sitelib}/myemsl/handler/elasticsearch*
 /%{python_sitelib}/myemsl/handler/itemauth*
 %{_localstatedir}/www/myemsl/search/simple/index.shtml
+%{_localstatedir}/www/myemsl/publication/index.shtml
 %{_localstatedir}/www/myemsl/proposal-finder/index.shtml
 %{_localstatedir}/www/myemsl/proposal-finder/layout.html
 %{_localstatedir}/www/myemsl/proposal-finder/test-selector.shtml
