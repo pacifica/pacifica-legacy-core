@@ -1,0 +1,47 @@
+<!--#include virtual="/myemsl/brand/brand_header.inc"-->
+		<link rel="stylesheet" href="/myemsl/api/1/myemsl-widgets.css" type="text/css" media="all"></link>
+		<link rel="stylesheet" href="/myemsl/api/1/css/ui-lightness/jquery-ui.min.css" type="text/css" media="all"></link>
+		<script src="/myemsl/api/1/require.js"></script>
+		<script src="/myemsl/api/1/myemsl-widgets-main.js"></script>
+		<script src="/myemsl/api/1/json2.js"></script>
+<!--FIXME need base64 polyfill-->
+		<script src="/myemsl/api/1/base64.min.js"></script>
+		<script type="text/javascript">
+$(function() {
+	var newhash = {};
+	newhash = { 'pacifica-search-simple': {
+		'facets_set': []
+	}};
+	var rawdata = window.location.href.split('/myemsl/publication/')
+	var erica_irn = '';
+	if(rawdata.length > 1) {
+		var data = rawdata[1].split('/');
+		if(data.length % 2 == 0) {
+			for(var i = 0; i < data.length; i += 2) {
+				if(data[i] == 'erica_irn') {
+					newhash['pacifica-search-simple']['facets_set'].push({
+						'key': 'extended_metadata.gov_pnnl_erica/irn.id.untouched',
+						'value': data[i + 1]
+					});
+					erica_irn = data[i + 1];
+				}
+			}
+		}
+	}
+	newhash = window.btoa(JSON.stringify(newhash));
+	$('#erica-irn-link').text(erica_irn);
+	$('#erica-irn-link').attr('href', 'http://my.emsl.pnl.gov/myemsl/search/simple/' + newhash);
+	$('#bodyContent').removeClass('myemsl_hidden');
+});
+		</script>
+	<!--#include virtual="/myemsl/brand/brand_middle.inc"-->
+<noscript>
+You must have javascript enabled to use this page.
+</noscript>
+
+<div id="bodyContent" class="myemsl_hidden">
+	<p>Due to the large amount of scientific data archived at EMSL, we currently require you to have an EUS account so that we may provide you access to data in a timely manner. The account is free and can be created <a href="http://eus.emsl.pnl.gov" target="_blank">here</a>.</p>
+
+	<p>Once you have an EUS account, you may find the data related to publication <span id="erica-irn"></span> <a id="erica-irn-link">here</a>.</p>
+</div>
+<!--#include virtual="/myemsl/brand/brand_footer.inc"-->
