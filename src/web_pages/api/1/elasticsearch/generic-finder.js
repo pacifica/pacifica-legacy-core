@@ -502,7 +502,8 @@
 					});
 //FIXME This never gets cleaned up.
 					$('.body').append(dialog);
-					dialog.find('.myemsl_iteminfo_data').text(JSON.stringify(source, null, 4)).Jaysun({
+//FIXME replace / with _ to work around / being in json key killing jaysun.
+					dialog.find('.myemsl_iteminfo_data').text(JSON.stringify(source, null, 4).replace('/', '_')).Jaysun({
 						collapse: true,
 						closed: false,
 						resultElement: '.myemsl_iteminfo_data'
