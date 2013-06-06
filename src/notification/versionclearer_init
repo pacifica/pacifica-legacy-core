@@ -13,10 +13,6 @@
 RETVAL=0
 prog="versionclearer"
 
-CHANNEL=rmds
-PID_FILE=/var/run/pacifica_metadata_rmds_versionclearer.pid
-LOCKFILE=/var/lock/subsys/pacifica_metadata_rmds_versionclearer
-
 start()
 {
 	MYEMSL_UNIX_USER=`myemsl_getunixuser`

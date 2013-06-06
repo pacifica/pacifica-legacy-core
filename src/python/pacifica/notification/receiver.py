@@ -15,6 +15,8 @@ from pymongo.cursor import _QUERY_OPTIONS
 from myemsl.util import try_mkdir
 from pacifica.notification import *
 
+from myemsl.getconfig import getconfig_notification
+
 class Receiver(object):
 	def __init__(self, host, port, db, notification_name, process_name):
 		self.host = host
@@ -119,16 +121,16 @@ def add_options(parser):
 	parser.add_option('-d', '--db', type='string', action='store', dest='db', default='pacifica_db', help="MongoDB database to use", metavar='D')
 	parser.add_option('-n', '--host', type='string', action='store', dest='host', default='', help="MongoDB hostname to use", metavar='H')
 	parser.add_option('-p', '--port', type='int', action='store', dest='port', default=27017, help="MongoDB port number to use", metavar='P')
-	parser.add_option('-c', '--chanel', type='string', action='store', dest='chanel', default='', help="Notification Chanel to use", metavar='C')
+	parser.add_option('-c', '--channel', type='string', action='store', dest='channel', default='', help="Notification Chanel to use", metavar='C')
 	parser.add_option('-m', '--module', type='string', action='store', dest='module', default='', help="Notification Module to use", metavar='M')
 
 def check_options(parser):
+	if parser.values.channel == "":
+		sys.stderr.write("You must specify a channel with -c\n")
+		sys.exit(-1)
 	if parser.values.host == "":
-		sys.stderr.write("You must specify a MongoDB host with -n\n")
-		sys.exit(-1)
-	if parser.values.chanel == "":
-		sys.stderr.write("You must specify a chanel with -c\n")
-		sys.exit(-1)
+		config = getconfig_notification(parser.values.channel)
+		parser.values.host = config.notification.hostname
 	name = os.path.basename(tmain.__file__)
 	if name.endswith('.py'):
 		name[:-len('.py')]
@@ -139,7 +141,7 @@ def add_usage(parser):
 	"""
 	Adds a custom usage description string for this module to an OptionParser
 	"""
-	parser.set_usage("usage: %prog [options] -c chanel -m module -n hostname")
+	parser.set_usage("usage: %prog [options] -c channel -m module -n hostname")
 
 def main():
 	parser = OptionParser()
@@ -147,7 +149,7 @@ def main():
         add_options(parser)
         parser.parse_args()
         check_options(parser)
-	r = Receiver(parser.values.host, parser.values.port, parser.values.db, parser.values.chanel, parser.values.module)
+	r = Receiver(parser.values.host, parser.values.port, parser.values.db, parser.values.channel, parser.values.module)
 	sys.exit(r.run())
 	
 if __name__ == '__main__':

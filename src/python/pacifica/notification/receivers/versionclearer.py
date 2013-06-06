@@ -27,9 +27,8 @@ def main():
         parser.parse_args()
         check_options(parser)
 	if parser.values.collection == "":
-		sys.stderr.write("You must specify a MongoDB collection with -o\n")
-		sys.exit(-1)
-	r = VersionClearerReceiver(parser.values.host, parser.values.port, parser.values.db, parser.values.chanel, parser.values.module, parser.values.collection)
+		parser.values.collection = parser.values.channel
+	r = VersionClearerReceiver(parser.values.host, parser.values.port, parser.values.db, parser.values.channel, parser.values.module, parser.values.collection)
 	sys.exit(r.run())
 	pass
 
