@@ -1075,6 +1075,7 @@ rm -rf %{buildroot}
 %{_localstatedir}/www/myemsl/api/1/jquery-ui.min.js
 %{_localstatedir}/www/myemsl/api/1/jquery.ui.selectmenu.js
 %{_localstatedir}/www/myemsl/api/1/jaysun.js
+%{_localstatedir}/www/myemsl/api/1/base64.min.js
 %{_localstatedir}/www/myemsl/api/1/require.js
 %{_localstatedir}/www/myemsl/error/nopersonid/*
 %{_localstatedir}/www/myemsl/preferences/index.shtml
