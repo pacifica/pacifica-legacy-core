@@ -1,0 +1,16 @@
+#!/bin/bash
+#
+# Init file for rmds server daemons
+#
+# chkconfig: 2345 55 25
+# description: rmds server daemon
+#
+# pidfile: /var/run/pacifica_metadata_rmds_writer.pid
+
+# source function library
+
+CHANNEL=rmds
+PID_FILE=/var/run/pacifica_metadata_rmds_writer.pid
+LOCKFILE=/var/lock/subsys/pacifica_metadata_rmds_writer
+
+. /usr/libexec/pacifica/notification/writer_init

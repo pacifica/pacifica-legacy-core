@@ -1016,6 +1016,7 @@ rm -rf %{buildroot}
 %files -n pacifica-notification-common
 /%{python_sitelib}/pacifica/notification/__init__.py*
 %{_libexecdir}/pacifica/notification/versionclearer_init
+%{_libexecdir}/pacifica/notification/writer_init
 
 %files web-notify-ssl
 %{_defaultdocdir}/myemsl/notify
@@ -1185,18 +1186,21 @@ chkconfig --add notification-service
 %{_prefix}/lib/myemsl/apache/myemsl-ssl.d/rmds2.conf
 /%{python_sitelib}/myemsl/service/rmds/*
 /%{python_sitelib}/myemsl/handler/rmds/*
+%{_libexecdir}/myemsl/outage.d/49-rmds-writer
 %{_libexecdir}/myemsl/outage.d/50-rmds-versionclearer
 
 %files -n pacifica-metadata-tmds
 /%{python_sitelib}/pacifica/metadata/trustifier.py*
 /%{python_sitelib}/pacifica/notification/receivers/trustifier.py*
 %{_libexecdir}/pacifica/notification/receivers/trustifier
+%{_libexecdir}/myemsl/outage.d/49-tmds-writer
 %{_libexecdir}/myemsl/outage.d/50-tmds-versionclearer
 
 %files -n pacifica-metadata-fmds
 /%{python_sitelib}/pacifica/metadata/flattener.py*
 /%{python_sitelib}/pacifica/notification/receivers/flattener.py*
 %{_libexecdir}/pacifica/notification/receivers/flattener
+%{_libexecdir}/myemsl/outage.d/49-fmds-writer
 %{_libexecdir}/myemsl/outage.d/50-fmds-versionclearer
 
 %files common

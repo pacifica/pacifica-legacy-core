@@ -2,6 +2,7 @@
 
 import os
 import sys
+import time
 import errno
 import fcntl
 import struct
@@ -34,7 +35,7 @@ def check_options(parser):
 	config = getconfig_notification(parser.values.channel)
 	if parser.values.host == "":
 		try:
-			print config.notification.hostname
+			parser.values.host = config.notification.hostname
 		except Exception, e:
 			raise e
 			sys.stderr.write("You must specify a MongoDB host with -n\n")
@@ -61,30 +62,36 @@ def main():
 	fl = fcntl.fcntl(socket, fcntl.F_GETFL)
 	fcntl.fcntl(socket, fcntl.F_SETFL, fl & (~os.O_NONBLOCK))
 
-	client = Connection(parser.values.host, parser.values.port)
-	db = client[parser.values.db]
-	collection_name = collection_name_get(db, parser.values.channel)
-	collection = pymongo.collection.Collection(db, collection_name, create=False)
-	last_id = collection.find().sort('$natural', -1).limit(1).next()['ts']
-	print "Collection: %s" %(collection_name)
-	print "Last ID: %s" %(last_id)
+	print "|%s|%s|" %(parser.values.host, parser.values.port)
+	while True:
+		try:
+			client = Connection(parser.values.host, parser.values.port)
+			db = client[parser.values.db]
+			collection_name = collection_name_get(db, parser.values.channel)
+			collection = pymongo.collection.Collection(db, collection_name, create=False)
+			last_id = collection.find().sort('$natural', -1).limit(1).next()['ts']
+			print "Collection: %s" %(collection_name)
+			print "Last ID: %s" %(last_id)
 #512 atomic read is min garanteed by posix. This number is provided by select.PIPE_BUF only in python >= 2.7. :(
-	PIPE_BUF = 512
-	while(True):
-		data = os.read(socket, PIPE_BUF)
-		if len(data) % 16 != 0:
-			sys.stderr.write("Bad read from pipe. Size is not right! %s\n" %(len(data)))
-			return -1
-		f = "<%sq" %(len(data) / 8)
-		unpacked = struct.unpack(f, data)
-		s = [(unpacked[i*2], unpacked[i*2+1]) for i in range(0, len(unpacked)/2)]
-		for (i, v) in s:
-			next_id = last_id + 1
-			try:
-				collection.insert({'_id':next_id, 'id':i, 'ts':next_id, 'ver':v})
-				last_id = next_id
-			except Exception, e:
-				print e
+			PIPE_BUF = 512
+			while(True):
+				data = os.read(socket, PIPE_BUF)
+				if len(data) % 16 != 0:
+					sys.stderr.write("Bad read from pipe. Size is not right! %s\n" %(len(data)))
+					return -1
+				f = "<%sq" %(len(data) / 8)
+				unpacked = struct.unpack(f, data)
+				s = [(unpacked[i*2], unpacked[i*2+1]) for i in range(0, len(unpacked)/2)]
+				for (i, v) in s:
+					next_id = last_id + 1
+					try:
+						collection.insert({'_id':next_id, 'id':i, 'ts':next_id, 'ver':v})
+						last_id = next_id
+					except Exception, e:
+						print e
+		except pymongo.errors.AutoReconnect, e:
+			print "Mongo disconnect. %s. Trying again in 10 seconds..." %(e)
+			time.sleep(10)
 
 if __name__ == '__main__':
 	sys.exit(main())

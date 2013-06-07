@@ -27,13 +27,18 @@ class Receiver(object):
 		self.pid = os.getpid()
 		self.last_id = None
 		self.last_version = None
-		self.last_tag_init()
-		if self.last_version == None:
-			self.last_version = notification_version_get(host, port, db, notification_name)
-		self.collection_name = collection_name_get(None, notification_name, self.last_version)
-		if self.last_id == None:
-			self.last_id = 1 #Initied always to one.
-		print "Last ID: %s" %(self.last_id)
+		while True:
+			try:
+				self.last_tag_init()
+				if self.last_version == None:
+					self.last_version = notification_version_get(host, port, db, notification_name)
+				self.collection_name = collection_name_get(None, notification_name, self.last_version)
+				if self.last_id == None:
+					self.last_id = 1 #Initied always to one.
+				print "Last ID: %s" %(self.last_id)
+			except pymongo.errors.AutoReconnect, e:
+				print "Mongo disconnect. %s. Trying again in 10 seconds..." %(e)
+				time.sleep(10)
 	def last_tag_init(self):
 		dir = '/var/lib/pacifica/metanotification/last'
 		try_mkdir(dir)
@@ -63,27 +68,27 @@ class Receiver(object):
 		need_recovery = False
 		min_cur_id = None
 		while True:
-			client = Connection(self.host, self.port)
-			db = client[self.db]
-			if self.collection_name not in db.collection_names():
-#FIXME deal with collection versions.
-				sys.stderr.write("Collection %s does not exist.\n" %(self.collection_name))
-				sys.exit(-1)
-
-			collection = db[self.collection_name]
-
-			if need_recovery:
-				res = self.recover(db, collection, notification['ts'])
-				if res != 0:
-					return res
-
-			first_pass = True
-			query = {}
-			if self.last_id != None:
-#FIXME because of this, if last_id goes backwards, you will never see updates for them until they become larger then last_id again.
-				query['ts'] = {'$gt': self.last_id - 1}
-			cursor = collection.find(query, await_data=True, tailable=True).hint([('$natural', 1)])
 			try:
+				client = Connection(self.host, self.port)
+				db = client[self.db]
+				if self.collection_name not in db.collection_names():
+	#FIXME deal with collection versions.
+					sys.stderr.write("Collection %s does not exist.\n" %(self.collection_name))
+					sys.exit(-1)
+
+				collection = db[self.collection_name]
+
+				if need_recovery:
+					res = self.recover(db, collection, notification['ts'])
+					if res != 0:
+						return res
+
+				first_pass = True
+				query = {}
+				if self.last_id != None:
+	#FIXME because of this, if last_id goes backwards, you will never see updates for them until they become larger then last_id again.
+					query['ts'] = {'$gt': self.last_id - 1}
+				cursor = collection.find(query, await_data=True, tailable=True).hint([('$natural', 1)])
 				while cursor.alive:
 					try:
 						notification = cursor.next()
@@ -102,6 +107,10 @@ class Receiver(object):
 					except pymongo.errors.OperationFailure, e:
 						print "Failure! Reconnecting.", e
 						break
+			except pymongo.errors.AutoReconnect, e:
+				self.write_last_tag()
+				print "Mongo disconnect. %s. Trying again in 10 seconds..." %(e)
+				time.sleep(10)
 			except KeyboardInterrupt:
 				print "trl-C"
 				self.write_last_tag()
