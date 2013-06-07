@@ -187,6 +187,7 @@ AC_OUTPUT([
 		src/wsgi/Makefile
 		src/notification/Makefile
 		src/notification/receivers/Makefile
+		src/metadata/Makefile
 		src/cartd/Makefile
 		src/examples/Makefile
 		src/devel/Makefile

@@ -19,6 +19,8 @@ start()
 	touch "$PID_FILE"
 	chown "root.$MYEMSL_UNIX_USER" "$PID_FILE"
 	chmod 770 "$PID_FILE"
+	mkdir -p /var/lib/pacifica/metanotification/last/
+	chown "$MYEMSL_UNIX_USER.$MYEMSL_UNIX_USER" /var/lib/pacifica/metanotification/last/
 	status -p $PID_FILE $prog >/dev/null
 	RETVAL=$?
 	[ "$RETVAL" = 0 ] && return 0
