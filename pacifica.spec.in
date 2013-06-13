@@ -836,6 +836,7 @@ rm -rf %{buildroot}
 %{_bindir}/myemsl_elasticsearch_sync
 %{_bindir}/myemsl_unitsearch_import
 %config(noreplace) %{_localstatedir}/lib/myemsl/dms.json
+%config(noreplace) %{_localstatedir}/lib/myemsl/erica.json
 
 %files web-elasticsearch
 %defattr(0644,root,root)

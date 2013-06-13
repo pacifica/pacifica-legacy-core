@@ -489,6 +489,15 @@ def local_predicates_to_json(callback, rebuild=None):
 		callback(jsonentry(entry))
 	return 0
 
+def erica_released_publications_json(callback, rebuild=None):
+	j = json.load(open('/var/lib/myemsl/erica.json'))
+	for entry in j['publications']:
+		entry['_id'] = entry['id']
+		del entry['id']
+		if entry['completed'] == True and entry['publication_info']['limited_distribution'] == False:
+			callback(jsonentry(entry))
+	return 0
+
 if __name__ == '__main__':
 	sys.exit(all_metadata_to_json(lambda x: sys.stdout.write(str(x.entry) + "\n")))
 

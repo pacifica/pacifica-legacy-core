@@ -15,6 +15,6 @@ pkgexecdir = $(libexecdir)/myemsl
 pkgexec_SCRIPTS = elasticsearch_sync
 
 pkgfallbackdatadir = $(localstatedir)/lib/myemsl
-pkgfallbackdata_DATA = dms.json
+pkgfallbackdata_DATA = dms.json erica.json
 
 EXTRA_DIST = 99-elasticsearch.conf $(pkgdata_DATA) $(initd_SCRIPTS) $(pkgcronhourly_SCRIPTS) $(pkgexec_SCRIPTS) $(pkgfallbackdata_DATA)
