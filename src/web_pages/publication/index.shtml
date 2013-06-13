@@ -6,8 +6,25 @@
 		<script src="/myemsl/api/1/json2.js"></script>
 <!--FIXME need base64 polyfill-->
 		<script src="/myemsl/api/1/base64.min.js"></script>
+		<style>
+.myemsl_publication_title {
+	font-size: 200%;
+	line-height: 120%;
+}
+
+.myemsl_publication_people {
+	font-style: italic;
+}
+
+.myemsl_publication_abstract {
+	margin: 0px 0px 10px 0px;
+}
+		</style>
 		<script type="text/javascript">
 $(function() {
+	$('#loading').removeClass('myemsl_hidden');
+});
+require(['jquery.ui'], function(ui) {
 	var newhash = {};
 	newhash = { 'pacifica-search-simple': {
 		'facets_set': []
@@ -29,19 +46,94 @@ $(function() {
 		}
 	}
 	newhash = window.btoa(JSON.stringify(newhash));
-	$('#erica-irn-link').text(erica_irn);
-	$('#erica-irn-link').attr('href', 'http://my.emsl.pnl.gov/myemsl/search/simple/' + newhash);
-	$('#bodyContent').removeClass('myemsl_hidden');
+	$('#erica-irn-title').text(erica_irn);
+	$('#erica-irn-link').attr('href', '/myemsl/search/simple/' + newhash);
+	$('.myemsl_publication_abstract').accordion({
+		collapsible: true,
+		active: false,
+		heightStyle: "content"
+	});
+	$('#erica-irn-link').button();
+	$('#dialog-eus-account').dialog({
+		modal: true,
+		buttons: {
+			"OK": function() {
+				$(this).dialog("close");
+			}
+		}
+	});
+	var c = document.cookie.split(';');
+	var key = 'myemsl_session=';
+	for(var i=0; i < c.length; i++) {
+		if(c[i].substring(1, key.length + 1) == key) {
+			$('#dialog-eus-account').dialog("close");
+		}
+	}
+	var query = {
+		"query": {
+			"bool": {
+				"must": [{
+					"query_string": {
+						"default_operator": "AND",	
+						"default_field": "_all",
+						"query":"_id:" + erica_irn
+					}
+				}],
+				"must_not":[],
+				"should":[]
+			}
+		}
+	};
+	var ajx = $.ajax({
+		url: "/myemsl/elasticsearch/released_publications/_search/",
+		type: 'PUT',
+		data: JSON.stringify(query),
+		processData: false,
+		dataType: 'json',
+		success: function(ajaxdata, status, xhr) {
+			if(ajaxdata['hits']['total'] != 1) {
+				$('#loading').text('Failed to load publication data.');
+			} else {
+				var publication = ajaxdata['hits']['hits'][0]['_source'];
+				$('.myemsl_publication_title').text(publication['title']);
+				var people = '';
+				for(var i in publication['contributors']) {
+					var contributor = publication['contributors'][i];
+					var str = contributor['name']['last'] + " " + contributor['name']['first'].charAt(0);
+					if(i < (publication['contributors'].length - 1)) {
+						str += ', ';
+					}
+					people += str;
+				}
+				$('.myemsl_publication_people').text(people);
+				$('.myemsl_publication_abstract_content').text(publication['description']);
+				$('#loading').addClass('myemsl_hidden');
+				$('#bodyContent').removeClass('myemsl_hidden');
+			}
+		},
+		error: function(xhr, status, error) {
+			$('#loading').text('Failed to load publication data.');
+		}
+	});
 });
 		</script>
 	<!--#include virtual="/myemsl/brand/brand_middle.inc"-->
 <noscript>
 You must have javascript enabled to use this page.
 </noscript>
-
+<div id="loading" class="myemsl_hidden">
+Loading...
+</div>
 <div id="bodyContent" class="myemsl_hidden">
+<div id="dialog-eus-account" title="Account">
 	<p>Due to the large amount of scientific data archived at EMSL, we currently require you to have an EUS account so that we may provide you access to data in a timely manner. The account is free and can be created <a href="http://eus.emsl.pnl.gov" target="_blank">here</a>.</p>
-
-	<p>Once you have an EUS account, you may find the data related to publication <span id="erica-irn"></span> <a id="erica-irn-link">here</a>.</p>
+</div>
+	<div class="myemsl_publication_title"></div>
+	<div class="myemsl_publication_people"></div>
+<div class="myemsl_publication_abstract">
+<p>Abstract</p>
+<p class="myemsl_publication_abstract_content"></p>
+</div>
+	<p><span id="erica-irn"></span> <a id="erica-irn-link"><span style="display: table;"><span class="erica-irn-title"></span><img style="display:table-cell;" src="/myemsl/static/1/myemsl-find.png"><span style="display:table-cell;vertical-align:middle;">Find data<br />related to<br />this plublication</span></span></a></p>
 </div>
 <!--#include virtual="/myemsl/brand/brand_footer.inc"-->
