@@ -236,6 +236,9 @@ mount -o remount,ro /
 reboot
   </file>
   <file name="/etc/rc.local.first.boot" type="raw">#!/bin/bash
+#Disable safety in mongodb for much better performance. This is a devel instance after all...
+sed -i 's/# \(nojournal = true\)/\1/' /etc/mongod.conf
+sed -i 's/#[ \t]*\(noprealloc = true\)/\1/' /etc/mongod.conf
 test -f /usr/bin/system-config-display &amp;&amp; /usr/bin/system-config-display --reconfig --noui
 /usr/libexec/myemsl/servergenkeys
 /usr/libexec/myemsl/itemauthgenkeys
@@ -264,6 +267,7 @@ setenforce permissive
 /etc/init.d/httpd restart
 /etc/init.d/innd start
 /etc/init.d/munge start
+/etc/init.d/mongod restart
 
 if [ "x$EC2" != "x" ]
 then
@@ -316,9 +320,9 @@ install myemsl-web-services-ssl myemsl-web-services-common myemsl-web-personinfo
            myemsl-web-query-ssl pacifica-builddeps rubygem-json rubygems \
            git pacifica-devel-brand-ssl pacifica-devel-brand-common fuse pacifica-test-data
 install go-pacifica-auth pacifica-auth-default-local pacifica-uploader pacifica-auth libpacificaauth-devel
+install mongo-10gen mongo-10gen-server
 run -y
 EOF
-#install mongo-10gen mongo-10gen-server
 yum shell &lt; &lt;(cat rpmtransaction; echo Y)
 
 #FIXME add these back later.
@@ -462,6 +466,7 @@ chmod +x /root/standalone.gui
 chmod +x /etc/rc.local.first.boot
 chmod +x /etc/rc.local.ec2
 
+chkconfig --level 35 mongod off
 chkconfig --level 35 httpd on
 chkconfig --level 35 munge on
 chkconfig --level 35 postgresql on
