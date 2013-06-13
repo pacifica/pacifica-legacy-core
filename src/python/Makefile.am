@@ -49,6 +49,7 @@ myemsl/loadkeytab/__init__.py \
 myemsl/userrewritehandler/__init__.py \
 myemsl/authenhandler/__init__.py \
 myemsl/authenhandler/myemslcore.py \
+myemsl/authenhandler/myemslcoreanon.py \
 myemsl/authenhandler/storage.py \
 myemsl/getfileremote/__init__.py \
 myemsl/websessionremote/__init__.py \

@@ -47,12 +47,12 @@ pkgmyemslssl_DATA = ssl/ingest.conf ssl/query.conf ssl/query-raw.conf \
 
 $(pkgmyemslweb_DATA):
 	$(mkdir_p) web
-	sed 's:@WEBAUTH@:/etc/myemsl/webauth.conf:g;s:@WEBAUTH_STORAGE@:/usr/lib/myemsl/apache/webauth-storage.conf:g;s:@WEBAUTH_MYEMSL@:/usr/lib/myemsl/apache/webauth-myemsl.conf:g' \
+	sed 's:@WEBAUTH@:/etc/myemsl/webauth.conf:g;s:@WEBAUTH_STORAGE@:/usr/lib/myemsl/apache/webauth-storage.conf:g;s:@WEBAUTH_MYEMSL@:/usr/lib/myemsl/apache/webauth-myemsl.conf:g;s:@WEBAUTH_MYEMSLANON@:/usr/lib/myemsl/apache/webauth-myemslanon.conf:g' \
 	$(shell basename $(@)).in > ./$(@)
 
 $(pkgmyemslssl_DATA):
 	$(mkdir_p) ssl
-	sed 's:@WEBAUTH@:/etc/myemsl/webauth-ssl.conf:g;s:@WEBAUTH_STORAGE@:/usr/lib/myemsl/apache/webauth-storage.conf:g;s:@WEBAUTH_MYEMSL@:/usr/lib/myemsl/apache/webauth-myemsl.conf:g' \
+	sed 's:@WEBAUTH@:/etc/myemsl/webauth-ssl.conf:g;s:@WEBAUTH_STORAGE@:/usr/lib/myemsl/apache/webauth-storage.conf:g;s:@WEBAUTH_MYEMSL@:/usr/lib/myemsl/apache/webauth-myemsl.conf:g;s:@WEBAUTH_MYEMSLANON@:/usr/lib/myemsl/apache/webauth-myemslanon.conf:g' \
 	$(shell basename $(@)).in > ./$(@)
 
 clean-generic:

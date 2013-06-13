@@ -1103,6 +1103,7 @@ rm -rf %{buildroot}
 /%{python_sitelib}/myemsl/handler/admin/__init__.*
 /%{python_sitelib}/myemsl/handler/admin/switchuser/__init__.*
 %{_prefix}/lib/myemsl/apache/webauth-myemsl.conf
+%{_prefix}/lib/myemsl/apache/webauth-myemslanon.conf
 %{_prefix}/lib/myemsl/apache/webauth-storage.conf
 %{_prefix}/lib/myemsl/apache/myemsl.d/static.conf
 %{_prefix}/lib/myemsl/apache/myemsl-ssl.d/static.conf
