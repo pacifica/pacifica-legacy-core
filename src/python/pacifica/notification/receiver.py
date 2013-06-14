@@ -9,6 +9,7 @@ import errno
 import os.path
 import pymongo
 import simplejson as json
+from threading import Thread
 from pymongo import Connection
 from optparse import OptionParser
 from pymongo.cursor import _QUERY_OPTIONS
@@ -27,6 +28,7 @@ class Receiver(object):
 		self.pid = os.getpid()
 		self.last_id = None
 		self.last_version = None
+		self.writerlock = threading.Lock()
 		while True:
 			try:
 				self.last_tag_init()
@@ -36,9 +38,20 @@ class Receiver(object):
 				if self.last_id == None:
 					self.last_id = 1 #Initied always to one.
 				print "Last ID: %s" %(self.last_id)
+				break
 			except pymongo.errors.AutoReconnect, e:
 				print "Mongo disconnect. %s. Trying again in 10 seconds..." %(e)
 				time.sleep(10)
+		t = Thread(target=self._dumpthread)
+		t.start()
+	def _dumpthread(self):
+		time.sleep(60)
+		if self.dump_last_id != self.last_id or self.dump_last_version != self.last_version:
+			self.dump_last_id = self.last_id
+			self.dump_last_version = self.last_version
+			self.writerlock.aquire()
+			self.write_last_tag()
+			self.writerlock.release()
 	def last_tag_init(self):
 		dir = '/var/lib/pacifica/metanotification/last'
 		try_mkdir(dir)
@@ -108,12 +121,16 @@ class Receiver(object):
 						print "Failure! Reconnecting.", e
 						break
 			except pymongo.errors.AutoReconnect, e:
+				self.writerlock.aquire()
 				self.write_last_tag()
+				self.writerlock.release()
 				print "Mongo disconnect. %s. Trying again in 10 seconds..." %(e)
 				time.sleep(10)
 			except KeyboardInterrupt:
 				print "trl-C"
+				self.writerlock.aquire()
 				self.write_last_tag()
+				self.writerlock.release()
 				return 0
 
 class TestReceiver(Receiver):
