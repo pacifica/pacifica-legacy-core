@@ -265,7 +265,7 @@ DROP TABLE "reprocessors";
 CREATE TABLE "reprocessors" (
 	"name" character varying(64),
         "person_id" integer references eus.users(person_id) on delete cascade,
-	"definition" xml;
+	"definition" xml default NULL
 )
 WITHOUT OIDS;
 ALTER TABLE "reprocessors" OWNER TO "metadata_admins";
