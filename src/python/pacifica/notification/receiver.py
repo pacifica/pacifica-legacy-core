@@ -44,7 +44,8 @@ class Receiver(object):
 			except pymongo.errors.AutoReconnect, e:
 				print "Mongo disconnect. %s. Trying again in 10 seconds..." %(e)
 				time.sleep(10)
-		t = Thread(target=self._dumpthread, daemon=True)
+		t = Thread(target=self._dumpthread)
+		t.setDaemon(True)
 		t.start()
 	def _dumpthread(self):
 		while True:

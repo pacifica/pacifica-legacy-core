@@ -13,6 +13,6 @@ CHANNEL=tmds
 PID_FILE=/var/run/pacifica_metadata_tmds_recoverer.pid
 LOCKFILE=/var/lock/subsys/pacifica_metadata_tmds_recoverer
 SOCKET=/var/tmp/pacifica_metadata_tmds_recoverer
-INI=/usr/lib/pacifica/metadata/tmds-recoverer-service-poke.ini
+INI=/usr/share/pacifica/metadata/tmds-recoverer-service-poke.ini
 
 . /usr/libexec/pacifica/notification/recoverer_init

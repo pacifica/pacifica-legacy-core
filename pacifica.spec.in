@@ -1192,7 +1192,7 @@ chkconfig --add notification-service
 %{_libexecdir}/myemsl/outage.d/49-rmds-writer
 %{_libexecdir}/myemsl/outage.d/50-rmds-versionclearer
 %{_libexecdir}/myemsl/outage.d/51-rmds-recoverer
-%{_libdir}/pacifica/metadata/rmds-recoverer-service-poke.ini
+%{_prefix}/share/pacifica/metadata/rmds-recoverer-service-poke.ini
 %{_sysconfdir}/cron.hourly/pacifica_rmds_recoverer
 
 %files -n pacifica-metadata-tmds
@@ -1202,7 +1202,7 @@ chkconfig --add notification-service
 %{_libexecdir}/myemsl/outage.d/49-tmds-writer
 %{_libexecdir}/myemsl/outage.d/50-tmds-versionclearer
 %{_libexecdir}/myemsl/outage.d/51-tmds-recoverer
-%{_libdir}/pacifica/metadata/tmds-recoverer-service-poke.ini
+%{_prefix}/share/pacifica/metadata/tmds-recoverer-service-poke.ini
 %{_sysconfdir}/cron.hourly/pacifica_tmds_recoverer
 
 %files -n pacifica-metadata-fmds
@@ -1212,7 +1212,7 @@ chkconfig --add notification-service
 %{_libexecdir}/myemsl/outage.d/49-fmds-writer
 %{_libexecdir}/myemsl/outage.d/50-fmds-versionclearer
 %{_libexecdir}/myemsl/outage.d/51-fmds-recoverer
-%{_libdir}/pacifica/metadata/fmds-recoverer-service-poke.ini
+%{_prefix}/share/pacifica/metadata/fmds-recoverer-service-poke.ini
 %{_sysconfdir}/cron.hourly/pacifica_fmds_recoverer
 
 %files common

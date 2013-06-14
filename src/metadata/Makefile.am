@@ -4,7 +4,7 @@ outage_SCRIPTS = 49-fmds-writer 49-rmds-writer 49-tmds-writer 50-fmds-versioncle
 pkgcronhourlydir = $(sysconfdir)/cron.hourly
 pkgcronhourly_SCRIPTS = pacifica_rmds_recoverer pacifica_tmds_recoverer pacifica_fmds_recoverer
 
-pkgmetadatadir = $(libdir)/pacifica/metadata/
+pkgmetadatadir = $(prefix)/share/pacifica/metadata/
 pkgmetadata_DATA = rmds-recoverer-service-poke.ini tmds-recoverer-service-poke.ini fmds-recoverer-service-poke.ini
 
-EXTRA_DIST = $(outage_SCRIPTS)
+EXTRA_DIST = $(outage_SCRIPTS) $(pkgmetadata_DATA) $(pkgcronhourly_SCRIPTS)
