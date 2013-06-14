@@ -28,7 +28,7 @@ then
 fi
 if [ "x${JENKINS_JOBS}" == "x" ]
 then
-	JENKINS_JOBS="qt47 go libbuhfsutil amalgam pacifica-core elasticsearch-download elasticsearch service-poke slurm gdb pprof pacifica-builddeps pacifica-auth pacifica-web-basicauth pacifica-devel-brand pacifica-test-data pacifica-uploader pacifica-devel-vm"
+	JENKINS_JOBS="qt47 go libbuhfsutil amalgam pacifica-core elasticsearch-download elasticsearch service-poke slurm gdb pprof pacifica-builddeps pacifica-auth pacifica-web-basicauth pacifica-devel-brand pacifica-test-data pacifica-uploader pacifica-devel-vm pymongo"
 fi
 
 for jobname in ${JENKINS_JOBS};

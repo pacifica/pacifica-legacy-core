@@ -21,6 +21,7 @@
     <string>slurm</string>
     <string>gdb</string>
     <string>pprof</string>
+    <string>pymongo</string>
   </jobNames>
   <jobFilters/>
   <columns>
