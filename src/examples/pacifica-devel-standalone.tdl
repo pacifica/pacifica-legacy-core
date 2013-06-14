@@ -239,6 +239,10 @@ reboot
 #Disable safety in mongodb for much better performance. This is a devel instance after all...
 sed -i 's/# \(nojournal = true\)/\1/' /etc/mongod.conf
 sed -i 's/#[ \t]*\(noprealloc = true\)/\1/' /etc/mongod.conf
+/etc/init.d/mongod restart
+/usr/libexec/pacifica/notification/init -n localhost -c rmds
+/usr/libexec/pacifica/notification/init -n localhost -c fmds
+/usr/libexec/pacifica/notification/init -n localhost -c tmds
 test -f /usr/bin/system-config-display &amp;&amp; /usr/bin/system-config-display --reconfig --noui
 /usr/libexec/myemsl/servergenkeys
 /usr/libexec/myemsl/itemauthgenkeys
