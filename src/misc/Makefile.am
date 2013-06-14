@@ -3,6 +3,7 @@ ulm_SCRIPTS = itemauthgenkeys itemtokengen servergenkeys
 
 dist-hook:
 	rm -f $(distdir)/_myemsl_archive.py
+	rm -f $(distdir)/archive-python.c
 
 programdir = $(libexecdir)/pacifica
 program_PROGRAMS = daemonize2
@@ -15,8 +16,7 @@ SWIG_SOURCES = archive.i
 
 python_PYTHON = _myemsl_archive.py
 pyexec_LTLIBRARIES = __myemsl_archive.la
-__myemsl_archive_la_SOURCES = $(SWIG_SOURCES)
-nodist__myemsl_archive_la_SOURCES = archive-python.c
+__myemsl_archive_la_SOURCES = $(SWIG_SOURCES) archive-python.c
 __myemsl_archive_la_CPPFLAGS = $(PYTHON_CPPFLAGS) -I$(srcdir)
 __myemsl_archive_la_LDFLAGS = -module
 __myemsl_archive_la_LIBADD = -larchive
