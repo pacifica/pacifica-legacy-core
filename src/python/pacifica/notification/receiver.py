@@ -28,6 +28,8 @@ class Receiver(object):
 		self.pid = os.getpid()
 		self.last_id = None
 		self.last_version = None
+		self.dump_last_id = None
+		self.dump_last_version = None
 		self.writerlock = Lock()
 		while True:
 			try:
@@ -49,7 +51,7 @@ class Receiver(object):
 		if self.dump_last_id != self.last_id or self.dump_last_version != self.last_version:
 			self.dump_last_id = self.last_id
 			self.dump_last_version = self.last_version
-			self.writerlock.aquire()
+			self.writerlock.acquire()
 			self.write_last_tag()
 			self.writerlock.release()
 	def last_tag_init(self):
@@ -121,14 +123,14 @@ class Receiver(object):
 						print "Failure! Reconnecting.", e
 						break
 			except pymongo.errors.AutoReconnect, e:
-				self.writerlock.aquire()
+				self.writerlock.acquire()
 				self.write_last_tag()
 				self.writerlock.release()
 				print "Mongo disconnect. %s. Trying again in 10 seconds..." %(e)
 				time.sleep(10)
 			except KeyboardInterrupt:
 				print "trl-C"
-				self.writerlock.aquire()
+				self.writerlock.acquire()
 				self.write_last_tag()
 				self.writerlock.release()
 				return 0
