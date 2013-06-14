@@ -1,0 +1,33 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers class="vector"/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>
+if [ -f /etc/pacifica/jenkins.sh ]; then . /etc/pacifica/jenkins.sh; fi
+cat /var/lib/jenkins/jobs/myemsl-core/workspace/DIST/epel-5-x86_64/src/examples/pacifica-devel-standalone.tdl | sed 's^#export http_proxy=.*^export http_proxy="http://user:'`cat /var/lib/jenkins/squidpw | python -c "import urllib; import sys; print urllib.quote(sys.stdin.readline().strip(),safe='')"`'@192.168.123.1:3128"^' > pacifica-devel-standalone.tdl
+env
+sudo /usr/bin/oz-install -d3 -u -p -s `pwd`/pacifica-devel-standalone.dsk -t 10000 -x pacifica-devel-standalone.xml pacifica-devel-standalone.tdl
+virt-copy-out -a pacifica-devel-standalone.dsk /root/setup.log .
+virt-copy-out -a pacifica-devel-standalone.dsk /root/setup.ok .
+if [ `cat setup.ok` -ne 0 ]; then
+    cat setup.log
+    exit 1
+fi
+</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>
+  

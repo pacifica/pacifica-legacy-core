@@ -1,0 +1,64 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<matrix-project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers class="vector"/>
+  <concurrentBuild>false</concurrentBuild>
+  <axes>
+    <hudson.matrix.TextAxis>
+      <name>DIST</name>
+      <values>
+        <string>epel-5-x86_64</string>
+      </values>
+    </hudson.matrix.TextAxis>
+    <hudson.matrix.LabelAxis>
+      <name>label</name>
+      <values>
+        <string>pacifica</string>
+      </values>
+    </hudson.matrix.LabelAxis>
+  </axes>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>MOCK=/usr/bin/mock
+GDBVER=7.5.1-38
+if [ ! -f gdb-$GDBVER.fc18.src.rpm ]
+then
+    wget http://dl.fedoraproject.org/pub/fedora/linux/updates/18/SRPMS/gdb-$GDBVER.fc18.src.rpm
+fi
+export CREATEREPOOPTS=
+export MOCKDISTPREFIX=
+if [ "$DIST" = 'epel-5-x86_64' ]; then export CREATEREPOOPTS='-s sha'; 
+if [ -f /etc/pacifica/jenkins.sh ]; then . /etc/pacifica/jenkins.sh; fi
+fi
+rm -rf packages/"$DIST" || true
+mkdir -p packages/"$DIST"/srpms
+mkdir -p packages/"$DIST"/bin
+rm -rf src || true
+mkdir -p src
+cd src
+rpm2cpio ../gdb-$GDBVER.fc18.src.rpm | cpio -idv
+cd ..
+$MOCK -r "$MOCKDISTPREFIX$DIST" --buildsrpm --spec src/gdb.spec --sources "`pwd`"/src
+mv "/var/lib/mock/$MOCKDISTPREFIX$DIST/result/"*.src.rpm packages/"$DIST"/srpms/
+$MOCK -r "$MOCKDISTPREFIX$DIST" --result `pwd`/packages/"$DIST"/bin `pwd`/packages/"$DIST"/srpms/*.src.rpm
+mkdir -p "$REPODIR"
+cp -a packages/"$DIST"/bin/* "$REPODIR"
+createrepo $CREATEREPOOPTS "$REPODIR"
+</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+  <executionStrategy class="hudson.matrix.DefaultMatrixExecutionStrategyImpl">
+    <runSequentially>false</runSequentially>
+  </executionStrategy>
+</matrix-project>
+  

@@ -4,6 +4,10 @@ from distutils.core import setup, Extension
 import sys
 
 packages = [ 
+	"pacifica",
+	"pacifica.notification",
+	"pacifica.notification.receivers",
+	"pacifica.metadata",
 	"myemsl.pam",
 	"myemsl.cart",
 	"myemsl.callcurl",
@@ -61,6 +65,7 @@ packages = [
 	"myemsl.service.notification",
 	"myemsl.service.admin",
 	"myemsl.service.admin.switchuser",
+	"myemsl.service.rmds",
 	"myemsl.handler",
 	"myemsl.handler.401",
 	"myemsl.handler.qrs",
@@ -89,6 +94,7 @@ packages = [
 	"myemsl.handler.notification",
 	"myemsl.handler.admin",
 	"myemsl.handler.admin.switchuser",
+	"myemsl.handler.rmds",
 	"myemsl.prefixtree",
 	"myemsl"
 ]

@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<listView>
+  <owner class="hudson" reference="../../.."/>
+  <name>pacifica-server</name>
+  <filterExecutors>false</filterExecutors>
+  <filterQueue>false</filterQueue>
+  <properties class="hudson.model.View$PropertyList"/>
+  <jobNames>
+    <comparator class="hudson.util.CaseInsensitiveComparator" reference="../../../listView/jobNames/comparator"/>
+    <string>pacifica-core</string>
+    <string>pacifica-devel-brand</string>
+    <string>pacifica-web-basicauth</string>
+  </jobNames>
+  <jobFilters/>
+  <columns>
+    <hudson.views.StatusColumn/>
+    <hudson.views.WeatherColumn/>
+    <hudson.views.JobColumn/>
+    <hudson.views.LastSuccessColumn/>
+    <hudson.views.LastFailureColumn/>
+    <hudson.views.LastDurationColumn/>
+    <hudson.views.BuildButtonColumn/>
+  </columns>
+</listView>

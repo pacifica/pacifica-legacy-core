@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<listView>
+  <owner class="hudson" reference="../../.."/>
+  <name>pacifica-deps</name>
+  <filterExecutors>false</filterExecutors>
+  <filterQueue>false</filterQueue>
+  <properties class="hudson.model.View$PropertyList"/>
+  <jobNames>
+    <comparator class="hudson.util.CaseInsensitiveComparator"/>
+    <string>amalgam</string>
+    <string>elasticsearch</string>
+    <string>elasticsearch-download</string>
+    <string>go</string>
+    <string>libbuhfsutil</string>
+    <string>qt47</string>
+    <string>service-poke</string>
+    <string>slurm</string>
+    <string>gdb</string>
+    <string>pprof</string>
+    <string>pymongo</string>
+  </jobNames>
+  <jobFilters/>
+  <columns>
+    <hudson.views.StatusColumn/>
+    <hudson.views.WeatherColumn/>
+    <hudson.views.JobColumn/>
+    <hudson.views.LastSuccessColumn/>
+    <hudson.views.LastFailureColumn/>
+    <hudson.views.LastDurationColumn/>
+    <hudson.views.BuildButtonColumn/>
+  </columns>
+</listView>

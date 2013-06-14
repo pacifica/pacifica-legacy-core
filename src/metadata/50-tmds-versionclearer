@@ -1,0 +1,16 @@
+#!/bin/bash
+#
+# Init file for tmds server daemons
+#
+# chkconfig: 2345 55 25
+# description: tmds server daemon
+#
+# pidfile: /var/run/pacifica_metadata_tmds_versionclearer.pid
+
+# source function library
+
+CHANNEL=tmds
+PID_FILE=/var/run/pacifica_metadata_tmds_versionclearer.pid
+LOCKFILE=/var/lock/subsys/pacifica_metadata_tmds_versionclearer
+
+. /usr/libexec/pacifica/notification/versionclearer_init

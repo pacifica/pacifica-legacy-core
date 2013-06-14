@@ -76,6 +76,9 @@ def doindexing(prefix, callback, type=None, desc=None):
 
 def main():
 #FIXME get this from config
+	prefix = "myemsl_released_publications"
+	doindexing(prefix, erica_released_publications_json, type="released_publications", desc=schema_get('released_publications'))
+#FIXME get this from config
 	prefix = "myemsl_local_predicate_index"
 	doindexing(prefix, local_predicates_to_json, type="local_predicates", desc=schema_get('predicate'))
 #FIXME get this from config

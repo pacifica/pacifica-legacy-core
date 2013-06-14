@@ -203,6 +203,7 @@
 				'groups.NWChem.CML':'NWChem CML',
 				'groups.JGI.ID':'JGI ID',
 				'groups.JGI.ftype':'JGI File Type',
+				'extended_metadata.gov_pnnl_erica/irn.id.untouched':'Publication IRN',
 				'extended_metadata.gov_pnnl_emsl_dms_datapackage.name.untouched':'DMS Data Package',
 				'extended_metadata.gov_pnnl_emsl_dms_dataset.name.untouched':'DMS Data Set',
 				'extended_metadata.gov_pnnl_emsl_dms_analysisjob.tool.name.untouched':'DMS Analysis Tool',
@@ -319,6 +320,11 @@
 					    "title": {"fragment_size": 10000}
 				};
 				query['facets'] = {
+					"extended_metadata.gov_pnnl_erica/irn.id.untouched": {
+						"terms": {
+							"field": "extended_metadata.gov_pnnl_erica/irn.id.untouched"
+						}
+					},
 					"proposals": {
 						"terms": {
 							"field": "proposals"
@@ -496,7 +502,8 @@
 					});
 //FIXME This never gets cleaned up.
 					$('.body').append(dialog);
-					dialog.find('.myemsl_iteminfo_data').text(JSON.stringify(source, null, 4)).Jaysun({
+//FIXME replace / with _ to work around / being in json key killing jaysun.
+					dialog.find('.myemsl_iteminfo_data').text(JSON.stringify(source, null, 4).replace('/', '_')).Jaysun({
 						collapse: true,
 						closed: false,
 						resultElement: '.myemsl_iteminfo_data'

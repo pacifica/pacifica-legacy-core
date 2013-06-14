@@ -240,6 +240,8 @@ select group_set_id, g.group_id, type, name, proposal_id from (select group_set_
 			if row[2][:len("Instrument.")] == "Instrument.":
 				gs['groups'].append([row[1], "Instrument", row[2][len("Instrument."):]])
 				gs['extended_metadata']['gov_pnnl_emsl_instrument'].append(row[2][len("Instrument."):])
+			elif row[2][:len("gov_pnnl_erica/irn")] == "gov_pnnl_erica/irn":
+				gs['extended_metadata']['gov_pnnl_erica/irn'] = json.loads(row[3])
 			else:
 				gs['groups'].append([row[1], row[2], row[3]])
 				e = extended_metadata_reference.get(row[2])
@@ -348,7 +350,8 @@ select instrument_id, name_short from eus.instruments;
 		entry['last'] = last
 		entry['submitterid'] = row[1]
 		aged = "false"
-		if row[8] == 't':
+#FIXME make this a bool in elasticsearch later
+		if row[8]:
 			aged = "true"
 		entry['aged'] = aged
 		users = {row[1]:1}
@@ -484,6 +487,15 @@ def local_predicates_to_json(callback, rebuild=None):
 		entry['_id'] = row[0]
 		entry['submitter'] = {'name': row[3] + " " + row[4], 'id':row[2]}
 		callback(jsonentry(entry))
+	return 0
+
+def erica_released_publications_json(callback, rebuild=None):
+	j = json.load(open('/var/lib/myemsl/erica.json'))
+	for entry in j['publications']:
+		entry['_id'] = entry['id']
+		del entry['id']
+		if entry['completed'] == True and entry['publication_info']['limited_distribution'] == False:
+			callback(jsonentry(entry))
 	return 0
 
 if __name__ == '__main__':

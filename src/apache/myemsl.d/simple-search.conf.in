@@ -12,3 +12,19 @@ Alias /myemsl/search/simple /var/www/myemsl/search/simple
     AddHandler server-parsed .shtml
 </Directory>
 
+RewriteEngine on
+RewriteRule ^/myemsl/search/simple/.*$ /myemsl/search/simple/index.shtml [PT]
+RewriteRule ^/myemsl/publication/.*$ /myemsl/publication/index.shtml [PT]
+
+Alias /myemsl/publication /var/www/myemsl/publication
+
+<Directory /var/www/myemsl/publication>
+    AllowOverride All
+    Options Indexes FollowSymLinks MultiViews Includes
+    Order deny,allow
+    DirectoryIndex index.html index.php index.shtml
+
+    AddType text/html .shtml
+    AddHandler server-parsed .shtml
+</Directory>
+

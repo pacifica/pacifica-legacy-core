@@ -8,7 +8,7 @@ Group: System Environment/Base
 License: UNKNOWN
 Source: %{name}-%{version}.tar.gz
 Requires: glib2, httpd, mod_python
-BuildRequires: glib2-devel, swig, libarchive-devel, python-devel, pacifica-builddeps >= 021, fuse-libs, fuse, fuse-devel
+BuildRequires: glib2-devel, swig, libarchive-devel, python-devel, pacifica-builddeps >= 023, fuse-libs, fuse, fuse-devel
 BuildRoot: %{_tmppath}/@PACKAGE_NAME@-%{version}-%{release}
 
 %if 0%{?rhel} && 0%{?rhel} <= 5
@@ -32,7 +32,10 @@ BuildRequires: java-1.6.0-openjdk
 	%endif
 %endif
 
-%if %{use_rmds}
+#Disable ceph code for now.
+%global use_rmds_ceph 0
+
+%if %{use_rmds_ceph}
 BuildRequires: fcgi-devel ceph-devel json-c-devel
 %endif
 
@@ -612,7 +615,7 @@ Requires: mod_auth_kerb
 %description    web-kerberos
 Website Kerberos configuration bits for MyEMSL
 
-%if %{use_rmds}
+%if %{use_rmds_ceph}
 %package -n     pacifica-web-rmds-ssl
 Summary:        Pacifica Raw Meta Data Server
 Group:          System Environment/Base
@@ -621,6 +624,54 @@ Requires: myemsl-web-ssl mod_fcgid
 %description -n pacifica-web-rmds-ssl
 Pacifica Raw Meta Data Server
 %endif
+
+%package -n     pacifica-metadata-tmds
+Summary:        Pacifica Metadata Trusted Store
+Group:          System Environment/Base
+Requires: pacifica-notification-client pacifica-notification-server
+
+%description -n pacifica-metadata-tmds
+Pacifica Metadata Trusted Store
+
+%package -n     pacifica-metadata-fmds
+Summary:        Pacifica Metadata Flattened Store
+Group:          System Environment/Base
+Requires: pacifica-notification-client pacifica-notification-server
+
+%description -n pacifica-metadata-fmds
+Pacifica Metadata Flattened Store
+
+%package -n     pacifica-web-rmds-notification-ssl
+Summary:        Pacifica Raw Meta Data Notification Server
+Group:          System Environment/Base
+Requires: myemsl-web-ssl pacifica-notification-server
+
+%description -n pacifica-web-rmds-notification-ssl
+Pacifica Raw Meta Data Notification Server
+
+%package -n     pacifica-notification-client
+Summary:        Pacifica Notification Client
+Group:          System Environment/Base
+Requires: pacifica-notification-common
+
+%description -n pacifica-notification-client
+Pacifica Notification Client
+
+%package -n     pacifica-notification-server
+Summary:        Pacifica Notification Server
+Group:          System Environment/Base
+Requires: pacifica-notification-common
+
+%description -n pacifica-notification-server
+Pacifica Notification Server
+
+%package -n     pacifica-notification-common
+Summary:        Pacifica Notification Common
+Group:          System Environment/Base
+Requires: myemsl-server-common
+
+%description -n pacifica-notification-common
+Pacifica Notification Common bits.
 
 %package        common
 Summary:        Common Components
@@ -634,7 +685,7 @@ Common components for MyEMSL
 %setup -q -n @PACKAGE_NAME@-%{version}
 
 %build
-%if %{use_rmds}
+%if %{use_rmds_ceph}
 %configure --with-rmds
 %else
 %configure 
@@ -809,6 +860,7 @@ rm -rf %{buildroot}
 %{_bindir}/myemsl_elasticsearch_sync
 %{_bindir}/myemsl_unitsearch_import
 %config(noreplace) %{_localstatedir}/lib/myemsl/dms.json
+%config(noreplace) %{_localstatedir}/lib/myemsl/erica.json
 
 %files web-elasticsearch
 %defattr(0644,root,root)
@@ -843,6 +895,7 @@ rm -rf %{buildroot}
 /%{python_sitelib}/myemsl/handler/elasticsearch*
 /%{python_sitelib}/myemsl/handler/itemauth*
 %{_localstatedir}/www/myemsl/search/simple/index.shtml
+%{_localstatedir}/www/myemsl/publication/index.shtml
 %{_localstatedir}/www/myemsl/proposal-finder/index.shtml
 %{_localstatedir}/www/myemsl/proposal-finder/layout.html
 %{_localstatedir}/www/myemsl/proposal-finder/test-selector.shtml
@@ -986,6 +1039,23 @@ rm -rf %{buildroot}
 %{_prefix}/lib/myemsl/apache/myemsl-ssl.d/personinforaw.conf
 %defattr(0755,root,root)
 
+%files -n pacifica-notification-client
+/%{python_sitelib}/pacifica/notification/receiver.py*
+/%{python_sitelib}/pacifica/notification/receivers/*
+%{_libexecdir}/pacifica/notification/receiver
+%{_libexecdir}/pacifica/notification/receivers/versionclearer
+
+%files -n pacifica-notification-server
+/%{python_sitelib}/pacifica/notification/writer.py*
+%{_libexecdir}/pacifica/notification/init
+%{_libexecdir}/pacifica/notification/writer
+%{_libexecdir}/pacifica/notification/recoverer
+
+%files -n pacifica-notification-common
+/%{python_sitelib}/pacifica/notification/__init__.py*
+%{_libexecdir}/pacifica/notification/versionclearer_init
+%{_libexecdir}/pacifica/notification/writer_init
+
 %files web-notify-ssl
 %{_defaultdocdir}/myemsl/notify
 %attr(0644,root,root) %{_prefix}/lib/myemsl/apache/myemsl-ssl.d/notify.conf
@@ -1044,6 +1114,7 @@ rm -rf %{buildroot}
 %{_localstatedir}/www/myemsl/api/1/jquery-ui.min.js
 %{_localstatedir}/www/myemsl/api/1/jquery.ui.selectmenu.js
 %{_localstatedir}/www/myemsl/api/1/jaysun.js
+%{_localstatedir}/www/myemsl/api/1/base64.min.js
 %{_localstatedir}/www/myemsl/api/1/require.js
 %{_localstatedir}/www/myemsl/error/nopersonid/*
 %{_localstatedir}/www/myemsl/preferences/index.shtml
@@ -1069,6 +1140,7 @@ rm -rf %{buildroot}
 /%{python_sitelib}/myemsl/handler/admin/__init__.*
 /%{python_sitelib}/myemsl/handler/admin/switchuser/__init__.*
 %{_prefix}/lib/myemsl/apache/webauth-myemsl.conf
+%{_prefix}/lib/myemsl/apache/webauth-myemslanon.conf
 %{_prefix}/lib/myemsl/apache/webauth-storage.conf
 %{_prefix}/lib/myemsl/apache/myemsl.d/static.conf
 %{_prefix}/lib/myemsl/apache/myemsl-ssl.d/static.conf
@@ -1142,15 +1214,38 @@ createrepo /srv/myemsl-devel
 %post notification
 chkconfig --add notification-service
 
-%if %{use_rmds}
+%if %{use_rmds_ceph}
 %files -n pacifica-web-rmds-ssl
 %{_libdir}/libpacifica_rmds*
 %{_localstatedir}/www/myemsl/fcgi-bin/rmds.fcgi
 %{_prefix}/lib/myemsl/apache/myemsl-ssl.d/rmds.conf
 %endif
 
+%files -n pacifica-web-rmds-notification-ssl
+%{_prefix}/lib/myemsl/apache/myemsl-ssl.d/rmds2.conf
+/%{python_sitelib}/myemsl/service/rmds/*
+/%{python_sitelib}/myemsl/handler/rmds/*
+%{_libexecdir}/myemsl/outage.d/49-rmds-writer
+%{_libexecdir}/myemsl/outage.d/50-rmds-versionclearer
+
+%files -n pacifica-metadata-tmds
+/%{python_sitelib}/pacifica/metadata/trustifier.py*
+/%{python_sitelib}/pacifica/notification/receivers/trustifier.py*
+%{_libexecdir}/pacifica/notification/receivers/trustifier
+%{_libexecdir}/myemsl/outage.d/49-tmds-writer
+%{_libexecdir}/myemsl/outage.d/50-tmds-versionclearer
+
+%files -n pacifica-metadata-fmds
+/%{python_sitelib}/pacifica/metadata/flattener.py*
+/%{python_sitelib}/pacifica/notification/receivers/flattener.py*
+%{_libexecdir}/pacifica/notification/receivers/flattener
+%{_libexecdir}/myemsl/outage.d/49-fmds-writer
+%{_libexecdir}/myemsl/outage.d/50-fmds-versionclearer
+
 %files common
 %{_defaultdocdir}/myemsl/common
+/%{python_sitelib}/pacifica/__init__.py*
+/%{python_sitelib}/pacifica/metadata/__init__.py*
 /%{python_sitelib}/myemsl/__init__.py*
 /%{python_sitelib}/myemsl/util.py*
 /%{python_sitelib}/myemsl/logging.py*
@@ -1179,6 +1274,7 @@ chkconfig --add notification-service
 %{_bindir}/myemsl_getunixuser
 %{_bindir}/myemslupload
 %{_bindir}/myemslbundler
+%{_libexecdir}/pacifica/daemonize2
 %defattr(0644,root,root)
 %config(noreplace) %{_sysconfdir}/myemsl/general.ini
 %config(noreplace) %{_sysconfdir}/myemsl/secret.ini

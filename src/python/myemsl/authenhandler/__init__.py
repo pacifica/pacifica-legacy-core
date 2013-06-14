@@ -21,7 +21,7 @@ def redirect(req, location):
 	req.status = apache.HTTP_MOVED_TEMPORARILY
 	req.write('<p>The document has moved <a href="%s">here</a></p>' %(location))
 
-def general_authenhandler(req, req_type):
+def general_authenhandler(req, req_type, anon_ok=False):
 	pw = req.get_basic_auth_pw()
 	cookies = Cookie.get_cookies(req)
 	if not cookies.has_key('csrftoken'):
@@ -42,7 +42,11 @@ def general_authenhandler(req, req_type):
 			found = True
 		if found:
 			logger.debug("Session: %s", str(cookies['myemsl_session'].value))
+#FIXME outage_check seems to be in the wrong place for a myemsl database outage.
 			return outage_check(req, req_type)
+	elif anon_ok:
+		req.user = ''
+		return outage_check(req, req_type)
 	url = urllib.quote(req.unparsed_uri)
 	redirect(req, "/myemsl/auth?url=%s" %(url))
 	return apache.HTTP_UNAUTHORIZED

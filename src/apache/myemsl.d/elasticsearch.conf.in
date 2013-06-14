@@ -12,7 +12,7 @@ ProxyPass /myemsl/elasticsearch-raw/ http://localhost:9200/
 <Location /myemsl/elasticsearch>
 	Options Indexes FollowSymLinks MultiViews
 	Order deny,allow
-	include @WEBAUTH_MYEMSL@
+	include @WEBAUTH_MYEMSLANON@
 	Require valid-user
 	SetHandler mod_python
 	PythonInterpreter main_interpreter

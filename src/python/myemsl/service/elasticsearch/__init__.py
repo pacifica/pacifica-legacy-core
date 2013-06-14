@@ -33,12 +33,17 @@ def auth_sign(items):
 
 def elasticsearchquery(user, index, type, req, retries=1, auth_add=False, search_type=None, scan=None):
 	req_data = req.read()
-	user_id = int(user)
+	if type != 'released_publications' and user == '':
+		req.write("Forbidden")
+		return 401
 	user_tries = 2
 	while user_tries > 0:
-		if type != "simple_items":
+		if type != "simple_items" and type != "released_publications":
 			req.write("Forbidden")
 			return 401
+		if type == "released_publications":
+			index = "myemsl_current_released_publications"
+			auth_add = False
 		server = config.get('elasticsearch', 'server')
 		writebody = StringIO()
 		curl = pycurl.Curl()
@@ -91,9 +96,11 @@ def elasticsearchquery(user, index, type, req, retries=1, auth_add=False, search
 				return code
 		if alias_tries < 1:
 			return 500
-		code = myemsl.elasticsearch.create_user_filter(retval, user_id)
-		if code < 200 or code > 299:
-			return 404
+		if type != 'released_publications':
+			user_id = int(user)
+			code = myemsl.elasticsearch.create_user_filter(retval, user_id)
+			if code < 200 or code > 299:
+				return 404
 		user_tries -= 1
 
 if __name__ == '__main__':

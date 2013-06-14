@@ -1,0 +1,51 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<matrix-project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers class="vector"/>
+  <concurrentBuild>false</concurrentBuild>
+  <axes>
+    <hudson.matrix.TextAxis>
+      <name>DIST</name>
+      <values>
+        <string>epel-6-x86_64</string>
+      </values>
+    </hudson.matrix.TextAxis>
+    <hudson.matrix.LabelAxis>
+      <name>label</name>
+      <values>
+        <string>pacifica</string>
+      </values>
+    </hudson.matrix.LabelAxis>
+  </axes>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>VERSION=0.56.4-0
+export REPODIR=/var/lib/jenkins/"$DIST"/
+if [ -f /etc/pacifica/jenkins.sh ]; then . /etc/pacifica/jenkins.sh; fi
+rm -rf packages/"$DIST" || true
+mkdir -p packages/"$DIST"/bin
+cd packages/"$DIST"/bin
+for file in ceph ceph-debug ceph-devel ceph-fuse ceph-radosgw ceph-test libcephfs-java libcephfs-jni libcephfs1 librados2 librbd1 python-ceph rest-bench;
+do
+    wget http://ceph.com/rpm/el6/x86_64/$file-$VERSION.el6.x86_64.rpm
+done
+cp -a *.rpm "$REPODIR"
+createrepo "$REPODIR"
+</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+  <executionStrategy class="hudson.matrix.DefaultMatrixExecutionStrategyImpl">
+    <runSequentially>false</runSequentially>
+  </executionStrategy>
+</matrix-project>
+  

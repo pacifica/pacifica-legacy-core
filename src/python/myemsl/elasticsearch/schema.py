@@ -45,6 +45,25 @@ def schema_get(schema):
 				"extended_metadata": {
 					"dynamic": true,
 					"properties": { 
+						"gov_pnnl_erica/irn": {
+							"dynamic": true,
+							"properties": {
+								"id": {
+									"type" : "multi_field",
+									"fields" : {
+										"id": {
+											"type": "string"
+										},
+										"untouched": {
+											"type": "string",
+											"null_value": "na",
+											"index": "analyzed",
+											"analyzer": "keyword"
+										}
+									}
+								}
+							}
+						},
 						"gov_pnnl_emsl_instrument": {
 							"dynamic": true,
 							"properties": {
@@ -349,6 +368,88 @@ def schema_get(schema):
 									"null_value": "na",
 									"index": "analyzed",
 									"analyzer": "keyword"
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}""",
+	'released_publications': """
+{
+	"settings": {
+		"index": {
+			"number_of_shards": 5,
+			"number_of_replicas": 0
+		},
+		"analysis": {
+			"analyzer": {
+				"a1": {
+					"type": "custom",
+					"tokenizer": "standard",
+					"filter" : ["lowercase", "my_filter"]
+				}
+			},
+			"filter": {
+				"my_filter": {
+					"type": "nGram",
+					"min_gram": 2,
+					"max_gram": 20
+				}
+			}
+		}
+	},
+	"mappings": {
+		"released_publications" : {
+			"_source": {"enabled": true},
+			"_all": {
+				"type": "string",
+				"null_value": "na",
+				"index": "analyzed",
+				"index_analyzer": "a1",
+				"search_analyzer": "default"
+			},
+			"properties": {
+				"contributors" : {
+					"dynamic": true,
+					"properties": {
+						"institution": {
+							"type": "multi_field",
+							"fields": {
+								"institution": {
+									"type": "string"
+								},
+								"untouched": {
+									"type": "string",
+									"null_value": "na",
+									"index": "analyzed",
+									"analyzer": "keyword"
+								}
+							}
+						}
+					}
+				},
+				"publication_info": {
+					"dynamic": true,
+					"properties": {
+						"publication": {
+							"dynamic": true,
+							"properties": {
+								"journal_name": {
+									"type": "multi_field",
+									"fields": {
+										"journal_name": {
+											"type": "string"
+										},
+										"untouched": {
+											"type": "string",
+											"null_value": "na",
+											"index": "analyzed",
+											"analyzer": "keyword"
+										}
+									}
 								}
 							}
 						}

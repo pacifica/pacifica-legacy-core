@@ -1,6 +1,17 @@
 MAINTAINERCLEANFILES = Makefile.in build
 
 EXTRA_DIST = \
+pacifica/__init__.py \
+pacifica/notification/__init__.py \
+pacifica/notification/receiver.py \
+pacifica/notification/writer.py \
+pacifica/notification/receivers/__init__.py \
+pacifica/notification/receivers/flattener.py \
+pacifica/notification/receivers/trustifier.py \
+pacifica/notification/receivers/versionclearer.py \
+pacifica/metadata/__init__.py \
+pacifica/metadata/trustifier.py \
+pacifica/metadata/flattener.py \
 myemsl/util.py \
 myemsl/archive.py \
 myemsl/dbconnect/__init__.py \
@@ -38,6 +49,7 @@ myemsl/loadkeytab/__init__.py \
 myemsl/userrewritehandler/__init__.py \
 myemsl/authenhandler/__init__.py \
 myemsl/authenhandler/myemslcore.py \
+myemsl/authenhandler/myemslcoreanon.py \
 myemsl/authenhandler/storage.py \
 myemsl/getfileremote/__init__.py \
 myemsl/websessionremote/__init__.py \
@@ -90,6 +102,8 @@ myemsl/service/itemserverposix/__init__.py \
 myemsl/service/notification/__init__.py \
 myemsl/service/admin/__init__.py \
 myemsl/service/admin/switchuser/__init__.py \
+myemsl/service/rmds/notify.py \
+myemsl/service/rmds/__init__.py \
 myemsl/handler/__init__.py \
 myemsl/handler/401/__init__.py \
 myemsl/handler/qrs/__init__.py \
@@ -118,6 +132,8 @@ myemsl/handler/sstp/preallocate/__init__.py \
 myemsl/handler/notification/__init__.py \
 myemsl/handler/admin/__init__.py \
 myemsl/handler/admin/switchuser/__init__.py \
+myemsl/handler/rmds/notify.py \
+myemsl/handler/rmds/__init__.py \
 scripts/myemslupload \
 scripts/myemslbundler \
 scripts/myemsl_unitsearch_import \
