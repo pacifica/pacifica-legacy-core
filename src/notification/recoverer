@@ -5,27 +5,37 @@ import struct
 from optparse import OptionParser
 from pymongo import Connection
 from pacifica.notification import *
+from myemsl.getconfig import getconfig_notification
 
 def add_options(parser):
 	parser.add_option('-d', '--db', type='string', action='store', dest='db', default='pacifica_db', help="MongoDB database to use", metavar='D')
 	parser.add_option('-n', '--host', type='string', action='store', dest='host', default='', help="MongoDB hostname to use", metavar='H')
-	parser.add_option('-p', '--port', type='int', action='store', dest='port', default=27017, help="MongoDB port number to use", metavar='P')
-	parser.add_option('-c', '--chanel', type='string', action='store', dest='chanel', default='', help="Chanel to listen on", metavar='C')
-	parser.add_option('-o', '--collection', type='string', action='store', dest='collection', default='', help="MongoDB chanel metadata is stored in", metavar='O')
+	parser.add_option('-p', '--port', type='int', action='store', dest='port', default=-1, help="MongoDB port number to use", metavar='P')
+	parser.add_option('-c', '--channel', type='string', action='store', dest='channel', default='', help="Channel to listen on", metavar='C')
+	parser.add_option('-o', '--collection', type='string', action='store', dest='collection', default='', help="MongoDB channel metadata is stored in", metavar='O')
 
 def add_usage(parser):
 	"""
 	Adds a custom usage description string for this module to an OptionParser
 	"""
-	parser.set_usage("usage: %prog [options] -h host -c chanel -o database")
+	parser.set_usage("usage: %prog [options] -h host -c channel -o database")
 
 def check_options(parser):
+	if parser.values.channel == "":
+		sys.stderr.write("You must specify a channel with -c\n")
+		sys.exit(-1)
+	config = getconfig_notification(parser.values.channel)
 	if parser.values.host == "":
-		sys.stderr.write("You must specify a MongoDB host with -n\n")
-		sys.exit(-1)
-	if parser.values.chanel == "":
-		sys.stderr.write("You must specify a chanel with -c\n")
-		sys.exit(-1)
+		try:
+			parser.values.host = config.notification.hostname
+		except Exception, e:
+			raise e
+			sys.stderr.write("You must specify a MongoDB host with -n\n")
+			sys.exit(-1)
+	if parser.values.port == -1:
+		parser.values.port = config.notification.port
+	if parser.values.collection == "":
+		parser.values.collection = parser.values.channel
 
 def main():
 	parser = OptionParser()
@@ -33,10 +43,10 @@ def main():
         add_options(parser)
         parser.parse_args()
         check_options(parser)
-	wsw = writer_socket_writer(writer_socket_get(parser.values.chanel), sync=True)
+	wsw = writer_socket_writer(writer_socket_get(parser.values.channel), sync=True)
 	client = Connection(parser.values.host, parser.values.port)
 	db = client[parser.values.db]
-	collection_name = collection_name_get(db, parser.values.chanel)
+	collection_name = collection_name_get(db, parser.values.channel)
 	ncollection = db[collection_name]
 	collection = db[parser.values.collection + "_collection"]
 	documents = collection.find({'$where': 'this.ver > this.nver'}, {'_id':1, 'ver':1})

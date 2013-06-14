@@ -1,0 +1,2 @@
+#!/bin/bash
+service-poke -f /var/tmp/pacifica_metadata_fmds_recoverer -s fmds_recoverer

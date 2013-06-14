@@ -1,0 +1,18 @@
+#!/bin/bash
+#
+# Init file for rmds recoverer daemon
+#
+# chkconfig: 2345 55 25
+# description: rmds recoverer daemon
+#
+# pidfile: /var/run/pacifica_metadata_rmds_recoverer.pid
+
+# source function library
+
+CHANNEL=rmds
+PID_FILE=/var/run/pacifica_metadata_rmds_recoverer.pid
+LOCKFILE=/var/lock/subsys/pacifica_metadata_rmds_recoverer
+SOCKET=/var/tmp/pacifica_metadata_rmds_recoverer
+INI=/usr/lib/pacifica/metadata/rmds-recoverer-service-poke.ini
+
+. /usr/libexec/pacifica/notification/recoverer_init

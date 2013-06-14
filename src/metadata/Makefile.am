@@ -1,4 +1,10 @@
 outagedir = $(libexecdir)/myemsl/outage.d
-outage_SCRIPTS = 49-fmds-writer 49-rmds-writer 49-tmds-writer 50-fmds-versionclearer 50-rmds-versionclearer 50-tmds-versionclearer
+outage_SCRIPTS = 49-fmds-writer 49-rmds-writer 49-tmds-writer 50-fmds-versionclearer 50-rmds-versionclearer 50-tmds-versionclearer 51-rmds-recoverer 51-tmds-recoverer 51-fmds-recoverer
+
+pkgcronhourlydir = $(sysconfdir)/cron.hourly
+pkgcronhourly_SCRIPTS = pacifica_rmds_recoverer pacifica_tmds_recoverer pacifica_fmds_recoverer
+
+pkgmetadatadir = $(libdir)/pacifica/metadata/
+pkgmetadata_DATA = rmds-recoverer-service-poke.ini tmds-recoverer-service-poke.ini fmds-recoverer-service-poke.ini
 
 EXTRA_DIST = $(outage_SCRIPTS)

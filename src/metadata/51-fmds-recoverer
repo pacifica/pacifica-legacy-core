@@ -1,0 +1,18 @@
+#!/bin/bash
+#
+# Init file for fmds recoverer daemon
+#
+# chkconfig: 2345 55 25
+# description: fmds recoverer daemon
+#
+# pidfile: /var/run/pacifica_metadata_fmds_recoverer.pid
+
+# source function library
+
+CHANNEL=fmds
+PID_FILE=/var/run/pacifica_metadata_fmds_recoverer.pid
+LOCKFILE=/var/lock/subsys/pacifica_metadata_fmds_recoverer
+SOCKET=/var/tmp/pacifica_metadata_fmds_recoverer
+INI=/usr/lib/pacifica/metadata/fmds-recoverer-service-poke.ini
+
+. /usr/libexec/pacifica/notification/recoverer_init
