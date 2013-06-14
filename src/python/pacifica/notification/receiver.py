@@ -9,7 +9,7 @@ import errno
 import os.path
 import pymongo
 import simplejson as json
-from threading import Thread
+from threading import Thread, Lock
 from pymongo import Connection
 from optparse import OptionParser
 from pymongo.cursor import _QUERY_OPTIONS
@@ -28,7 +28,7 @@ class Receiver(object):
 		self.pid = os.getpid()
 		self.last_id = None
 		self.last_version = None
-		self.writerlock = threading.Lock()
+		self.writerlock = Lock()
 		while True:
 			try:
 				self.last_tag_init()
