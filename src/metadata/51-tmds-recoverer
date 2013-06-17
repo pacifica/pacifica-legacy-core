@@ -1,0 +1,18 @@
+#!/bin/bash
+#
+# Init file for tmds recoverer daemon
+#
+# chkconfig: 2345 55 25
+# description: tmds recoverer daemon
+#
+# pidfile: /var/run/pacifica_metadata_tmds_recoverer.pid
+
+# source function library
+
+CHANNEL=tmds
+PID_FILE=/var/run/pacifica_metadata_tmds_recoverer.pid
+LOCKFILE=/var/lock/subsys/pacifica_metadata_tmds_recoverer
+SOCKET=/var/tmp/pacifica_metadata_tmds_recoverer
+INI=/usr/share/pacifica/metadata/tmds-recoverer-service-poke.ini
+
+. /usr/libexec/pacifica/notification/recoverer_init

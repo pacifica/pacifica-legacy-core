@@ -3,6 +3,7 @@
 import sys
 import simplejson as json
 from pymongo import Connection as mongoconnection
+from myemsl.getconfig import getconfig_notification
 
 def checkperm(perms, perm, value, transaction, submitter):
 	tocheck = perm
@@ -56,10 +57,12 @@ def process_item(instanceuuid, perms, item_id, collection, cb):
 		break;
 
 def main():
-#FIXME
-	client = mongoconnection('m11.emsl.pnl.gov', 27017)
+#FIXME Special for metadata?
+	config = getconfig_notification('rmds')
+	client = mongoconnection(config.notification.hostname, config.notification.port)
 	collection = client['pacifica_db']['rmds_collection']
 	perms = json.load(open('/var/lib/myemsl/myemsl.dumppg.json'))
+#FIXME Get from fs
 	instanceuuid = 'instanceuuid'
 
 	id = int(sys.argv[1])

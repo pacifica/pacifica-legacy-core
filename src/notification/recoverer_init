@@ -1,0 +1,63 @@
+#!/bin/bash
+
+# source function library
+. /etc/rc.d/init.d/functions
+
+RETVAL=0
+prog="recoverer"
+
+start()
+{
+	MYEMSL_UNIX_USER=`myemsl_getunixuser`
+	mkdir -p /var/log/pacifica
+	chown "root.$MYEMSL_UNIX_USER" /var/log/pacifica
+	chmod 770 /var/log/pacifica
+	touch "$PID_FILE"
+	chown "root.$MYEMSL_UNIX_USER" "$PID_FILE"
+	chmod 770 "$PID_FILE"
+	status -p $PID_FILE $prog >/dev/null
+	RETVAL=$?
+	[ "$RETVAL" = 0 ] && return 0
+	/bin/su $MYEMSL_UNIX_USER -s /bin/bash -c "/usr/bin/service-poke-server -p $PID_FILE -D -f $SOCKET -i $INI"
+	[ "$?" != 0 ] && return 1
+	chown "$MYEMSL_UNIX_USER.$MYEMSL_UNIX_USER" $SOCKET
+	chmod 660 $SOCKET
+	[ "$?" != 0 ] && return 1
+	touch $LOCKFILE
+	return 0
+}
+
+stop()
+{
+	if [ -n "`pidofproc -p $PID_FILE $prog`" ] ; then
+	    killproc -p $PID_FILE $prog >/dev/null
+	else
+	    return 1
+	fi
+	RETVAL=$?
+	[ "$RETVAL" = 0 ] && rm -f $LOCKFILE
+}
+
+case "$1" in
+	-u)
+		start
+		RETVAL=$?
+		;;
+	-d)
+		stop
+		;;
+	-c)
+		status -p $PID_FILE $prog >/dev/null
+		RETVAL=$?
+		if [ "$RETVAL" = 0 ]
+		then
+			RETVAL=1
+		else
+			RETVAL=0
+		fi
+		;;
+	*)
+		echo $"Unknown command"
+		RETVAL=1
+esac
+exit $RETVAL

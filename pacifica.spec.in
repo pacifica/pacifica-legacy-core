@@ -1054,6 +1054,7 @@ rm -rf %{buildroot}
 %files -n pacifica-notification-common
 /%{python_sitelib}/pacifica/notification/__init__.py*
 %{_libexecdir}/pacifica/notification/versionclearer_init
+%{_libexecdir}/pacifica/notification/recoverer_init
 %{_libexecdir}/pacifica/notification/writer_init
 
 %files web-notify-ssl
@@ -1227,6 +1228,9 @@ chkconfig --add notification-service
 /%{python_sitelib}/myemsl/handler/rmds/*
 %{_libexecdir}/myemsl/outage.d/49-rmds-writer
 %{_libexecdir}/myemsl/outage.d/50-rmds-versionclearer
+%{_libexecdir}/myemsl/outage.d/51-rmds-recoverer
+%{_prefix}/share/pacifica/metadata/rmds-recoverer-service-poke.ini
+%{_sysconfdir}/cron.hourly/pacifica_rmds_recoverer
 
 %files -n pacifica-metadata-tmds
 /%{python_sitelib}/pacifica/metadata/trustifier.py*
@@ -1234,6 +1238,9 @@ chkconfig --add notification-service
 %{_libexecdir}/pacifica/notification/receivers/trustifier
 %{_libexecdir}/myemsl/outage.d/49-tmds-writer
 %{_libexecdir}/myemsl/outage.d/50-tmds-versionclearer
+%{_libexecdir}/myemsl/outage.d/51-tmds-recoverer
+%{_prefix}/share/pacifica/metadata/tmds-recoverer-service-poke.ini
+%{_sysconfdir}/cron.hourly/pacifica_tmds_recoverer
 
 %files -n pacifica-metadata-fmds
 /%{python_sitelib}/pacifica/metadata/flattener.py*
@@ -1241,6 +1248,9 @@ chkconfig --add notification-service
 %{_libexecdir}/pacifica/notification/receivers/flattener
 %{_libexecdir}/myemsl/outage.d/49-fmds-writer
 %{_libexecdir}/myemsl/outage.d/50-fmds-versionclearer
+%{_libexecdir}/myemsl/outage.d/51-fmds-recoverer
+%{_prefix}/share/pacifica/metadata/fmds-recoverer-service-poke.ini
+%{_sysconfdir}/cron.hourly/pacifica_fmds_recoverer
 
 %files common
 %{_defaultdocdir}/myemsl/common

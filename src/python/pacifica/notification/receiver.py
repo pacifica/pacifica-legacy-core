@@ -45,15 +45,17 @@ class Receiver(object):
 				print "Mongo disconnect. %s. Trying again in 10 seconds..." %(e)
 				time.sleep(10)
 		t = Thread(target=self._dumpthread)
+		t.setDaemon(True)
 		t.start()
 	def _dumpthread(self):
-		time.sleep(60)
-		if self.dump_last_id != self.last_id or self.dump_last_version != self.last_version:
-			self.dump_last_id = self.last_id
-			self.dump_last_version = self.last_version
-			self.writerlock.acquire()
-			self.write_last_tag()
-			self.writerlock.release()
+		while True:
+			time.sleep(60)
+			if self.dump_last_id != self.last_id or self.dump_last_version != self.last_version:
+				self.dump_last_id = self.last_id
+				self.dump_last_version = self.last_version
+				self.writerlock.acquire()
+				self.write_last_tag()
+				self.writerlock.release()
 	def last_tag_init(self):
 		dir = '/var/lib/pacifica/metanotification/last'
 		try_mkdir(dir)
