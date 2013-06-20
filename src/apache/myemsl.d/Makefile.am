@@ -2,7 +2,7 @@ if WITH_RMDS
 MAYBE_RMDS = ssl/rmds.conf
 endif
 
-EXTRA_DIST = eushandoff.conf.in getuser.conf.in \
+EXTRA_DIST = eushandoff.conf.in getuser.conf.in reprocess.conf.in \
              ingest.conf.in iteminfo.conf.in nagiosrmtrans.conf.in \
              outage.conf.in query.conf.in query-raw.conf.in \
              query-wsgi.conf.in status.conf.in testauth.conf.in \
@@ -27,7 +27,7 @@ pkgmyemslweb_DATA = web/ingest.conf web/query.conf web/testauth.conf \
                     web/proposal-finder.conf web/static.conf web/api.conf \
                     web/predicate.conf web/test.conf web/admin.conf \
                     web/elasticsearch-proxy.conf web/cart-local.conf \
-                    web/cart-proxy.conf web/dmspath.conf
+                    web/cart-proxy.conf web/dmspath.conf web/reprocess.conf
 
 
 pkgmyemslssl_DATA = ssl/ingest.conf ssl/query.conf ssl/query-raw.conf \
@@ -43,7 +43,8 @@ pkgmyemslssl_DATA = ssl/ingest.conf ssl/query.conf ssl/query-raw.conf \
                     ssl/static.conf ssl/api.conf ssl/predicate.conf \
                     ssl/client.conf ssl/test.conf ssl/admin.conf \
                     ssl/elasticsearch-proxy.conf ssl/cart-local.conf \
-                    ssl/cart-proxy-ssl.conf ssl/dmspath.conf ssl/rmds2.conf
+                    ssl/cart-proxy-ssl.conf ssl/dmspath.conf ssl/rmds2.conf \
+                    ssl/reprocess.conf
 
 $(pkgmyemslweb_DATA):
 	$(mkdir_p) web

@@ -1,0 +1,108 @@
+#!/usr/bin/python
+
+import os, sys
+from nntplib import NNTP
+import libxml2
+import subprocess
+import bsddb
+import re
+from optparse import OptionParser
+from myemsl.dbconnect import myemsldb_connect
+
+def match_jobdata(mdoc, cdoc):
+	check = {}
+	ret = []
+	for group in cdoc.xpathEval('/reprocessor/groups//group'):
+		check[group.xpathEval('@name')[0].content] = False
+	if not len(check):
+		return False
+	files = mdoc.xpathEval('/myemsl/files//file')
+	for file in files:
+		for key in check.keys():
+			check[key] = False
+		groups = file.xpathEval('.//group')
+		for group in groups:
+			type = group.xpathEval('./type')
+			name = group.xpathEval('./name')
+			match = cdoc.xpathEval('/reprocessor/groups//group[@name=\''+type[0].content+'\']')
+			print name[0].content+"=="+match[0].xpathEval('@value')[0].content
+			regex = re.compile(match[0].xpathEval('@value')[0].content)
+			if re.match(match[0].xpathEval('@value')[0].content, name[0].content):
+				check[type[0].content] = True
+		fcheck = True
+		for key in check.keys():
+			if not check[key]:
+				fcheck = False
+		if fcheck:
+			ret.append(file)
+	return ret
+
+def build_env(doc):
+	ret = {}
+	for group in doc.xpathEval('.//group'):
+		type = group.xpathEval('./type')[0].content
+		name = group.xpathEval('./name')[0].content
+		ret[type] = name
+	return ret
+
+def run_jobcallback(cdoc, environ):
+	print "Running Callbacks"
+	for callback in cdoc.xpathEval('/reprocessor/callbacks//callback[@type=\'command\']'):
+		from tempfile import mkstemp
+		fd, name = mkstemp()
+		os.write(fd, callback.xpathEval('./command')[0].content.strip())
+		os.close(fd)
+		print name
+		os.chmod(name, 0755)
+		from subprocess import call
+		script_env = os.environ
+		for key in environ.keys():
+			print "setting %s=%s"%(key,environ[key])
+			script_env[key] = environ[key]
+		call([name], env=script_env)
+		os.unlink(name)
+
+parser = OptionParser(description="MyEMSL Reprocessor")
+
+parser.add_option('--statedb', dest='statedb', default='/var/state/myemsl-notify.db', type=str, help='location of the statedb')
+parser.add_option('--server', dest='server', default='a3.emsl.pnl.gov', type=str, help='the nntp server')
+parser.add_option('--group', dest='group', default='local.myemsl.incoming.notifications', type=str, help='the nntp news group to listen on')
+
+(options, args) = parser.parse_args()
+
+_continue = True
+
+db = bsddb.btopen(options.statedb, 'c')
+s = NNTP(options.server)
+
+while _continue:
+
+	resp, count, first, last, name = s.group(options.group)
+	for message in range(int(first), int(last)+1):
+		if str(message) in db and db[str(message)] == 'Read':
+			continue
+		if str(message) in db and db[str(message)] == 'Failed':
+			continue
+		resp, number, id = s.stat(str(message))
+		resp, number, id, _list = s.body(id)
+		try:
+			doc = libxml2.parseDoc("\n".join(_list))
+		except:
+			print "Failed to parse xml document"
+			db[str(message)] = "Failed"
+			continue
+		cnx = myemsldb_connect(myemsl_schema_versions=['1.3'])
+		cursor = cnx.cursor()
+		submitter = doc.xpathEval('/myemsl/submitter')
+		submitter = submitter[0].content
+		cursor.execute("select definition from myemsl.reprocessors where person_id = %(pid)i", {'pid':int(submitter)})
+		rows = cursor.fetchall()
+		if len(rows):
+			print rows[0]
+			print "\n".join(_list)
+			for callback in rows[0]:
+				cdoc = libxml2.parseDoc(callback)
+				for match in match_jobdata(doc, cdoc):
+					run_jobcallback(cdoc, build_env(match))
+		db[str(message)] = "Read";
+s.quit()

@@ -17,7 +17,7 @@
    <signed>no</signed>
   </repository>
   <repository name="myemsl-devel-deps">
-   <url>http://192.168.123.1/myemsl-repo/epel-5-x86_64</url>
+   <url>http://jenkins.emsl.pnl.gov/pacificarepos/epel-5-x86_64/</url>
    <signed>no</signed>
   </repository>
   <repository name="pgdg84">

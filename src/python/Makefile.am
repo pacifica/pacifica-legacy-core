@@ -94,6 +94,7 @@ myemsl/service/queryengine/__init__.py \
 myemsl/service/transaction/__init__.py \
 myemsl/service/elasticsearch/__init__.py \
 myemsl/service/nagiosrmtrans/__init__.py \
+myemsl/service/reprocess/__init__.py \
 myemsl/service/sstp/finish.py \
 myemsl/service/sstp/status.py \
 myemsl/service/sstp/preallocate.py \
@@ -124,6 +125,7 @@ myemsl/handler/qrshistory/__init__.py \
 myemsl/handler/transaction/__init__.py \
 myemsl/handler/elasticsearch/__init__.py \
 myemsl/handler/nagiosrmtrans/__init__.py \
+myemsl/handler/reprocess/__init__.py \
 myemsl/handler/personinforaw/__init__.py \
 myemsl/handler/sstp/finish/__init__.py \
 myemsl/handler/sstp/preallocate/__init__.py \
