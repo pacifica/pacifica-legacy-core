@@ -296,9 +296,9 @@ cp -f /usr/share/zoneinfo/America/Los_Angeles /etc/localtime
 sed -i 's/ZONE=.*/ZONE="America\/Los_Angles"/g' /etc/sysconfig/clock
 
 TOREMOVE=`rpm -qa --queryformat '%{NAME}-%{VERSION}-%{RELEASE}.%{ARCH}\n' | grep 'i[36]86$'`
-rpm -e $TOREMOVE
+yum -y remove $TOREMOVE
 sed -i 's#plugins=1#plugins=1\nexclude=*.i?86#' /etc/yum.conf
-sed -i 's#^baseurl=.*$#mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=epel-5&amp;arch=$basearch#' /etc/yum.repos.d/epel.repo
+#sed -i 's#^baseurl=.*$#mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=epel-5&amp;arch=$basearch#' /etc/yum.repos.d/epel.repo
 #export http_proxy=
 
 rpm --import /etc/pki/rpm-gpg/*
