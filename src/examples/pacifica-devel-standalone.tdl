@@ -303,11 +303,10 @@ sed -i 's#^baseurl=.*$#mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?re
 
 rpm --import /etc/pki/rpm-gpg/*
 
-cat &gt; rpmtransaction &lt;&lt;EOF
-upgrade
-groupinstall "GNOME Desktop Environment" "X Window System" "Development Tools"
-install qt47-devel qt47-webkit-devel sqlite sqlite-devel
-install myemsl-web-services-ssl myemsl-web-services-common myemsl-web-personinfo-ssl \
+yum -y upgrade
+yum -y install "@GNOME Desktop Environment" "@X Window System" "@Development Tools" \
+           qt47-devel qt47-webkit-devel sqlite sqlite-devel \
+           myemsl-web-services-ssl myemsl-web-services-common myemsl-web-personinfo-ssl \
            myemsl-cartd myemsl-web-cart-ssl pacifica-web-basicauth \
            myemsl-web-ingestor-ssl myemsl-web-notify-ssl \
            myemsl-web-iteminfo-ssl \
@@ -322,12 +321,9 @@ install myemsl-web-services-ssl myemsl-web-services-common myemsl-web-personinfo
            python-devel createrepo elasticsearch myemsl-web-elasticsearch-ssl \
            myemsl-web-item-ssl myemsl-archive-standalone mod_xsendfile alpine \
            myemsl-web-query-ssl pacifica-builddeps rubygem-json rubygems \
-           git pacifica-devel-brand-ssl pacifica-devel-brand-common fuse pacifica-test-data
-install go-pacifica-auth pacifica-auth-default-local pacifica-uploader pacifica-auth libpacificaauth-devel
-install mongo-10gen mongo-10gen-server
-run -y
-EOF
-yum shell &lt; &lt;(cat rpmtransaction; echo Y)
+           git pacifica-devel-brand-ssl pacifica-devel-brand-common fuse pacifica-test-data \
+           go-pacifica-auth pacifica-auth-default-local pacifica-uploader pacifica-auth libpacificaauth-devel \
+           mongo-10gen mongo-10gen-server
 
 #FIXME add these back later.
 # rubygem-addressable rubygem-chunky_png rubygem-sass rubygem-compass rubygem-fssm
