@@ -110,6 +110,12 @@ while he:
 	else:
 		if name != 'metadata.txt':
 			is_data = True
+	if is_data:
+		ft = he.filetype()
+		if ft == he.AE_IFDIR:
+			is_data = False
+		elif ft != he.AE_IFREG:
+			raise Exception("Unknown file type in bundle. %s" %(ft))
 	if not is_data:
 		archive.data_skip()
 	else:
