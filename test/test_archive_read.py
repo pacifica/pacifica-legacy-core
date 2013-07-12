@@ -65,6 +65,21 @@ class ArchiveRead(unittest.TestCase):
 			sha1 = '51c15743ad61d2ceb55a05efb073d73fc9a759cb'
 			self.failIf(file_hash == sha1, "Data verify failed. Sha1 sums match. %s != %s" %(file_hash, sha1))
 			self.failIf(e == 0, "Error did not show up.")
+	def test_direntry(self):
+		h = hashlib.sha1()
+		r = archive.archive_read_open_filename(self.a, "dirtest.tar", 10240)
+		self.failIf(r != archive.ARCHIVE_OK, "Failed to open dirtest.tar")
+		while (archive.archive_read_next_header2(self.a, self.ae) == archive.ARCHIVE_OK):
+			name = archive.archive_entry_pathname(self.ae)
+			if name == 'a/' or name == 'a/b/':
+				type = archive.AE_IFDIR
+			elif name == 'a/c':
+				type = archive.AE_IFREG
+			else:
+				self.fail("Unknown filename %s" %(name))
+			ft = archive.myemsl_archive_entry_filetype(self.ae)
+			archive.archive_read_data_skip(self.a)
+			self.failIf(ft != type, "Wrong type.")
 
 if __name__ == "__main__":
         unittest.main()

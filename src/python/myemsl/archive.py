@@ -53,5 +53,10 @@ def init():
 		def new_func(func):
 			return lambda self: func(self._ae)
 		setattr(ArchiveEntry, sym, new_func(func))
+	def filetype(func):
+		return lambda self: func(self._ae)
+	setattr(ArchiveEntry, 'filetype', filetype(_myemsl_archive.myemsl_archive_entry_filetype))
+	for sym in [i for i in syms if i.startswith('AE_IF')]:
+		setattr(ArchiveEntry, sym, getattr(_myemsl_archive, sym))
 
 init()

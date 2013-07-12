@@ -10,6 +10,11 @@ int archive_entry_acl_next_w(struct archive_entry *e, int want_type, int *type, 
         return 0;
 }
 
+int myemsl_archive_entry_filetype(struct archive_entry *ae)
+{
+        return archive_entry_filetype(ae);
+}
+
 int myemsl_archive_read_data(struct archive *a, char *d, int *s)
 {
         int res = archive_read_data(a, d, *s);
@@ -33,3 +38,5 @@ int myemsl_archive_read_data(struct archive *a, char *d, int *s)
 
 %cstring_output_withsize(char *d, int *s);
 int myemsl_archive_read_data(struct archive *a, char *d, int *s);
+int myemsl_archive_entry_filetype(struct archive_entry *ae);
+

@@ -60,6 +60,21 @@ class ArchiveRead(unittest.TestCase):
 		except:
 			exception_seen = True
 		self.failIf(not exception_seen, "Truncation did not throw an error")
+	def test_direntry(self):
+		self.a.open("dirtest.tar")
+		he = self.a.next_header()
+		while he:
+			name = he.pathname()
+			if name == 'a/' or name == 'a/b/':
+				type = he.AE_IFDIR
+			elif name == 'a/c':
+				type = he.AE_IFREG
+			else:
+				self.fail("Unknown filename %s" %(name))
+			ft = he.filetype()
+			self.a.data_skip()
+			self.failIf(ft != type, "Wrong type.")
+			he = self.a.next_header()
 
 if __name__ == "__main__":
         unittest.main()
