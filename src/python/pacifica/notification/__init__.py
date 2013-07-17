@@ -1,4 +1,5 @@
 import os
+import time
 import errno
 import struct
 from pymongo import Connection
@@ -19,11 +20,28 @@ class writer_socket_writer:
 		except OSError, e:
 			if e.errno != errno.EEXIST:
 				raise
+		self.sync = sync
+		self.name = name
+		try:
+			self._do_open()
+		except OSError, e:
+			if e.errno != errno.ENXIO:
+				raise
+			self.fh = None
+	def _do_open(self):
 		flags = os.O_WRONLY
-		if not sync:
+		if not self.sync:
 			flags |= os.O_NONBLOCK
-		self.fh = os.open(name, flags)
+		self.fh = os.open(self.name, flags)
 	def write(self, data):
+		while self.fh == None:
+			try:
+				self._do_open()
+			except OSError, e:
+				if e.errno != errno.ENXIO:
+					raise
+#FIXME log somewhere.
+				time.sleep(1)
 		try:
 			os.write(self.fh, data)
 		except OSError, e:

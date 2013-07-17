@@ -1239,6 +1239,7 @@ chkconfig --add notification-service
 %{_libexecdir}/myemsl/outage.d/49-tmds-writer
 %{_libexecdir}/myemsl/outage.d/50-tmds-versionclearer
 %{_libexecdir}/myemsl/outage.d/51-tmds-recoverer
+%{_libexecdir}/myemsl/outage.d/52-tmds-trustifier
 %{_prefix}/share/pacifica/metadata/tmds-recoverer-service-poke.ini
 %{_sysconfdir}/cron.hourly/pacifica_tmds_recoverer
 

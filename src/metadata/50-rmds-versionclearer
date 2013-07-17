@@ -12,5 +12,6 @@
 CHANNEL=rmds
 PID_FILE=/var/run/pacifica_metadata_rmds_versionclearer.pid
 LOCKFILE=/var/lock/subsys/pacifica_metadata_rmds_versionclearer
+prog="versionclearer"
 
 . /usr/libexec/pacifica/notification/versionclearer_init
