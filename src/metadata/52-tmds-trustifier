@@ -1,17 +1,17 @@
 #!/bin/bash
 #
-# Init file for fmds trustifier daemon
+# Init file for tmds trustifier daemon
 #
 # chkconfig: 2345 55 25
-# description: fmds trustifier daemon
+# description: tmds trustifier daemon
 #
-# pidfile: /var/run/pacifica_metadata_fmds_trustifier.pid
+# pidfile: /var/run/pacifica_metadata_tmds_trustifier.pid
 
 # source function library
 
 CHANNEL=rmds
-PID_FILE=/var/run/pacifica_metadata_fmds_trustifier.pid
-LOCKFILE=/var/lock/subsys/pacifica_metadata_fmds_trustifier
+PID_FILE=/var/run/pacifica_metadata_tmds_trustifier.pid
+LOCKFILE=/var/lock/subsys/pacifica_metadata_tmds_trustifier
 prog="trustifier"
 
 . /usr/libexec/pacifica/notification/versionclearer_init

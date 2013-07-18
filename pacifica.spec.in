@@ -1250,6 +1250,7 @@ chkconfig --add notification-service
 %{_libexecdir}/myemsl/outage.d/49-fmds-writer
 %{_libexecdir}/myemsl/outage.d/50-fmds-versionclearer
 %{_libexecdir}/myemsl/outage.d/51-fmds-recoverer
+%{_libexecdir}/myemsl/outage.d/52-fmds-flattener
 %{_prefix}/share/pacifica/metadata/fmds-recoverer-service-poke.ini
 %{_sysconfdir}/cron.hourly/pacifica_fmds_recoverer
 

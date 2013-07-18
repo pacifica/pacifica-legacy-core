@@ -43,7 +43,7 @@ def main():
         add_options(parser)
         parser.parse_args()
         check_options(parser)
-	r = FlattenerReceiver(parser.values.host, parser.values.port, parser.values.db, parser.values.chanel, parser.values.module)
+	r = FlattenerReceiver(parser.values.host, parser.values.port, parser.values.db, parser.values.channel, parser.values.module)
 	sys.exit(r.run())
 	pass
 
