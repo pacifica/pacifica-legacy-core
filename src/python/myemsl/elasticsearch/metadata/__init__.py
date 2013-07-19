@@ -2,6 +2,7 @@
 
 import sys
 import hashlib
+import threading
 import simplejson as json
 
 #Helper functions
@@ -48,6 +49,12 @@ def dedup(data):
 class metadata_processor:
 	def __init__(self):
 		self.jointable = {}
+		self.lock = threading.Lock()
+	def reinit(self):
+		self.jointable = {}
+#FIXME should need to register these things so we can easily clear them.
+		self.emsl_basic_metadata = None
+		self.emsl_dms_metadata = None
 	def register_join(self, key, resolver):
 		self.jointable[key] = resolver
 	def resolv(self, data):
@@ -63,7 +70,7 @@ class metadata_processor:
 		return retval
 
 def main():
-	mdp = myemsl_metadata_processor()
+	mdp = metadata_processor()
 	sys.exit(-1)
 
 if __name__ == '__main__':

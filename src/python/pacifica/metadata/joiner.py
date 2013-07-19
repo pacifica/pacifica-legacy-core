@@ -4,9 +4,37 @@ import sys
 import simplejson as json
 from pymongo import Connection as mongoconnection
 from myemsl.getconfig import getconfig_notification
+import pyinotify
 import myemsl.elasticsearch.metadata
 import myemsl.elasticsearch.metadata.emsl_base
 import myemsl.elasticsearch.metadata.emsl_dms
+
+class processc(pyinotify.ProcessEvent):
+	def my_init(self, **kargs):
+		self.filechanged = kargs['filechanged']
+	def process_IN_MOVED_TO(self, event):
+		self.filechanged(event.pathname)
+	def process_IN_CLOSE_WRITE(self, event):
+		self.filechanged(event.pathname)
+
+class metadata_extra_watcher:
+	def __init__(self, filelist, filechanged):
+		self.wm = pyinotify.WatchManager()
+		pc = processc(filechanged=filechanged)
+		self.notifier = pyinotify.ThreadedNotifier(self.wm, pc, read_freq=1)
+		self.notifier.coalesce_events()
+		for file in filelist:
+			self.wm.add_watch(file, pyinotify.IN_MOVED_TO | pyinotify.IN_CLOSE_WRITE)
+		self.notifier.run()
+		self.notifier.join()
+
+#FIXME For now map back to the older names for these things until migration is compete.
+joinable = {
+	'gov_pnnl_emsl_my/instrument': 'gov_pnnl_emsl_instrument',
+	'gov_pnnl_emsl_my/proposal': 'gov_pnnl_emsl_proposal',
+	'gov_pnnl_emsl_my/dms/datapackage': 'gov_pnnl_emsl_dms_datapackage',
+	'gov_pnnl_emsl_my/dms/dataset': 'gov_pnnl_emsl_dms_dataset'
+}
 
 #FIXME this was copied from jsondumper. share and make more generic
 def join(extended_metadata, mdp):
@@ -28,7 +56,7 @@ def join(extended_metadata, mdp):
 	extended_metadata = mdp.resolv(extended_metadata)
 	return extended_metadata
 
-def process_item(item_id, collection, cb, mdp, joinable):
+def process_item(item_id, collection, cb, mdp):
 	f = collection.find({"_id":item_id})
 	extended_metadata = None
 	for doc in f:
@@ -45,6 +73,27 @@ def process_item(item_id, collection, cb, mdp, joinable):
 		cb(doc)
 		break;
 
+#FIXME copied from jsondumper. Also need to be able to refresh this somehow...
+#FIXME make this list use a config file somehow.
+mdp = myemsl.elasticsearch.metadata.metadata_processor()
+def metadata_plugins_load(mdp):
+	myemsl.elasticsearch.metadata.emsl_base.metadata(mdp)
+	myemsl.elasticsearch.metadata.emsl_dms.metadata(mdp)
+
+mdp.lock.acquire()
+metadata_plugins_load(mdp)
+mdp.lock.release()
+print 'MD Loaded'
+
+def foo(x):
+	print 'MD reloading'
+	mdp.lock.acquire()
+	mdp.reinit()
+	metadata_plugins_load(mdp)
+	mdp.lock.release()
+	print 'MD Loaded'
+mew = metadata_extra_watcher(['/var/lib/myemsl/dms.json'], foo)
+
 def main():
 #FIXME Special for metadata?
 	config = getconfig_notification('fmds')
@@ -53,23 +102,8 @@ def main():
 	id = int(sys.argv[1])
 	def cb(doc):
 		print json.dumps(doc, indent=4)
-#FIXME copied from jsondumper. Also need to be able to refresh this somehow...
-#FIXME make this list use a config file somehow.
-	mdp = myemsl.elasticsearch.metadata.metadata_processor()
-	myemsl.elasticsearch.metadata.emsl_base.metadata(mdp)
-	myemsl.elasticsearch.metadata.emsl_dms.metadata(mdp)
-	print 'MD Loaded'
-#FIXME make this a property
-	print mdp.jointable.keys()
-#FIXME For now map back to the older names for these things until migration is compete.
-	joinable = {
-		'gov_pnnl_emsl_my/instrument': 'gov_pnnl_emsl_instrument',
-		'gov_pnnl_emsl_my/proposal': 'gov_pnnl_emsl_proposal',
-		'gov_pnnl_emsl_my/dms/datapackage': 'gov_pnnl_emsl_dms_datapackage',
-		'gov_pnnl_emsl_my/dms/dataset': 'gov_pnnl_emsl_dms_dataset'
-	}
 
-	process_item(id, collection, cb, mdp, joinable)
+	process_item(id, collection, cb, mdp)
 
 if __name__ == '__main__':
 	main()
