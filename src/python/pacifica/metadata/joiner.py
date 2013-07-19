@@ -25,8 +25,8 @@ class metadata_extra_watcher:
 		self.notifier.coalesce_events()
 		for file in filelist:
 			self.wm.add_watch(file, pyinotify.IN_MOVED_TO | pyinotify.IN_CLOSE_WRITE)
-		self.notifier.run()
-		self.notifier.join()
+		self.notifier.setDaemon(True)
+		self.notifier.start()
 
 #FIXME For now map back to the older names for these things until migration is compete.
 joinable = {
@@ -56,7 +56,8 @@ def join(extended_metadata, mdp):
 	extended_metadata = mdp.resolv(extended_metadata)
 	return extended_metadata
 
-def process_item(item_id, collection, cb, mdp):
+def process_item(item_id, collection, cb):
+	mdp.lock.acquire()
 	f = collection.find({"_id":item_id})
 	extended_metadata = None
 	for doc in f:
@@ -72,18 +73,14 @@ def process_item(item_id, collection, cb, mdp):
 			doc['extended_metadata'] = extended_metadata
 		cb(doc)
 		break;
+	mdp.lock.release()
 
-#FIXME copied from jsondumper. Also need to be able to refresh this somehow...
+#FIXME copied from jsondumper. Pass this in from somewhere else.
 #FIXME make this list use a config file somehow.
 mdp = myemsl.elasticsearch.metadata.metadata_processor()
 def metadata_plugins_load(mdp):
 	myemsl.elasticsearch.metadata.emsl_base.metadata(mdp)
 	myemsl.elasticsearch.metadata.emsl_dms.metadata(mdp)
-
-mdp.lock.acquire()
-metadata_plugins_load(mdp)
-mdp.lock.release()
-print 'MD Loaded'
 
 def foo(x):
 	print 'MD reloading'
@@ -94,6 +91,11 @@ def foo(x):
 	print 'MD Loaded'
 mew = metadata_extra_watcher(['/var/lib/myemsl/dms.json'], foo)
 
+mdp.lock.acquire()
+metadata_plugins_load(mdp)
+mdp.lock.release()
+print 'MD Loaded'
+
 def main():
 #FIXME Special for metadata?
 	config = getconfig_notification('fmds')
@@ -103,7 +105,7 @@ def main():
 	def cb(doc):
 		print json.dumps(doc, indent=4)
 
-	process_item(id, collection, cb, mdp)
+	process_item(id, collection, cb)
 
 if __name__ == '__main__':
 	main()
