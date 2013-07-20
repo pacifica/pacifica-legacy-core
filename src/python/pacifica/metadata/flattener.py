@@ -4,13 +4,9 @@ import sys
 import simplejson as json
 from pymongo import Connection as mongoconnection
 
-client = mongoconnection('m11.emsl.pnl.gov', 27017)
-collection = client['pacifica_db']['rmds_collection']
-
-trusted = {}
-unknown = {}
-
 def process_item(instanceuuid, item_id, collection, cb):
+	trusted = {}
+	unknown = {}
 	f = collection.find({"_id":item_id})
 	for doc in f:
 		strans = None

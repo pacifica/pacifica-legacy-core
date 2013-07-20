@@ -243,6 +243,7 @@ sed -i 's/#[ \t]*\(noprealloc = true\)/\1/' /etc/mongod.conf
 /usr/libexec/pacifica/notification/init -n localhost -c rmds
 /usr/libexec/pacifica/notification/init -n localhost -c fmds
 /usr/libexec/pacifica/notification/init -n localhost -c tmds
+/usr/libexec/pacifica/notification/init -n localhost -c jmds
 test -f /usr/bin/system-config-display &amp;&amp; /usr/bin/system-config-display --reconfig --noui
 /usr/libexec/myemsl/servergenkeys
 /usr/libexec/myemsl/itemauthgenkeys
@@ -323,6 +324,8 @@ yum -y install "@GNOME Desktop Environment" "@X Window System" "@Development Too
            myemsl-web-query-ssl pacifica-builddeps rubygem-json rubygems \
            git pacifica-devel-brand-ssl pacifica-devel-brand-common fuse pacifica-test-data \
            go-pacifica-auth pacifica-auth-default-local pacifica-uploader pacifica-auth libpacificaauth-devel \
+           pacifica-notification-common pacifica-notification-client pacifica-notification-server \
+           pacifica-metadata-tmds pacifica-metadata-fmds pacifica-metadata-jmds pacifica-web-rmds-notification-ssl \
            mongo-10gen mongo-10gen-server
 
 #FIXME add these back later.

@@ -641,6 +641,14 @@ Requires: pacifica-notification-client pacifica-notification-server
 %description -n pacifica-metadata-fmds
 Pacifica Metadata Flattened Store
 
+%package -n     pacifica-metadata-jmds
+Summary:        Pacifica Metadata Joined Store
+Group:          System Environment/Base
+Requires: pacifica-notification-client pacifica-notification-server
+
+%description -n pacifica-metadata-jmds
+Pacifica Metadata Joined Store
+
 %package -n     pacifica-web-rmds-notification-ssl
 Summary:        Pacifica Raw Meta Data Notification Server
 Group:          System Environment/Base
@@ -1253,6 +1261,17 @@ chkconfig --add notification-service
 %{_libexecdir}/myemsl/outage.d/52-fmds-flattener
 %{_prefix}/share/pacifica/metadata/fmds-recoverer-service-poke.ini
 %{_sysconfdir}/cron.hourly/pacifica_fmds_recoverer
+
+%files -n pacifica-metadata-jmds
+/%{python_sitelib}/pacifica/metadata/joiner.py*
+/%{python_sitelib}/pacifica/notification/receivers/joiner.py*
+%{_libexecdir}/pacifica/notification/receivers/joiner
+%{_libexecdir}/myemsl/outage.d/49-jmds-writer
+%{_libexecdir}/myemsl/outage.d/50-jmds-versionclearer
+%{_libexecdir}/myemsl/outage.d/51-jmds-recoverer
+%{_libexecdir}/myemsl/outage.d/52-jmds-joiner
+%{_prefix}/share/pacifica/metadata/jmds-recoverer-service-poke.ini
+%{_sysconfdir}/cron.hourly/pacifica_jmds_recoverer
 
 %files common
 %{_defaultdocdir}/myemsl/common

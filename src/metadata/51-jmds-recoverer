@@ -1,0 +1,18 @@
+#!/bin/bash
+#
+# Init file for jmds recoverer daemon
+#
+# chkconfig: 2345 55 25
+# description: jmds recoverer daemon
+#
+# pidfile: /var/run/pacifica_metadata_jmds_recoverer.pid
+
+# source function library
+
+CHANNEL=jmds
+PID_FILE=/var/run/pacifica_metadata_jmds_recoverer.pid
+LOCKFILE=/var/lock/subsys/pacifica_metadata_jmds_recoverer
+SOCKET=/var/tmp/pacifica_metadata_jmds_recoverer
+INI=/usr/share/pacifica/metadata/jmds-recoverer-service-poke.ini
+
+. /usr/libexec/pacifica/notification/recoverer_init

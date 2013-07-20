@@ -1,0 +1,2 @@
+#!/bin/bash
+service-poke -f /var/tmp/pacifica_metadata_jmds_recoverer -s jmds_recoverer

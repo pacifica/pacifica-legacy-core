@@ -17,7 +17,6 @@ class JoinerReceiver(Receiver):
 		self.metadata_jmds_collection = pymongo.collection.Collection(db, "jmds_collection", create=False)
 		self.wsw = writer_socket_writer(writer_socket_get("jmds"))
 	def discovered(self, tag, item_id, version):
-#FIXME get instance uuid from somewhere...
 		pacifica.metadata.joiner.process_item(item_id, self.metadata_fmds_collection, self.joiner_cb)
 	def joiner_cb(self, doc):
 		while True:
