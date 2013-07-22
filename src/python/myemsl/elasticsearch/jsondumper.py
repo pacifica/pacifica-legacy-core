@@ -154,6 +154,13 @@ select proposal_id, person_id from eus.proposal_members;
 			proposal_info[row[0]] = p
 		p['members'].append(row[1])
 	sql = """
+select distinct person_id from myemsl.permission_group as pg, myemsl.permission_group_members as pgm where pg.name='MyEMSL.Downloader.omics.dms' and pg.permission_group_id = pgm.permission_group_id order by person_id;
+"""
+	cursor.execute(sql)
+	dms_users = []
+	for row in cursoriter(cursor):
+		dms_users.append(row[0])
+	sql = """
 CREATE OR REPLACE FUNCTION myemsl_group_id_sort (ANYARRAY)
 RETURNS ANYARRAY LANGUAGE SQL
 AS $$
@@ -264,12 +271,16 @@ select group_set_id, g.group_id, type, name, proposal_id from (select group_set_
 		myemsl.elasticsearch.metadata.dedup(extended_metadata)
 		dp = extended_metadata.get('gov_pnnl_emsl_dms_datapackage')
 		if dp:
+			for u in dms_users:
+				users[u] = 1
 			for id in dp[:]:
 				print "Processing:", id, dp
 				myemsl.elasticsearch.metadata.merge_left(extended_metadata, mdp.emsl_dms_metadata.datapackage.get(id))
 		else:
 			dp = extended_metadata.get('gov_pnnl_emsl_dms_dataset')
 			if dp:
+				for u in dms_users:
+					users[u] = 1
 				for id in dp[:]:
 					print "Processing:", id, dp
 					myemsl.elasticsearch.metadata.merge_left(extended_metadata, mdp.emsl_dms_metadata.dataset.get(id))
