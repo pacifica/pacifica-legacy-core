@@ -88,6 +88,7 @@ myemsl/service/outage/__init__.py \
 myemsl/service/dmspath/__init__.py \
 myemsl/service/getuser/__init__.py \
 myemsl/service/itemauth/__init__.py \
+myemsl/service/itemusers/__init__.py \
 myemsl/service/iteminfo/__init__.py \
 myemsl/service/predicate/__init__.py \
 myemsl/service/personinfo/__init__.py \
@@ -118,6 +119,7 @@ myemsl/handler/outage/__init__.py \
 myemsl/handler/dmspath/__init__.py \
 myemsl/handler/getuser/__init__.py \
 myemsl/handler/itemauth/__init__.py \
+myemsl/handler/itemusers/__init__.py \
 myemsl/handler/iteminfo/__init__.py \
 myemsl/handler/predicate/__init__.py \
 myemsl/handler/queryraw/__init__.py \

@@ -12,3 +12,12 @@
 	PythonInterpreter main_interpreter
 	PythonHandler myemsl.handler.rmds.notify
 </Location>
+
+<Location /myemsl/api/1/itemusers>
+	Options Indexes FollowSymLinks MultiViews
+	Order deny,allow
+#FIXME Should we add auth to this? Its just a list of numbers.
+	SetHandler mod_python
+	PythonInterpreter main_interpreter
+	PythonHandler myemsl.handler.itemusers
+</Location>

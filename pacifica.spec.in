@@ -1234,6 +1234,9 @@ chkconfig --add notification-service
 %{_prefix}/lib/myemsl/apache/myemsl-ssl.d/rmds2.conf
 /%{python_sitelib}/myemsl/service/rmds/*
 /%{python_sitelib}/myemsl/handler/rmds/*
+#FIXME make this seperate later
+/%{python_sitelib}/myemsl/handler/itemusers*
+/%{python_sitelib}/myemsl/service/itemusers*
 %{_libexecdir}/myemsl/outage.d/49-rmds-writer
 %{_libexecdir}/myemsl/outage.d/50-rmds-versionclearer
 %{_libexecdir}/myemsl/outage.d/51-rmds-recoverer
