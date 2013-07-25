@@ -1,0 +1,12 @@
+#!/usr/bin/python
+
+import sys
+from optparse import OptionParser
+from pacifica.notification import *
+
+def main():
+	wsw = writer_socket_writer(sys.argv[1])
+	wsw.entry(int(sys.argv[2]), int(sys.argv[3]))
+
+if __name__ == '__main__':
+	main()

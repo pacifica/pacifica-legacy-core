@@ -3,6 +3,7 @@ MAINTAINERCLEANFILES = Makefile.in build
 EXTRA_DIST = \
 pacifica/__init__.py \
 pacifica/notification/__init__.py \
+pacifica/notification/socketreader.py \
 pacifica/notification/receiver.py \
 pacifica/notification/writer.py \
 pacifica/notification/receivers/__init__.py \

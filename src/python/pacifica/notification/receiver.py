@@ -9,6 +9,7 @@ import errno
 import os.path
 import pymongo
 import simplejson as json
+import pacifica.notification.socketreader as socketreader
 from threading import Thread, Lock
 from pymongo import Connection
 from optparse import OptionParser
@@ -31,6 +32,11 @@ class Receiver(object):
 		self.dump_last_id = None
 		self.dump_last_version = None
 		self.writerlock = Lock()
+		self.cblock = Lock()
+		dir = '/var/lib/pacifica/metanotification/poke'
+		try_mkdir(dir)
+		self.socketreader = socketreader.SocketReader("%s/%s_%s" %(dir, notification_name, process_name), self._poked)
+		self.statefile = "%s/%s_%s.json" %(dir, self.notification_name, self.process_name)
 		while True:
 			try:
 				self.last_tag_init()
@@ -47,6 +53,13 @@ class Receiver(object):
 		t = Thread(target=self._dumpthread)
 		t.setDaemon(True)
 		t.start()
+		t = Thread(target=self.socketreader.run)
+		t.setDaemon(True)
+		t.start()
+	def _poked(self, i, v):
+		self.cblock.acquire()
+		self.discovered(None, i, v)
+		self.cblock.release()
 	def _dumpthread(self):
 		while True:
 			time.sleep(60)
@@ -117,7 +130,9 @@ class Receiver(object):
 							if self.last_id == notification['ts']:
 								first_pass = False
 								continue #Already processed this document. None were lost.
+						self.cblock.acquire()
 						self.discovered(notification['ts'], notification['id'], notification['ver'])
+						self.cblock.release()
 						self.last_id = notification['ts']
 					except StopIteration:
 						continue

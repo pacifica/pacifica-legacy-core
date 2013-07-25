@@ -1049,7 +1049,8 @@ rm -rf %{buildroot}
 
 %files -n pacifica-notification-client
 /%{python_sitelib}/pacifica/notification/receiver.py*
-/%{python_sitelib}/pacifica/notification/receivers/*
+/%{python_sitelib}/pacifica/notification/receivers/__init__.py*
+/%{python_sitelib}/pacifica/notification/receivers/versionclearer.py*
 %{_libexecdir}/pacifica/notification/receiver
 %{_libexecdir}/pacifica/notification/receivers/versionclearer
 
@@ -1060,6 +1061,7 @@ rm -rf %{buildroot}
 %{_libexecdir}/pacifica/notification/recoverer
 
 %files -n pacifica-notification-common
+/%{python_sitelib}/pacifica/notification/socketreader.py*
 /%{python_sitelib}/pacifica/notification/__init__.py*
 %{_libexecdir}/pacifica/notification/versionclearer_init
 %{_libexecdir}/pacifica/notification/recoverer_init

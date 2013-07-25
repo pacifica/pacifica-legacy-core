@@ -14,6 +14,8 @@ start()
 	chmod 770 "$PID_FILE"
 	mkdir -p /var/lib/pacifica/metanotification/sockets
 	chown "$MYEMSL_UNIX_USER.apache" /var/lib/pacifica/metanotification/sockets
+	mkdir -p /var/lib/pacifica/metanotification/poke
+	chown "$MYEMSL_UNIX_USER.$MYEMSL_UNIX_USER" /var/lib/pacifica/metanotification/poke
 	test -e /var/lib/pacifica/metanotification/sockets/$CHANNEL || mkfifo /var/lib/pacifica/metanotification/sockets/$CHANNEL
 #FIXME restrict this furter later.
 	chown "$MYEMSL_UNIX_USER.apache" /var/lib/pacifica/metanotification/sockets/$CHANNEL
