@@ -106,6 +106,7 @@ myemsl/service/itemserverposix/__init__.py \
 myemsl/service/notification/__init__.py \
 myemsl/service/admin/__init__.py \
 myemsl/service/admin/switchuser/__init__.py \
+myemsl/service/rmds/add.py \
 myemsl/service/rmds/notify.py \
 myemsl/service/rmds/__init__.py \
 myemsl/handler/__init__.py \
@@ -137,6 +138,7 @@ myemsl/handler/sstp/preallocate/__init__.py \
 myemsl/handler/notification/__init__.py \
 myemsl/handler/admin/__init__.py \
 myemsl/handler/admin/switchuser/__init__.py \
+myemsl/handler/rmds/add.py \
 myemsl/handler/rmds/notify.py \
 myemsl/handler/rmds/__init__.py \
 scripts/myemslupload \

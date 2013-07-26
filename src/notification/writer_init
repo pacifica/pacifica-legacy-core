@@ -19,6 +19,7 @@ start()
 	test -e /var/lib/pacifica/metanotification/sockets/$CHANNEL || mkfifo /var/lib/pacifica/metanotification/sockets/$CHANNEL
 #FIXME restrict this furter later.
 	chown "$MYEMSL_UNIX_USER.apache" /var/lib/pacifica/metanotification/sockets/$CHANNEL
+	chmod 660 /var/lib/pacifica/metanotification/sockets/$CHANNEL
 	status -p $PID_FILE $prog >/dev/null
 	RETVAL=$?
 	[ "$RETVAL" = 0 ] && return 0
