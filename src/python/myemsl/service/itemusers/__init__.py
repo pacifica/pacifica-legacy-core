@@ -74,7 +74,8 @@ def itemusers(item_id, req, retries=1):
 						l = extended_metadata.get(x)
 						if l:
 							for i in l:
-								list[i['id']] = 1
+								if i != None and 'id' in i:
+									list[i['id']] = 1
 		list = list.keys()
 		list.sort()
 		req.write(json.dumps(list))
