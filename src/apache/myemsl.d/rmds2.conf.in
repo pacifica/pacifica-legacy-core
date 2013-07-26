@@ -1,4 +1,4 @@
-<Location /myemsl/api/1/rmds/notify>
+<Location /myemsl/api/1/rmds-raw/notify>
 	Options Indexes FollowSymLinks MultiViews
 	Order deny,allow
 	<LimitExcept POST>
@@ -13,7 +13,7 @@
 	PythonHandler myemsl.handler.rmds.notify
 </Location>
 
-<Location /myemsl/api/1/rmds/add>
+<Location /myemsl/api/1/rmds-raw/add>
 	Options Indexes FollowSymLinks MultiViews
 	Order deny,allow
 	<LimitExcept POST>
@@ -26,6 +26,21 @@
 	SetHandler mod_python
 	PythonInterpreter main_interpreter
 	PythonHandler myemsl.handler.rmds.add
+</Location>
+
+<Location /myemsl/api/1/rmds-raw/update>
+	Options Indexes FollowSymLinks MultiViews
+	Order deny,allow
+	<LimitExcept POST>
+		deny from all
+	</LimitExcept>
+	SSLVerifyClient require
+	SSLVerifyDepth 1
+#FIXME make rmds key.
+	SSLCACertificateFile /etc/myemsl/keys/server/local.crt
+	SetHandler mod_python
+	PythonInterpreter main_interpreter
+	PythonHandler myemsl.handler.rmds.update
 </Location>
 
 <Location /myemsl/api/1/itemusers>

@@ -1,9 +1,11 @@
 #!/usr/bin/python
 
 from socket import gethostname
+from myemsl.callcurl import call_curl
 from myemsl.getconfig import getconfig_secret
 from myemsl.metadata import *
 import myemsl.getpermission
+import xml.dom.minidom
 config = getconfig_secret()
 
 from myemsl.dbconnect import do_sql_insert as do_sql
@@ -212,4 +214,26 @@ def ingest_metadata(metadata, files, username, transaction):
 		cnx.close()
 		raise Exception('Unable to insert file metadata (%s).'%(str(e)))
 	cnx.close()
+
+def get_transaction(user):
+	transxml = call_curl(
+		"%s/%s" %(config.get('metadata', 'transaction_base_url'), user), 
+		capath=None,
+		cainfo='/etc/myemsl/keys/server/local.crt',
+		sslcert='/etc/myemsl/keys/server/local.pem',
+		sslcerttype='PEM',
+		insecure=config.get('webservice', 'ssl_verify_peer') != 'False'
+	)
+	dom = xml.dom.minidom.parseString(transxml)
+	transaction = -1
+	found = False
+	for x in dom.firstChild.childNodes:
+		if x.nodeType == x.ELEMENT_NODE and (x.nodeName == 'transaction'):
+			transaction = int(x.getAttribute('id'))
+			found = True
+			break
+	if not found:
+		raise Exception("Could not get transaction number from server")
+	return transaction
+
 

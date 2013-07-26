@@ -77,9 +77,14 @@ UPDATE
 SET
   stime=now()
 WHERE
-  transaction=%(trans)s;
+  transaction=%(trans)s
+RETURNING
+  stime;
 """
-	do_sql_insert(sql, True, myemsl_schema_versions=['1.0'], params={'trans':str(trans)})
+	res = do_sql_select(sql, True, myemsl_schema_versions=['1.0'], params={'trans':str(trans)});
+	if res and len(res) > 0 and len(res[0]) > 0:
+		res = res[0][0]
+	return res
 
 def insert_file(trans, subdir, name, size, hashsum, groups, cursor=None):
 	insert_item('file', cursor)

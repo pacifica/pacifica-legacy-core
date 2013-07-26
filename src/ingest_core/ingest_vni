@@ -14,7 +14,6 @@ import zipfile
 import nntplib
 import tempfile
 import StringIO
-import xml.dom.minidom
 import myemsl.util
 from optparse import OptionParser
 
@@ -32,28 +31,6 @@ parser.add_option("-u", "--username", dest="username", help="Username")
 parser.add_option("-p", "--prefix", dest="prefix", help="MyEMSL Prefix", default="/srv/myemsl-ingest")
 parser.add_option("-f", "--statefd", dest="sfd", help="MyEMSL Status FD", default=1, type=int)
 
-def get_transaction(user):
-	from myemsl.callcurl import call_curl
-	transxml = call_curl(
-		"%s/%s" %(config.get('metadata', 'transaction_base_url'), user), 
-		capath=None,
-		cainfo='/etc/myemsl/keys/server/local.crt',
-		sslcert='/etc/myemsl/keys/server/local.pem',
-		sslcerttype='PEM',
-		insecure=config.get('webservice', 'ssl_verify_peer') != 'False'
-	)
-	dom = xml.dom.minidom.parseString(transxml)
-	transaction = -1
-	found = False
-	for x in dom.firstChild.childNodes:
-		if x.nodeType == x.ELEMENT_NODE and (x.nodeName == 'transaction'):
-			transaction = int(x.getAttribute('id'))
-			found = True
-			break
-	if not found:
-		raise Exception("Could not get transaction number from server")
-	return transaction
-
 (options, args) = parser.parse_args()
 
 jobid = None
@@ -61,7 +38,7 @@ jobid = None
 try:
 	userdir = "%s/%s" %(options.prefix,options.username)
 	myemsl.util.try_mkdir(userdir)
-	transaction = get_transaction(options.username)
+	transaction = myemsl.ingest.get_transaction(options.username)
 	jobid = transaction + config.ingest.job_offset
 	unbundledir = "%s/%s/bundle" %(options.prefix,options.username)
 	myemsl.util.try_mkdir(unbundledir)
