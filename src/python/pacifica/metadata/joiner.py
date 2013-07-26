@@ -52,6 +52,10 @@ def join(extended_metadata, mdp):
 				myemsl.elasticsearch.metadata.merge_left(extended_metadata, mdp.emsl_dms_metadata.dataset.get(id))
 				extra_proposals = mdp.emsl_dms_metadata.dataset_proposals.get(id)
 				if extra_proposals != None:
+					proposals = extended_metadata.get('gov_pnnl_emsl_proposal')
+					if proposals == None:
+						proposals = []
+						extended_metadata['gov_pnnl_emsl_proposal'] = proposals
 					extended_metadata['gov_pnnl_emsl_proposal'].extend(extra_proposals)
 	extended_metadata = mdp.resolv(extended_metadata)
 	return extended_metadata
