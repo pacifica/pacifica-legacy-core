@@ -16,7 +16,7 @@
       <command>
 VERSION=0.0.1
 if [ -f /etc/pacifica/jenkins.sh ]; then . /etc/pacifica/jenkins.sh; fi
-cat /var/lib/jenkins/jobs/myemsl-core/workspace/DIST/epel-5-x86_64/src/examples/pacifica-devel-standalone.tdl | sed 's^#export http_proxy=.*^export http_proxy="http://user:'`cat /var/lib/jenkins/squidpw | python -c "import urllib; import sys; print urllib.quote(sys.stdin.readline().strip(),safe='')"`'@192.168.123.1:3128"^' > pacifica-devel-standalone.tdl
+cat /var/lib/jenkins/jobs/myemsl-core/workspace/DIST/epel-5-x86_64/src/examples/pacifica-virtual-appliance.tdl | sed 's^#export http_proxy=.*^export http_proxy="http://user:'`cat /var/lib/jenkins/squidpw | python -c "import urllib; import sys; print urllib.quote(sys.stdin.readline().strip(),safe='')"`'@192.168.123.1:3128"^' > pacifica-virtual-appliance.tdl
 env
 sudo /usr/bin/oz-install -d3 -u -p -s `pwd`/pacifica-virtual-appliance-$VERSION.dsk -t 10000 -x pacifica-vertual-appliance.xml pacifica-virtual-appliance.tdl
 virt-copy-out -a pacifica-virtual-appliance-$VERSION.dsk /root/setup.log .
