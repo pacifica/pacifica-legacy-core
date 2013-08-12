@@ -1,6 +1,6 @@
 <template>
- <name>pacifica-devel-standalone</name>
- <description>Pacifica CentOS Linux 5 Development Box x86_64 template</description>
+ <name>pacifica-virtual-appliance</name>
+ <description>Pacifica CentOS Linux 5 Virtual Appliance x86_64 template</description>
  <os>
   <name>CentOS-5</name>
   <version>U8</version>
