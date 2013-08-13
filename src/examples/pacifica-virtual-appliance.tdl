@@ -55,25 +55,21 @@ DEVICE=eth0
 ONBOOT=yes
 BOOTPROTO=dhcp
   </file>
-  <file name="/root/pacifica_test_permissions" type="raw">#!/usr/bin/python
+  <file name="/root/pacifica_default_permissions" type="raw">#!/usr/bin/python
 
 import myemsl.permission
 
 psid = myemsl.permission.get_or_create_permission_set_id(['p'])
 print psid
-pgid = myemsl.permission.get_permission_group_id('TEST', 'instrument')
+pgid = myemsl.permission.get_permission_group_id('DEFAULT', 'gov_pnnl_emsl_pacifica_generic_publication')
 if pgid == None:
-	pgid = myemsl.permission.create_permission_group('TEST', 'instrument')
+	pgid = myemsl.permission.create_permission_group('DEFAULT', 'gov_pnnl_emsl_pacifica_generic_publication')
 if pgid != None:
 	print pgid
 	myemsl.permission.add_permission_group_member(pgid, 1)
-	myemsl.permission.add_permission_group_member(pgid, 2)
-	myemsl.permission.add_permission_group_member(pgid, 3)
-	myemsl.permission.create_permission(pgid, 'instrument', psid)
+	myemsl.permission.create_permission(pgid, 'gov_pnnl_emsl_pacifica_generic_publication', psid)
   </file>
   <file name="/etc/rc.local.ec2" type="raw">#!/bin/bash -x
-
-echo 0 > /proc/sys/kernel/hung_task_timeout_secs
 
 if [ ! -d /root/.ssh ]; then
   mkdir -p /root/.ssh
@@ -236,8 +232,6 @@ mount -o remount,ro /
 reboot
   </file>
   <file name="/etc/rc.local.first.boot" type="raw">#!/bin/bash
-#Disable safety in mongodb for much better performance. This is a devel instance after all...
-sed -i 's/# \(nojournal = true\)/\1/' /etc/mongod.conf
 sed -i 's/#[ \t]*\(noprealloc = true\)/\1/' /etc/mongod.conf
 /etc/init.d/mongod restart
 /usr/libexec/pacifica/notification/init -n localhost -c rmds
@@ -250,9 +244,6 @@ test -f /usr/bin/system-config-display &amp;&amp; /usr/bin/system-config-display
 /usr/sbin/create-munge-key
 IP=$(ifconfig eth0 | sed -n 's/.*inet addr:\([^ ]\+\).*/\1/p')
 sed -i 's/@IP@/'$IP'/g' /etc/news/readers.conf
-#Disable safety in postgres for much better performance. This is a devel instance after all...
-echo "fsync = off" >> /var/lib/pgsql/data/postgresql.conf 
-echo "full_page_writes = off" >> /var/lib/pgsql/data/postgresql.conf 
 echo "listen_addresses = '0.0.0.0'" >> /var/lib/pgsql/data/postgresql.conf 
 #echo bindaddress: $IP >> /etc/news/inn.conf
 echo bindaddress: all >> /etc/news/inn.conf
@@ -305,31 +296,27 @@ sed -i 's#plugins=1#plugins=1\nexclude=*.i?86#' /etc/yum.conf
 rpm --import /etc/pki/rpm-gpg/*
 
 yum -y upgrade
-yum -y install "@GNOME Desktop Environment" "@X Window System" "@Development Tools" \
-           qt47-devel qt47-webkit-devel sqlite sqlite-devel \
+yum -y install "@GNOME Desktop Environment" "@X Window System" \
+           sqlite \
            myemsl-web-services-ssl myemsl-web-services-common myemsl-web-personinfo-ssl \
            myemsl-cartd myemsl-web-cart-ssl pacifica-web-basicauth \
            myemsl-web-ingestor-ssl myemsl-web-notify-ssl \
            myemsl-web-iteminfo-ssl \
            myemsl-web-query-raw-ssl myemsl-database myemsl-database-schema \
-           myemsl-notification myemsl-devel myemsl-sumcheck \
-           go libbuhfsutil-devel libbuhfsutil \
-           postgresql-server vim-enhanced elinks expect screen glib2-devel libattr-devel \
-           postgresql-devel gdb strace myemsl-devel-doc \
-           fuse-devel libarchive-devel subversion graphviz \
-           curl-devel php-devel libxml2-devel libxslt-devel pprof \
-           gdm mercurial firefox iotop reptyr myemsl-elasticsearch-sync \
-           python-devel createrepo elasticsearch myemsl-web-elasticsearch-ssl \
+           myemsl-notification myemsl-sumcheck \
+           libbuhfsutil \
+           postgresql-server vim-enhanced elinks expect screen \
+           postgresql-devel gdb strace \
+           pprof \
+           gdm mercurial firefox myemsl-elasticsearch-sync \
+           elasticsearch myemsl-web-elasticsearch-ssl \
            myemsl-web-item-ssl myemsl-archive-standalone mod_xsendfile alpine \
-           myemsl-web-query-ssl pacifica-builddeps rubygem-json rubygems \
-           git pacifica-devel-brand-ssl pacifica-devel-brand-common fuse pacifica-test-data \
-           go-pacifica-auth pacifica-auth-default-local pacifica-uploader pacifica-auth libpacificaauth-devel \
+           myemsl-web-query-ssl
+           pacifica-devel-brand-ssl pacifica-devel-brand-common fuse \
+           pacifica-auth-default-local pacifica-uploader pacifica-auth libpacificaauth-devel \
            pacifica-notification-common pacifica-notification-client pacifica-notification-server \
            pacifica-metadata-tmds pacifica-metadata-fmds pacifica-metadata-jmds pacifica-web-rmds-notification-ssl \
            mongo-10gen mongo-10gen-server
-
-#FIXME add these back later.
-# rubygem-addressable rubygem-chunky_png rubygem-sass rubygem-compass rubygem-fssm
 
 ln -s /etc/xdg/Pacifica /usr/lib64/qt47/etc
 
@@ -355,19 +342,13 @@ echo 'host all all '$IP'/32 password' >> /var/lib/pgsql/data/pg_hba.conf
 echo 'enabling: host all all '$IP'/32 password'
 ifconfig
 /etc/init.d/postgresql restart
-myemsldbadm -c "insert into eus.users(person_id, network_id, email_address) values(1, 'test1', 'testuser1@nowhere.com');"
-myemsldbadm -c "insert into eus.users(person_id, network_id, email_address) values(2, 'test2', 'testuser2@nowhere.com');"
-myemsldbadm -c "insert into eus.users(person_id, network_id, email_address) values(3, 'test3', 'testuser3@nowhere.com');"
-chmod +x /root/pacifica_test_permissions
-/root/pacifica_test_permissions
+myemsldbadm -c "insert into eus.users(person_id, network_id, email_address) values(1, 'svc-myemsl', 'svc-myemsl@nowhere.com');"
+chmod +x /root/pacifica_default_permissions
+/root/pacifica_default_permissions
 mv /var/lib/pgsql/data/pg_hba.conf.bak /var/lib/pgsql/data/pg_hba.conf
+#FIXME move to first boot.
 htpasswd -c -b /etc/myemsl/htpasswd test1 testpw1
-htpasswd -b /etc/myemsl/htpasswd test2 testpw2
-htpasswd -b /etc/myemsl/htpasswd test3 testpw3
-mkdir -p /srv/pacifica-testupload/instrument-1
-mkdir -p /srv/pacifica-testupload/instrument-2
-mkdir -p /srv/pacifica-testupload/instrument-3
-cp -a /usr/share/pacifica/testdata/data/ds1/* /srv/pacifica-testupload/instrument-1
+mkdir -p /srv/pacifica-publications/
 
 /etc/init.d/innd start
 sleep 2
@@ -387,20 +368,20 @@ cat > /var/lib/pacifica/uploader/config/MA==.json &lt;&lt;ENOF
 {
 	"Rules": [
 		{
-			"Name": "Instrument 1",
+			"Name": "Publications",
 			"Paths": [
-				"/srv/pacifica-testupload"
+				"/srv/pacifica-publications"
 			],
 			"StaticMetadata": [],
 			"ExcludePatterns": [],
 			"RenamePatterns": [],
 			"MetadataPattern": [
 				{
-					"Pattern": "^/srv/pacifica-testupload/instrument-(?P\u003cinstrument\u003e[0-9]*)/.*",
+					"Pattern": "^/srv/pacifica-publications/(?P\u003cpublication\u003e[0-9]*)/.*",
 					"Group": [
 						{
-							"Pattern": "instrument",
-							"Value": "instrument"
+							"Pattern": "publication",
+							"Value": "gov_pnnl_emsl_pacifica_generic_publication"
 						}
 					]
 				}
@@ -410,38 +391,6 @@ cat > /var/lib/pacifica/uploader/config/MA==.json &lt;&lt;ENOF
 		}
 	]
 }
-ENOF
-cat > /usr/share/doc/myemsl-devel/vm.html &lt;&lt;ENOF
-&lt;html>
-&lt;body>
-&lt;h2>&lt;p>Welcome to the Pacifica Testing/Development Virtual Machine.&lt;/p>&lt;/h2>
-&lt;hr />
-&lt;p>To access the local instance's website, &lt;a href="https://localhost/myemsl/search/simple">click here&lt;/a>. Note, you will be prompted to accept a locally signed certificate. This is ok.&lt;/p>
-&lt;p>There are three test users provided by default:&lt;/p>
-&lt;table border="1">
-        &lt;tr>
-                &lt;td>Username&lt;/td>
-                &lt;td>Password&lt;/td>
-        &lt;/tr>
-        &lt;tr>
-                &lt;td>test1&lt;/td>
-                &lt;td>testpw1&lt;/td>
-        &lt;/tr>
-        &lt;tr>
-                &lt;td>test2&lt;/td>
-                &lt;td>testpw2&lt;/td>
-        &lt;/tr>
-        &lt;tr>
-                &lt;td>test3&lt;/td>
-                &lt;td>testpw3&lt;/td>
-        &lt;/tr>
-&lt;/table>
-&lt;hr />
-&lt;p>To access the developer documentation, &lt;a href="file:///usr/share/doc/myemsl-devel/index.html">click here&lt;/a>&lt;/p>
-&lt;hr />
-&lt;p>To access the Pacifica ElasticSearch metadata database, click here &lt;a href="http://localhost:9200/_plugin/head/">Here&lt;/a>.&lt;/p>
-&lt;/body>
-&lt;/html>
 ENOF
 
 /usr/share/java/elasticsearch/bin/plugin -install mobz/elasticsearch-head
