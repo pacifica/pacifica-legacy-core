@@ -311,7 +311,7 @@ yum -y install "@GNOME Desktop Environment" "@X Window System" \
            gdm mercurial firefox myemsl-elasticsearch-sync \
            elasticsearch myemsl-web-elasticsearch-ssl \
            myemsl-web-item-ssl myemsl-archive-standalone mod_xsendfile alpine \
-           myemsl-web-query-ssl
+           myemsl-web-query-ssl \
            pacifica-devel-brand-ssl pacifica-devel-brand-common fuse \
            pacifica-auth-default-local pacifica-uploader pacifica-auth libpacificaauth-devel \
            pacifica-notification-common pacifica-notification-client pacifica-notification-server \
