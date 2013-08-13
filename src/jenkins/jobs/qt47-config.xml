@@ -19,10 +19,9 @@
   <builders>
     <hudson.tasks.Shell>
       <command>export MOCK=/usr/bin/mock
-export CREATEREPOOPTS=
 export MOCKDISTPREFIX=
 export REPOBASEDIR=/var/lib/jenkins
-if [ "$DIST" = "epel-5-x86_64" ]; then export CREATEREPOOPTS='-s sha'; fi
+export CREATEREPOOPTS='-s sha'
 if [ -f /etc/pacifica/jenkins.sh ]; then . /etc/pacifica/jenkins.sh; fi
 $MOCK -r atrpms-epel-5-x86_64 --init
 $MOCK -r atrpms-epel-5-x86_64 --install qt47-webkit-devel sqlite-devel
