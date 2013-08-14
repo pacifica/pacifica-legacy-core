@@ -114,46 +114,6 @@ then
 	fi
 fi
 mount --bind /srv/ephemeral/pgsql /var/lib/pgsql
-
-# Fetch public key using HTTP
-ATTEMPTS=10
-while [ ! -f /root/.ssh/authorized_keys ]; do
-    curl -f http://169.254.169.254/latest/meta-data/public-keys/0/openssh-key > /tmp/aws-key 2>/dev/null
-    if [ $? -eq 0 ]; then
-        cat /tmp/aws-key >> /root/.ssh/authorized_keys
-        chmod 0600 /root/.ssh/authorized_keys
-        restorecon /root/.ssh/authorized_keys
-        rm -f /tmp/aws-key
-        echo "Successfully retrieved AWS public key from instance metadata"
-    else
-        FAILED=$(($FAILED + 1))
-        if [ $FAILED -ge $ATTEMPTS ]; then
-            echo "Failed to retrieve AWS public key after $FAILED attempts, quitting"
-            break
-        fi
-        echo "Could not retrieve AWS public key (attempt #$FAILED/$ATTEMPTS), retrying in 5 seconds..."
-        sleep 5
-    fi
-done
-while [ ! -f /tmp/userdata.customize ]; do
-    curl -f http://169.254.169.254/latest/user-data > /tmp/userdata.customize 2>/dev/null
-    if [ $? -eq 0 ]; then
-        if [ `stat --printf=%s /tmp/userdata.customize` == 0 ] ; then
-            echo "Failed to retrieve user data bash script. Its empty."
-            break
-        fi
-	chmod +x /tmp/userdata.customize
-	/tmp/userdata.customize
-    else
-        FAILED=$(($FAILED + 1))
-        if [ $FAILED -ge $ATTEMPTS ]; then
-            echo "Failed to retrieve user data customize program after $FAILED attempts, quitting"
-            break
-        fi
-        echo "Could not retrieve user data customize program (attempt #$FAILED/$ATTEMPTS), retrying in 5 seconds..."
-        sleep 5
-    fi
-done
   </file>
   <file name="/etc/modprobe.conf" type="raw">
 alias scsi_hostadapter ata_piix
@@ -221,6 +181,7 @@ mount /boot
 sed -i 's/console=tty.*//' /boot/grub/grub.conf
 umount /boot
 rm /etc/rc.local.ec2
+rpm -e cloud-init
 cat > /etc/rc.local.standalone &lt;&lt;"EOF"
 myemslmount
 myemsloutage -c
@@ -316,7 +277,7 @@ yum -y install "@GNOME Desktop Environment" "@X Window System" \
            pacifica-auth-default-local pacifica-uploader pacifica-auth libpacificaauth-devel \
            pacifica-notification-common pacifica-notification-client pacifica-notification-server \
            pacifica-metadata-tmds pacifica-metadata-fmds pacifica-metadata-jmds pacifica-web-rmds-notification-ssl \
-           mongo-10gen mongo-10gen-server
+           mongo-10gen mongo-10gen-server cloud-init
 
 ln -s /etc/xdg/Pacifica /usr/lib64/qt47/etc
 
