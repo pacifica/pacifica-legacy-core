@@ -215,6 +215,7 @@ URL: https://127.0.0.1/myemsl/testauth/
 Kerberos: 0 res: 6
 Gui Started. https://127.0.0.1/myemsl/testauth/
 Set-Cookie: myemsl_session=@SESS@; domain=127.0.0.1; path=/
+  </file>
   <file name="/etc/rc.local.first.boot" type="raw">#!/bin/bash
 sed -i 's/#[ \t]*\(noprealloc = true\)/\1/' /etc/mongod.conf
 /etc/init.d/postgresql restart
