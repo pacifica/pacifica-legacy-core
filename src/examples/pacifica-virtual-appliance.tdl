@@ -192,8 +192,35 @@ passwd &amp;&amp; rm -f /root/standalone
 mount -o remount,ro /
 reboot
   </file>
+  <file name="/root/MA==" type="raw">Setting: insecure
+Started!
+Goin.
+Redirecting to https://127.0.0.1/myemsl/services
+1
+Service: files=https://127.0.0.1/myemsl/files/
+Service: cart=https://127.0.0.1/myemsl/api/2/cart/
+Service: fileicon=https://127.0.0.1/myemsl/static/1/icons/
+Service: testauth=https://127.0.0.1/myemsl/testauth/
+Service: preallocate=https://127.0.0.1/myemsl/cgi-bin/preallocate
+Service: query=https://127.0.0.1/myemsl/query/
+Service: item=https://127.0.0.1/myemsl/item/
+Service: preferences=https://127.0.0.1/myemsl/preferences/
+Service: dmspath=https://127.0.0.1/myemsl/api/1/dmspath/
+Service: logout=https://127.0.0.1/myemsl/logout/
+Service: client=https://127.0.0.1/myemsl/client/
+Service: cart_download=https://127.0.0.1/myemsl/cart/download/
+Service: iteminfo=https://127.0.0.1/myemsl/iteminfo/
+Service: admin_cart=https://127.0.0.1/myemsl/admin/cart/
+URL: https://127.0.0.1/myemsl/testauth/
+Kerberos: 0 res: 6
+Gui Started. https://127.0.0.1/myemsl/testauth/
+Set-Cookie: myemsl_session=@SESS@; domain=127.0.0.1; path=/
   <file name="/etc/rc.local.first.boot" type="raw">#!/bin/bash
 sed -i 's/#[ \t]*\(noprealloc = true\)/\1/' /etc/mongod.conf
+/etc/init.d/postgresql restart
+SESS=`dd if=/dev/random bs=1 count=128| base64 2>/dev/null | tr -d '\n'`
+sed "s:@SESS@:$SESS:g" MA\=\= > /var/lib/pacifica/uploader/auth/creds/MA\=\=
+myemsldbadm -c "insert into myemsl.eus_auth(user_name, session_id) values('1', '$SESS');"
 /etc/init.d/mongod restart
 /usr/libexec/pacifica/notification/init -n localhost -c rmds
 /usr/libexec/pacifica/notification/init -n localhost -c fmds
