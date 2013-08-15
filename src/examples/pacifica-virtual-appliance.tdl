@@ -55,6 +55,9 @@ DEVICE=eth0
 ONBOOT=yes
 BOOTPROTO=dhcp
   </file>
+  <file name="/sbin/pacifica_va_format_mount" type="raw">#!/bin/bash
+	cp -a /srv-preinit/* /srv/
+  </file>
   <file name="/root/pacifica_default_permissions" type="raw">#!/usr/bin/python
 
 import myemsl.permission
@@ -216,6 +219,26 @@ Kerberos: 0 res: 6
 Gui Started. https://127.0.0.1/myemsl/testauth/
 Set-Cookie: myemsl_session=@SESS@; domain=127.0.0.1; path=/
   </file>
+  <file name="/sbin/pacifica_va_start" type="raw">#!/bin/bash
+if [ ! -f /srv/pacivia_va_version ]
+then
+	echo 'Mount not in place. Not starting.'
+	exit 1
+fi
+. /srv/pacivia_va_version
+if [ "x$MAJOR" != "x1" ]
+then
+	echo 'Unknown mount version. Not starting.'
+	exit 2
+fi
+/etc/init.d/postgresql restart
+/etc/init.d/httpd restart
+/etc/init.d/innd restart
+/etc/init.d/munge restart
+/etc/init.d/mongod restart
+/etc/init.d/pacificauploaderd restart
+/etc/init.d/elasticsearch restart
+  </file>
   <file name="/etc/rc.local.first.boot" type="raw">#!/bin/bash
 sed -i 's/#[ \t]*\(noprealloc = true\)/\1/' /etc/mongod.conf
 /etc/init.d/postgresql restart
@@ -248,11 +271,7 @@ then
 	export EC2=1
 fi
 setenforce permissive
-/etc/init.d/postgresql restart
-/etc/init.d/httpd restart
-/etc/init.d/innd start
-/etc/init.d/munge start
-/etc/init.d/mongod restart
+/sbin/pacifica_va_start
 
 if [ "x$EC2" != "x" ]
 then
@@ -319,8 +338,8 @@ chmod +x /tmp/dbcreate.sh
 chkconfig munge off
 chkconfig innd off
 chkconfig elasticsearch off
-chkconfig myemsl_elasticsearch on
-chkconfig pacificauploaderd on
+chkconfig myemsl_elasticsearch off
+chkconfig pacificauploaderd off
 
 echo '%rhel 5' > /etc/rpm/macros.dist
 
@@ -332,11 +351,11 @@ echo 'enabling: host all all '$IP'/32 password'
 ifconfig
 /etc/init.d/postgresql restart
 myemsldbadm -c "insert into eus.users(person_id, network_id, email_address) values(1, 'svc-myemsl', 'svc-myemsl@nowhere.com');"
+myemsldbadm -c "insert into eus.users(person_id, network_id, email_address) values(2, 'anon', 'anon@nowhere.com');"
 chmod +x /root/pacifica_default_permissions
 /root/pacifica_default_permissions
 mv /var/lib/pgsql/data/pg_hba.conf.bak /var/lib/pgsql/data/pg_hba.conf
-#FIXME move to first boot.
-htpasswd -c -b /etc/myemsl/htpasswd test1 testpw1
+htpasswd -c -b /etc/myemsl/htpasswd anon ''
 mkdir -p /srv/pacifica-publications/
 
 /etc/init.d/innd start
@@ -406,13 +425,19 @@ chmod +x /root/standalone
 chmod +x /root/standalone.gui
 chmod +x /etc/rc.local.first.boot
 chmod +x /etc/rc.local.ec2
+chmod +x /sbin/pacifica_va_start
+chmod +x /sbin/pacifica_va_format_mount
 
 chkconfig --level 35 mongod off
 chkconfig --level 35 httpd on
 chkconfig --level 35 munge on
-chkconfig --level 35 postgresql on
+chkconfig --level 35 postgresql off
 chkconfig --level 35 innd on
-chkconfig --level 5 elasticsearch on
+chkconfig --level 35 elasticsearch off
+
+(echo MAJOR=1;echo MINOR=0) > /srv/pacifica_va_version
+mv /srv /srv-preinit
+mkdir /srv
   </file>
  </files>
  <commands>
