@@ -13,6 +13,7 @@ else
 	else
 		sed -i 's@<prefix>.*</prefix>@<prefix>https://'"$PUBLICNAME"'/myemsl</prefix>@' /etc/myemsl/services.xml
 		sed -i 's@[ \t]*#\?[ \t]*cluster\.name:.*@cluster.name: '"$PUBLICNAME"'@' /etc/elasticsearch/elasticsearch.yml
-		sed -i 's@\(127.0.0.1[ \t].*\)@\1 '"$PUBLICNAME"'@' /etc/hosts
+#HOSTNAME workaround for openstack https://bugs.launchpad.net/neutron/+bug/1175211
+		sed -i 's@\(127.0.0.1[ \t].*\)@\1 '"$PUBLICNAME `hostname`"'@' /etc/hosts
 	fi
 fi
