@@ -356,7 +356,7 @@ cat > /var/lib/pacifica/uploader/config/MA==.json &lt;&lt;ENOF
 			"RenamePatterns": [],
 			"MetadataPattern": [
 				{
-					"Pattern": "^/srv/pacifica-publications/(?P\u003cpublication\u003e[0-9]*)/.*",
+					"Pattern": "^/srv/pacifica-publications/(?P\u003cpublication\u003e.*)/.*",
 					"Group": [
 						{
 							"Pattern": "publication",
