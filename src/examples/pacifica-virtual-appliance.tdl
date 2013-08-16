@@ -56,7 +56,16 @@ ONBOOT=yes
 BOOTPROTO=dhcp
   </file>
   <file name="/sbin/pacifica_va_format_mount" type="raw">#!/bin/bash
-	cp -a /srv-preinit/* /srv/
+cp -a /srv-preinit/* /srv/
+mount --bind /srv/pgsql /var/lib/pgsql
+/etc/init.d/postgresql restart
+SESS=`dd if=/dev/random bs=1 count=128| base64 2>/dev/null | tr -d '\n'`
+mkdir -p /var/lib/pacifica/uploader/auth/
+sed "s:@SESS@:$SESS:g" MA\=\= > /var/lib/pacifica/uploader/auth/creds/MA\=\=
+chmod 600 /var/lib/pacifica/uploader/auth/creds/MA\=\=
+myemsldbadm -c "insert into myemsl.eus_auth(user_name, session_id) values('1', '$SESS');"
+/etc/init.d/postgresql stop
+umount /var/lib/pgsql
   </file>
   <file name="/root/pacifica_default_permissions" type="raw">#!/usr/bin/python
 
@@ -73,50 +82,11 @@ if pgid != None:
 	myemsl.permission.create_permission(pgid, 'gov_pnnl_emsl_pacifica_generic_publication', psid)
   </file>
   <file name="/etc/rc.local.ec2" type="raw">#!/bin/bash -x
-
 if [ ! -d /root/.ssh ]; then
   mkdir -p /root/.ssh
   chmod 700 /root/.ssh
 fi
 
-#Bind mount some stuff to the ephemeral storage location.
-mkdir -p /srv/ephemeral
-mount /dev/vdb /srv/ephemeral
-
-if [ ! -d /srv/ephemeral/myemsl-md ]
-then
-	if [ -d /var/lib/myemsl/metadata ]
-	then
-		cp -a /var/lib/myemsl/metadata /srv/ephemeral/myemsl-md
-	else
-		mkdir -p /srv/ephemeral/myemsl-md
-		mkdir -p /var/lib/myemsl/metadata
-	fi
-fi
-mount --bind /srv/ephemeral/myemsl-md /var/lib/myemsl/metadata
-
-if [ ! -d /srv/ephemeral/elasticsearch ]
-then
-	if [ -d /var/lib/elasticsearch ]
-	then
-		cp -a /var/lib/elasticsearch /srv/ephemeral
-	else
-		mkdir -p /srv/ephemeral/elasticsearch
-		mkdir -p /var/lib/elasticsearch
-		chown elasticsearch.elasticsearch /srv/ephemeral/elasticsearch
-		chomd 755 /srv/ephemeral/elasticsearch
-	fi
-fi
-mount --bind /srv/ephemeral/elasticsearch /var/lib/elasticsearch
-
-if [ ! -d /srv/ephemeral/pgsql ]
-then
-	if [ -d /var/lib/pgsql ]
-	then
-		cp -a /var/lib/pgsql /srv/ephemeral
-	fi
-fi
-mount --bind /srv/ephemeral/pgsql /var/lib/pgsql
   </file>
   <file name="/etc/modprobe.conf" type="raw">
 alias scsi_hostadapter ata_piix
@@ -220,17 +190,22 @@ Gui Started. https://127.0.0.1/myemsl/testauth/
 Set-Cookie: myemsl_session=@SESS@; domain=127.0.0.1; path=/
   </file>
   <file name="/sbin/pacifica_va_start" type="raw">#!/bin/bash
-if [ ! -f /srv/pacivia_va_version ]
+if [ ! -f /srv/pacifica_va_version ]
 then
 	echo 'Mount not in place. Not starting.'
 	exit 1
 fi
-. /srv/pacivia_va_version
+. /srv/pacifica_va_version
 if [ "x$MAJOR" != "x1" ]
 then
 	echo 'Unknown mount version. Not starting.'
 	exit 2
 fi
+#FIXME move bind mounts to a myemsl/mount.d script?
+for x in pgsql elasticsearch myemsl pacifica mongo
+do
+	mount --bind /srv/$x /var/lib/$x
+done
 /etc/init.d/postgresql restart
 /etc/init.d/httpd restart
 /etc/init.d/innd restart
@@ -241,10 +216,6 @@ fi
   </file>
   <file name="/etc/rc.local.first.boot" type="raw">#!/bin/bash
 sed -i 's/#[ \t]*\(noprealloc = true\)/\1/' /etc/mongod.conf
-/etc/init.d/postgresql restart
-SESS=`dd if=/dev/random bs=1 count=128| base64 2>/dev/null | tr -d '\n'`
-sed "s:@SESS@:$SESS:g" MA\=\= > /var/lib/pacifica/uploader/auth/creds/MA\=\=
-myemsldbadm -c "insert into myemsl.eus_auth(user_name, session_id) values('1', '$SESS');"
 /etc/init.d/mongod restart
 /usr/libexec/pacifica/notification/init -n localhost -c rmds
 /usr/libexec/pacifica/notification/init -n localhost -c fmds
@@ -315,7 +286,7 @@ yum -y install "@GNOME Desktop Environment" "@X Window System" \
            libbuhfsutil \
            postgresql-server vim-enhanced elinks expect screen \
            postgresql-devel gdb strace \
-           pprof \
+           pprof pymongo \
            gdm mercurial firefox myemsl-elasticsearch-sync \
            elasticsearch myemsl-web-elasticsearch-ssl \
            myemsl-web-item-ssl myemsl-archive-standalone mod_xsendfile alpine \
@@ -394,7 +365,7 @@ cat > /var/lib/pacifica/uploader/config/MA==.json &lt;&lt;ENOF
 					]
 				}
 			],
-			"AutoSubmit": false,
+			"AutoSubmit": true,
 			"AutoDelete": false
 		}
 	]
@@ -437,6 +408,11 @@ chkconfig --level 35 elasticsearch off
 
 (echo MAJOR=1;echo MINOR=0) > /srv/pacifica_va_version
 mv /srv /srv-preinit
+for x in pgsql elasticsearch myemsl pacifica mongo
+do
+	mv /var/lib/$x /srv
+	mkdir /var/lib/$x
+done
 mkdir /srv
   </file>
  </files>
