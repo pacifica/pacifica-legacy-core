@@ -1,0 +1,17 @@
+#!/bin/bash
+#
+# Init file for fmds flattener daemon
+#
+# chkconfig: 2345 55 25
+# description: fmds flattener daemon
+#
+# pidfile: /var/run/pacifica_metadata_fmds_flattener.pid
+
+# source function library
+
+CHANNEL=tmds
+PID_FILE=/var/run/pacifica_metadata_fmds_flattener.pid
+LOCKFILE=/var/lock/subsys/pacifica_metadata_fmds_flattener
+prog="flattener"
+
+. /usr/libexec/pacifica/notification/versionclearer_init
