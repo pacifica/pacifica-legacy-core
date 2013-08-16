@@ -407,12 +407,12 @@ chkconfig --level 35 innd on
 chkconfig --level 35 elasticsearch off
 
 (echo MAJOR=1;echo MINOR=0) > /srv/pacifica_va_version
-mv /srv /srv-preinit
 for x in pgsql elasticsearch myemsl pacifica mongo
 do
 	mv /var/lib/$x /srv
 	mkdir /var/lib/$x
 done
+mv /srv /srv-preinit
 mkdir /srv
   </file>
  </files>
