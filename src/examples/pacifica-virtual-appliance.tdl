@@ -59,10 +59,11 @@ BOOTPROTO=dhcp
 cp -a /srv-preinit/* /srv/
 mount --bind /srv/pgsql /var/lib/pgsql
 /etc/init.d/postgresql restart
+sleep 5
 SESS=`dd if=/dev/random bs=1 count=128| base64 2>/dev/null | tr -d '\n'`
-mkdir -p /var/lib/pacifica/uploader/auth/
-sed "s:@SESS@:$SESS:g" MA\=\= > /var/lib/pacifica/uploader/auth/creds/MA\=\=
-chmod 600 /var/lib/pacifica/uploader/auth/creds/MA\=\=
+mkdir -p /srv/pacifica/uploader/auth/creds
+sed "s:@SESS@:$SESS:g" MA\=\= > /srv/pacifica/uploader/auth/creds/MA\=\=
+chmod 600 /srv/pacifica/uploader/auth/creds/MA\=\=
 myemsldbadm -c "insert into myemsl.eus_auth(user_name, session_id) values('1', '$SESS');"
 /etc/init.d/postgresql stop
 umount /var/lib/pgsql
@@ -86,6 +87,7 @@ if [ ! -d /root/.ssh ]; then
   mkdir -p /root/.ssh
   chmod 700 /root/.ssh
 fi
+myemsl_ec2_standalone_service_sync
 
   </file>
   <file name="/etc/modprobe.conf" type="raw">
@@ -213,6 +215,7 @@ done
 /etc/init.d/mongod restart
 /etc/init.d/pacificauploaderd restart
 /etc/init.d/elasticsearch restart
+/etc/init.d/myemsl_elasticsearch restart
   </file>
   <file name="/etc/rc.local.first.boot" type="raw">#!/bin/bash
 sed -i 's/#[ \t]*\(noprealloc = true\)/\1/' /etc/mongod.conf
@@ -246,7 +249,6 @@ setenforce permissive
 
 if [ "x$EC2" != "x" ]
 then
-	myemsl_ec2_standalone_service_sync
 	myemslmount
 	myemsloutage -c
 	/etc/init.d/elasticsearch restart
@@ -282,7 +284,7 @@ yum -y install "@GNOME Desktop Environment" "@X Window System" \
            myemsl-web-ingestor-ssl myemsl-web-notify-ssl \
            myemsl-web-iteminfo-ssl \
            myemsl-web-query-raw-ssl myemsl-database myemsl-database-schema \
-           myemsl-notification myemsl-sumcheck \
+           myemsl-sumcheck \
            libbuhfsutil \
            postgresql-server vim-enhanced elinks expect screen \
            postgresql-devel gdb strace \
@@ -392,6 +394,9 @@ sed -i 's:ssl_verify_host.*:ssl_verify_host=False:' /etc/myemsl/general.ini
 
 echo >> /etc/fuse.conf
 
+#FIXME make this a plugin instead of an ugly hack.
+sed -i 's:aged = "false":aged = "true":' /usr/lib/python2.4/site-packages/myemsl/elasticsearch/jsondumper.py
+
 chmod +x /root/standalone
 chmod +x /root/standalone.gui
 chmod +x /etc/rc.local.first.boot
@@ -405,6 +410,11 @@ chkconfig --level 35 munge on
 chkconfig --level 35 postgresql off
 chkconfig --level 35 innd on
 chkconfig --level 35 elasticsearch off
+
+/etc/init.d/mongod restart
+sleep 2
+/etc/init.d/postgresql stop
+/etc/init.d/mongod stop
 
 (echo MAJOR=1;echo MINOR=0) > /srv/pacifica_va_version
 for x in pgsql elasticsearch myemsl pacifica mongo
