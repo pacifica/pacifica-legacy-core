@@ -288,7 +288,7 @@ yum -y install "@GNOME Desktop Environment" "@X Window System" \
            libbuhfsutil \
            postgresql-server vim-enhanced elinks expect screen \
            postgresql-devel gdb strace \
-           pprof pymongo \
+           pprof pymongo inn \
            gdm mercurial firefox myemsl-elasticsearch-sync \
            elasticsearch myemsl-web-elasticsearch-ssl \
            myemsl-web-item-ssl myemsl-archive-standalone mod_xsendfile alpine \
