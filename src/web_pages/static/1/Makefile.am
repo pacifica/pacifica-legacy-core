@@ -1,6 +1,8 @@
 SUBDIRS = icons
 pkgmyemslstaticdataonedir = $(pkgmyemslstaticdatadir)/1
-pkgmyemslstaticdataone_DATA = label_over.js moreinfo.png turtle.png myemsl-find.png
+pkgmyemslstaticdataone_DATA = label_over.js moreinfo.png turtle.png myemsl-find.png ajax-loader.gif
+
+#ajax-loader.gif from http://www.ajaxload.info/ "Generated gifs are totally free for use"
 
 #http://openiconlibrary.sourceforge.net/gallery2/open_icon_library-full/icons/png/16x16/actions/mail-find.png moreinfo.png lgpl2.1
 #turtle.png copied from pidgin. GPL.

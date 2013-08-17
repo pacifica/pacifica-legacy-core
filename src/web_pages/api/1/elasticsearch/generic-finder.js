@@ -488,7 +488,7 @@
 				var stime = hit['_source']['stime'];
 //FIXME look up icon service url.
 				var icon = '/myemsl/static/1/icons/' + hit['_source']['ico'] + '.png';
-				var e = $('<tr><td class="myemsl_search_simple_items_id"><img src="' + icon + '"><a class="myemsl_search_file_link" href="#">' + simple_items_file_name(hit['_source']['subdir'], hit['_source']['filename']) + '</a></td><td class="myemsl_search_simple_item_icons">' + simple_items_id_url_get(id) + '<img class="myemsl_search_simple_item_status" src="/myemsl/files-advanced/ajax/themes/default/throbber.gif"></td><td class="myemsl_simple_search_size">' + size + '</td><td class="myemsl_simple_search_size_suffix">' + suffix + '</td><td class="myemsl_search_simple_items_stime"><time class="myemsl_simple_search_time" datetime="' + stime + '">' + stime + '</time></td></tr>');
+				var e = $('<tr><td class="myemsl_search_simple_items_id"><img src="' + icon + '"><a class="myemsl_search_file_link" href="#">' + simple_items_file_name(hit['_source']['subdir'], hit['_source']['filename']) + '</a></td><td class="myemsl_search_simple_item_icons">' + simple_items_id_url_get(id) + '<img class="myemsl_search_simple_item_status" src="/myemsl/static/1/ajax-loader.gif"></td><td class="myemsl_simple_search_size">' + size + '</td><td class="myemsl_simple_search_size_suffix">' + suffix + '</td><td class="myemsl_search_simple_items_stime"><time class="myemsl_simple_search_time" datetime="' + stime + '">' + stime + '</time></td></tr>');
 				
 				var odd = "odd";
 				if(row % 2 == 1) {
@@ -1384,7 +1384,7 @@
 										}
 //FIXME make throbber not hardcoded.
 //FIXME unhardcode style
-										var dialog = $('<div title="' + display_facet.text_title + '"><p style="max-height: 200px" class="content">Loading... <img src="/myemsl/files-advanced/ajax/themes/default/throbber.gif"></p></div>');
+										var dialog = $('<div title="' + display_facet.text_title + '"><p style="max-height: 200px" class="content">Loading... <img src="/myemsl/static/1/ajax-loader.gif"></p></div>');
 										var content = dialog.find('.content');
 										dialog.dialog({
 											autoOpen: true,
