@@ -42,6 +42,20 @@ def schema_get(schema):
 					"index_analyzer": "whitespace",
 					"search_analyzer": "whitespace"
 				},
+				"groups.gov_pnnl_emsl_pacifica_generic_publication": {
+					"type" : "multi_field",
+					"fields" : {
+						"groups.gov_pnnl_emsl_pacifica_generic_publication": {
+							"type": "string"
+						},
+						"untouched": {
+							"type": "string",
+							"null_value": "na",
+							"index": "analyzed",
+							"analyzer": "keyword"
+						}
+					}
+				},
 				"extended_metadata": {
 					"dynamic": true,
 					"properties": { 

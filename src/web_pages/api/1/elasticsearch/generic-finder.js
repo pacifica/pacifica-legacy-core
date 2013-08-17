@@ -190,6 +190,7 @@
 			'all_text': 'All Files',
 			'type_desc_text': 'Files',
 			'facet_desc': {
+				'groups.gov_pnnl_emsl_pacifica_generic_publication':'Publication',
 				'email_addresses':'Email Address',
 				'network_ids':'PNNL Login Name',
 				'extended_metadata.gov_pnnl_emsl_instrument.name.untouched':'Instrument Name',
@@ -320,6 +321,11 @@
 					    "title": {"fragment_size": 10000}
 				};
 				query['facets'] = {
+					"groups.gov_pnnl_emsl_pacifica_generic_publication": {
+						"terms": {
+							"field": "groups.gov_pnnl_emsl_pacifica_generic_publication.untouched"
+						}
+					},
 					"extended_metadata.gov_pnnl_erica/irn.id.untouched": {
 						"terms": {
 							"field": "extended_metadata.gov_pnnl_erica/irn.id.untouched"
