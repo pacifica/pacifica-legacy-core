@@ -25,10 +25,18 @@ if [ `cat setup.ok` -ne 0 ]; then
     cat setup.log
     exit 1
 fi
+qemu-img convert -c -f raw -O qcow2 pacifica-virtual-appliance-$VERSION.dsk pacifica-virtual-appliance-$VERSION.qcow2
+qemu-img convert -c -f raw -O vmdk pacifica-virtual-appliance-$VERSION.dsk pacifica-virtual-appliance-$VERSION.vmdk
 </command>
     </hudson.tasks.Shell>
   </builders>
-  <publishers/>
+  <publishers>
+    <hudson.tasks.ArtifactArchiver>
+      <artifacts>pacifica-virtual-appliance-*.qcow2, pacifica-virtual-appliance-*.vmdk</artifacts>
+      <latestOnly>true</latestOnly>
+      <allowEmptyArchive>false</allowEmptyArchive>
+    </hudson.tasks.ArtifactArchiver>
+  </publishers>
   <buildWrappers/>
 </project>
   
