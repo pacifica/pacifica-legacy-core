@@ -161,6 +161,16 @@ select distinct person_id from myemsl.permission_group as pg, myemsl.permission_
 	for row in cursoriter(cursor):
 		dms_users.append(row[0])
 	sql = """
+select distinct person_id from myemsl.permission_group as pg, myemsl.permission_group_members as pgm where pg.name='MyEMSL.NMR.Download' and pg.permission_group_id = pgm.permission_group_id order by person_id;
+"""
+	cursor.execute(sql)
+	nmr_users = []
+	for row in cursoriter(cursor):
+		nmr_users.append(row[0])
+	nmr_instruments = ["1002","1003","1004","1005","1142","1145","1176","34000","34075","34134","34135"]
+
+	nmr_instruments = dict([(i, 1) for i in nmr_instruments])
+	sql = """
 CREATE OR REPLACE FUNCTION myemsl_group_id_sort (ANYARRAY)
 RETURNS ANYARRAY LANGUAGE SQL
 AS $$
@@ -287,6 +297,12 @@ select group_set_id, g.group_id, type, name, proposal_id from (select group_set_
 					extra_proposals = mdp.emsl_dms_metadata.dataset_proposals.get(id)
 					if extra_proposals != None:
 						gs['extended_metadata']['gov_pnnl_emsl_proposal'].extend(extra_proposals)
+			else:
+				inst = [i[2] for i in gs['groups'] if i[1] == 'Instrument']
+				for i in inst:
+					if str(i) in nmr_instruments:
+						for u in nmr_users:
+							users[u] = 1
 		extended_metadata = mdp.resolv(extended_metadata)
 		if len(extended_metadata) > 0:
 #FIXME Plugin related stuff...
