@@ -56,6 +56,17 @@ def schema_get(schema):
 						}
 					}
 				},
+				"hash": {
+					"dynamic": true,
+					"properties": { 
+						"sha1": {
+							"type": "string",
+							"null_value": "na",
+							"index": "analyzed",
+							"analyzer": "keyword"
+						}
+					},
+				},
 				"extended_metadata": {
 					"dynamic": true,
 					"properties": { 

@@ -338,7 +338,7 @@ select instrument_id, name_short from eus.instruments;
 	count = 0
 	print time.time()
 	sql = """
-	select name, submitter, eus.users.first_name, eus.users.last_name, EXTRACT(EPOCH FROM stime), subdir, size, myemsl.files.item_id, aged, group_set_id from myemsl.files, myemsl.transactions, eus.users, temp_item_to_group_set where myemsl.transactions.transaction = myemsl.files.transaction and eus.users.person_id = myemsl.transactions.submitter and temp_item_to_group_set.item_id = myemsl.files.item_id and (name != 'metadata.txt' or subdir != '');
+	select name, submitter, first_name, last_name, stime, subdir, size, q.item_id, aged, group_set_id, hashsum as sha1, transaction from (select name, submitter, eus.users.first_name, eus.users.last_name, EXTRACT(EPOCH FROM stime) as stime, subdir, size, myemsl.files.item_id, aged, group_set_id, myemsl.transactions.transaction from myemsl.files, myemsl.transactions, eus.users, temp_item_to_group_set where myemsl.transactions.transaction = myemsl.files.transaction and eus.users.person_id = myemsl.transactions.submitter and temp_item_to_group_set.item_id = myemsl.files.item_id and (name != 'metadata.txt' or subdir != '')) as q left outer join myemsl.hashsums as h on (q.item_id = h.item_id);
 	"""
 	cursor.execute(sql)
 	for row in cursoriter(cursor):
@@ -376,6 +376,8 @@ select instrument_id, name_short from eus.instruments;
 		entry['first'] = first
 		entry['last'] = last
 		entry['submitterid'] = row[1]
+		entry['trans'] = row[11]
+		entry['hash'] = {'sha1':row[10]}
 		aged = "false"
 #FIXME make this a bool in elasticsearch later
 		if row[8]:
