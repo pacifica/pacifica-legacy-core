@@ -193,7 +193,7 @@ def cartadd(user, req, cart_id=None):
 		auth_items = dict([(x, 1) for x in pub['i']])
 		all_found = True
 		for i in request['items']:
-			if not auth_items.has_key(i):
+			if not auth_items.has_key(str(i)):
 				all_found = False
 				break
 		if all_found == False:
