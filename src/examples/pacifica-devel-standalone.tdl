@@ -286,7 +286,7 @@ echo done
   <file name="/root/setup.local.sh" type="raw">#!/bin/bash
 
 set -xe
-cat > /etc/yum.repos.d/jenkins.repo <<"EOF"
+cat > /etc/yum.repos.d/jenkins.repo &lt;&lt;"EOF"
 @YUMREPOS@
 EOF
 
