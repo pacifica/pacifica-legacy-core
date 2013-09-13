@@ -16,10 +16,6 @@
    <url>http://downloads-distro.mongodb.org/repo/redhat/os/x86_64</url>
    <signed>no</signed>
   </repository>
-  <repository name="myemsl-devel-deps">
-   <url>http://jenkins.emsl.pnl.gov/pacificarepos/epel-5-x86_64/</url>
-   <signed>no</signed>
-  </repository>
   <repository name="pgdg84">
    <url>http://yum.pgrpms.org/8.4/redhat/rhel-5-x86_64/</url>
 <!--      <url>http://mscimager.emsl.pnl.gov/cobbler/repo_mirror/pgsql-8.4-rhel-5-x86_64/</url>-->
@@ -290,6 +286,9 @@ echo done
   <file name="/root/setup.local.sh" type="raw">#!/bin/bash
 
 set -xe
+cat > /etc/yum.repos.d/jenkins.repo <<"EOF"
+@YUMREPOS@
+EOF
 
 yum clean all
 
