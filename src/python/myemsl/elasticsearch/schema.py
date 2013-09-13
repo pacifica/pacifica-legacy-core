@@ -65,7 +65,7 @@ def schema_get(schema):
 							"index": "analyzed",
 							"analyzer": "keyword"
 						}
-					},
+					}
 				},
 				"extended_metadata": {
 					"dynamic": true,
