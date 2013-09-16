@@ -316,7 +316,7 @@ install \
            myemsl-web-iteminfo-ssl \
            myemsl-web-query-raw-ssl myemsl-database myemsl-database-schema \
            myemsl-notification myemsl-devel myemsl-sumcheck \
-           go libbuhfsutil-devel libbuhfsutil \
+           go libbuhfsutil-devel libbuhfsutil pymongo \
            postgresql-server vim-enhanced elinks expect screen glib2-devel libattr-devel \
            postgresql-devel gdb strace myemsl-devel-doc \
            fuse-devel libarchive-devel subversion graphviz \

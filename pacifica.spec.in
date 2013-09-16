@@ -676,7 +676,7 @@ Pacifica Notification Server
 %package -n     pacifica-notification-common
 Summary:        Pacifica Notification Common
 Group:          System Environment/Base
-Requires: myemsl-server-common
+Requires: myemsl-server-common, pymongo
 
 %description -n pacifica-notification-common
 Pacifica Notification Common bits.
