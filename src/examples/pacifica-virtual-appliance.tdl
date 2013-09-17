@@ -265,6 +265,10 @@ echo done
 
 set -xe
 
+echo >> /etc/sysconfig/network &lt;&lt;"EOF"
+NOZEROCONF=yes
+EOF
+
 yum clean all
 
 cp -f /usr/share/zoneinfo/America/Los_Angeles /etc/localtime 
