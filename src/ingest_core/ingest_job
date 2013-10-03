@@ -197,8 +197,8 @@ try:
 		raise Exception(data)
 except Exception, e:
 	logger.error("Problem with posting notification. %s", e)
-	myemsl.ingest.update_state(options.jobid, options.step, 'ERROR', 'Unable to post notifications.')
-	sys.exit(-1)
+	#myemsl.ingest.update_state(options.jobid, options.step, 'ERROR', 'Unable to post notifications.')
+	#sys.exit(-1)
 timingfile.write("ingest_job_metadata_notify:e:%s\n" %(time.time()))
 print "Transaction: %i" %(transaction)
 #print "Proposal Transaction: %i" %(proptransaction)
@@ -215,8 +215,9 @@ os.write(bfdesc, "srun -n 1 find /tmp -maxdepth 1 -name 'output.[0-9]*' -exec rm
 os.write(bfdesc, "srun -n 1 find /tmp -maxdepth 1 -name 'error.[0-9]*' -exec rm -f {} \\;\n")
 os.close(bfdesc)
 if os.system("/usr/bin/sbatch "+bfname) != 0:
-	myemsl.ingest.update_state(options.jobid, options.step, 'ERROR', 'submitting cleanup job.')
-        sys.exit(-1)
+	pass
+	#myemsl.ingest.update_state(options.jobid, options.step, 'ERROR', 'submitting cleanup job.')
+        #sys.exit(-1)
 
 os.unlink(bfname)
 
