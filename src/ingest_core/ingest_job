@@ -211,8 +211,8 @@ timingfile.close()
 os.write(bfdesc, "#!/bin/sh\n")
 os.write(bfdesc, "#SBATCH -o /dev/null\n")
 os.write(bfdesc, "#SBATCH -e /dev/null\n")
-os.write(bfdesc, "srun -n 1 find /tmp -maxdepth 1 -name 'output.[0-9]*' -exec rm -f {} \\;\n")
-os.write(bfdesc, "srun -n 1 find /tmp -maxdepth 1 -name 'error.[0-9]*' -exec rm -f {} \\;\n")
+os.write(bfdesc, "srun -n 1 find /tmp -maxdepth 1 -name 'output."+str(options.jobid)+"' -exec rm -f {} \\;\n")
+os.write(bfdesc, "srun -n 1 find /tmp -maxdepth 1 -name 'error."+str(options.jobid)+"' -exec rm -f {} \\;\n")
 os.close(bfdesc)
 if os.system("/usr/bin/sbatch "+bfname) != 0:
 	pass
