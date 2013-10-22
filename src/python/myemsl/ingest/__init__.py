@@ -4,6 +4,9 @@ from socket import gethostname
 from myemsl.callcurl import call_curl
 from myemsl.getconfig import getconfig_secret
 from myemsl.metadata import *
+from myemsl.id2filename import id2dirandfilename
+import os
+import myemsl.util
 import myemsl.getpermission
 import xml.dom.minidom
 config = getconfig_secret()
@@ -84,7 +87,8 @@ def update_trans_id(jobid, trans_id):
 def update_person_id(jobid, person_id):
 	_update_int(jobid, person_id, 'person_id')
 
-def ingest_metadata(metadata, files, username, transaction):
+#FIXME ideally, this function should be recoded to have item id's already allocated and files in their final position before this gets called. This is currently not the case.
+def ingest_metadata(metadata, files, username, transaction, itemlogfilename):
 	try:
 		proposal = metadata['eusInfo']['proposalID']
 	except:
@@ -172,6 +176,8 @@ def ingest_metadata(metadata, files, username, transaction):
 			insert_subgroup(cgid, pgid)
 
 	update_transaction_stime(transaction)
+#FIXME make this prefix configurable?
+	prefix = "/srv/myemsl-ingest/"
 	sql = ''
 	# we'll just have to do this manually for sql injection checking
 	cnx = myemsldb_connect(myemsl_schema_versions=['1.3'])
@@ -185,7 +191,7 @@ def ingest_metadata(metadata, files, username, transaction):
 			metadata_merged[i]['sha1Hash'] = file["sha1Hash"]
 			if "groups" in file:
 				metadata_merged[i]['groups'] = file['groups']
-		
+		itemlogfile = open(itemlogfilename, 'w')
 		for file,size in files:
 			subdir = file.rsplit('/', 1)
 			if len(subdir) < 2:
@@ -207,7 +213,19 @@ def ingest_metadata(metadata, files, username, transaction):
 			pgroup = []
 			if proposal:
 				pgroup.append({'name':proposal, 'type':'proposal'})
-			insert_file(transaction, subdir, name, size, hashsum, groups+file_groups+pgroup, cursor)
+			item_id = insert_file(transaction, subdir, name, size, hashsum, groups+file_groups+pgroup, cursor)
+			(d, f, ff) = id2dirandfilename(item_id)
+			final_fulldir = "%s/bundle/%s" %(prefix, d)
+			myemsl.util.try_mkdir(final_fulldir)
+			final_fullfile = "%s/%s" %(final_fulldir, f)
+			old_fullfile = "%s/%s/bundle/%s/%s/%s" %(prefix, username, transaction, subdir, name)
+			os.rename(old_fullfile, final_fullfile)
+			itemlogfile.write("%s %s/%s" %(item_id, subdir, name)
+		itemlogfile.close()
+		bundledir = "%s/%s/bundle/" %(prefix, username)
+		for (root, dirs, files) in os.walk(bundledir, topdown=False):
+			for d in dirs:
+				os.rmdir("%s/%s" %(root, d))
 		cnx.commit()
 	except Exception, e:
 		cnx.rollback()

@@ -16,6 +16,7 @@ import nntplib
 import tempfile
 import StringIO
 from optparse import OptionParser
+from myemsl.util import id2filename
 from myemsl.dbconnect import myemsldb_connect
 from myemsl.getconfig import getconfig
 config = getconfig()
@@ -61,6 +62,7 @@ options.step+=1
 timingfile.write("ingest_job_metadata_process:s:%s\n" %(time.time()))
 metadata = None
 major_version = 1
+itemlogfilename = None
 
 #Currently always run. pass metadata file through from post for version 2.0 uploads in the future.
 if not metadata:
@@ -75,14 +77,16 @@ if not metadata:
 			archive.data_skip()
 		else:
 #FIXME decide what to do with metadata.txt files.
-			metadatadir = unbundledir.replace('bundle', 'metadata')
-			metadatafile = open(metadatadir + '/metadata.txt', 'w')
+			ff = id2filename(transaction)
+			metadatafilename = "%s/../%s.md.json" %(unbundledir.replace('bundle', 'metadata'), ff)
+			itemlogfilename = "%s/../%s.it" %(unbundledir.replace('bundle', 'metadata'), ff)
+			metadatafile = open(metadatafilename, 'w')
 			d = archive.read_data()
 			while(len(d) > 0):
 				metadatafile.write(d)
 				d = archive.read_data()
 			metadatafile.close()
-			metadata = simplejson.load(open("%s/metadata.txt" %(metadatadir), "r"))
+			metadata = simplejson.load(open(metadatafilename, "r"))
 			break
 		he = archive.next_header()
 	if not metadata:
@@ -176,7 +180,7 @@ for i,size in f:
 
 #FIXME this should just commit. Need to be putting in objects as extracting above.
 try:
-	myemsl.ingest.ingest_metadata(metadata, f, options.username, transaction)
+	myemsl.ingest.ingest_metadata(metadata, f, options.username, transaction, itemlogfilename)
 except Exception, e:
 	myemsl.ingest.update_state(options.jobid, options.step, 'ERROR', str(e))
 	sys.exit(-1)

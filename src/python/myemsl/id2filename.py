@@ -6,17 +6,23 @@ import os.path
 
 _open = open
 
-def id2filename(id):
+def id2dirandfilename(id):
 	s = "%x" %(id)
 	d = ""
 	while len(s) > 2:
 		d = "%s/%s" %(d, s[-2:])
 		s = s[:-2]
 	if d == "":
-		f = "/file.%s" %(s)
+		f = "file.%s" %(s)
+		ff = "/%s" %(f)
+		d = "/"
 	else:
-		f = "%s/%x" %(d, id)
-	return f
+		f = "%x" %(id)
+		ff = "%s/%s" %(d, f)
+	return (d, f, ff)
+
+def id2filename(id):
+	return id2dirandfilename(id)[2]
 
 def open_create(prefix, id, *args, **kwargs):
 	filename = prefix + id2filename(id)
