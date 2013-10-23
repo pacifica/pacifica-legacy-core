@@ -4,6 +4,7 @@ import os
 import errno
 import xattr
 
+import myemsl.id2filename
 from myemsl.dbconnect import myemsldb_connect
 from myemsl.logging import getLogger
 from myemsl.getconfig import getconfig

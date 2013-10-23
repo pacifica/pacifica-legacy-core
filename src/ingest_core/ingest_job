@@ -16,7 +16,7 @@ import nntplib
 import tempfile
 import StringIO
 from optparse import OptionParser
-from myemsl.util import id2filename
+from myemsl.id2filename import id2filename
 from myemsl.dbconnect import myemsldb_connect
 from myemsl.getconfig import getconfig
 config = getconfig()
@@ -78,9 +78,11 @@ if not metadata:
 		else:
 #FIXME decide what to do with metadata.txt files.
 			ff = id2filename(transaction)
-			metadatafilename = "%s/../%s.md.json" %(unbundledir.replace('bundle', 'metadata'), ff)
-			itemlogfilename = "%s/../%s.it" %(unbundledir.replace('bundle', 'metadata'), ff)
-			metadatafile = open(metadatafilename, 'w')
+#FIXME make this configurable.
+			prefix = "/srv/myemsl-ingest/%s/metadata" %(options.username)
+			metadatafilename = "%s/%s.md.json" %(prefix, ff)
+			itemlogfilename = "%s/%s.it" %(prefix, ff)
+			metadatafile = myemsl.util.try_open_create(metadatafilename, priv=False, dirmode=0770)
 			d = archive.read_data()
 			while(len(d) > 0):
 				metadatafile.write(d)
@@ -129,7 +131,7 @@ while he:
 			myemsl.ingest.update_state(options.jobid, options.step, 'ERROR', 'Bad filename in archive. ../')
 			sys.exit(-1)
 
-		file = myemsl.util.try_open_create(filename, priv=False)
+		file = myemsl.util.try_open_create(filename, priv=False, dirmode=0770)
 #FIXME verify filename is in metadata
 #FIXME verify file size against metadata.
 #FIXME can probably cheeply verify checksum here too.
@@ -163,7 +165,7 @@ for i in d:
 #	os.chown(i, myuid, mygid)
 #FIXME Close off later
 #	os.chmod(i, stat.S_IRUSR | stat.S_IXUSR)
-	os.chmod(i, stat.S_IRUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
+	os.chmod(i, stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
 	subdir = i.rsplit('/', 1)
 	if len(subdir) < 2:
 		name = subdir[0]

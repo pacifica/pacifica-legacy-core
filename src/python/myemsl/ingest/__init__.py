@@ -220,12 +220,13 @@ def ingest_metadata(metadata, files, username, transaction, itemlogfilename):
 			final_fullfile = "%s/%s" %(final_fulldir, f)
 			old_fullfile = "%s/%s/bundle/%s/%s/%s" %(prefix, username, transaction, subdir, name)
 			os.rename(old_fullfile, final_fullfile)
-			itemlogfile.write("%s %s/%s" %(item_id, subdir, name)
+			itemlogfile.write("%s %s/%s\n" %(item_id, subdir, name))
 		itemlogfile.close()
-		bundledir = "%s/%s/bundle/" %(prefix, username)
+		bundledir = "%s/%s/bundle/%s" %(prefix, username, transaction)
 		for (root, dirs, files) in os.walk(bundledir, topdown=False):
 			for d in dirs:
 				os.rmdir("%s/%s" %(root, d))
+		os.rmdir(bundledir)
 		cnx.commit()
 	except Exception, e:
 		cnx.rollback()
