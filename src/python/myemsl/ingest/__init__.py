@@ -6,6 +6,7 @@ from myemsl.getconfig import getconfig_secret
 from myemsl.metadata import *
 from myemsl.id2filename import id2dirandfilename
 import os
+import stat
 import myemsl.util
 import myemsl.getpermission
 import xml.dom.minidom
@@ -231,6 +232,8 @@ def ingest_metadata(metadata, files, username, transaction, itemlogfilename):
 		for (root, dirs, files) in os.walk(bundledir, topdown=False):
 			for d in dirs:
 				os.rmdir("%s/%s" %(root, d))
+		os.chmod("%s" %(bundledir), stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
+		os.chmod("%s/.." %(bundledir), stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
 		os.rmdir(bundledir)
 		cnx.commit()
 	except Exception, e:
