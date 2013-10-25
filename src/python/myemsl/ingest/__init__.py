@@ -87,8 +87,19 @@ def update_trans_id(jobid, trans_id):
 def update_person_id(jobid, person_id):
 	_update_int(jobid, person_id, 'person_id')
 
+def move_item_to_final(item_id, prefix, username, transaction, subdir, name, itemlogfile):
+	"""Move item into its final location in the archive."""
+	(d, f, ff) = id2dirandfilename(item_id)
+	final_fulldir = "%s/bundle/%s" %(prefix, d)
+	myemsl.util.try_mkdir(final_fulldir)
+	final_fullfile = "%s/%s" %(final_fulldir, f)
+	old_fullfile = "%s/%s/bundle/%s/%s/%s" %(prefix, username, transaction, subdir, name)
+	os.rename(old_fullfile, final_fullfile)
+	itemlogfile.write("%s %s/%s\n" %(item_id, subdir, name))
+
 #FIXME ideally, this function should be recoded to have item id's already allocated and files in their final position before this gets called. This is currently not the case.
 def ingest_metadata(metadata, files, username, transaction, itemlogfilename):
+	"""Ingest the metadata into the metadata server. It currently also logs which items map to which original filenames, moves the files into their final resting place and prunes out unneeded directory entries."""
 	try:
 		proposal = metadata['eusInfo']['proposalID']
 	except:
@@ -214,13 +225,7 @@ def ingest_metadata(metadata, files, username, transaction, itemlogfilename):
 			if proposal:
 				pgroup.append({'name':proposal, 'type':'proposal'})
 			item_id = insert_file(transaction, subdir, name, size, hashsum, groups+file_groups+pgroup, cursor)
-			(d, f, ff) = id2dirandfilename(item_id)
-			final_fulldir = "%s/bundle/%s" %(prefix, d)
-			myemsl.util.try_mkdir(final_fulldir)
-			final_fullfile = "%s/%s" %(final_fulldir, f)
-			old_fullfile = "%s/%s/bundle/%s/%s/%s" %(prefix, username, transaction, subdir, name)
-			os.rename(old_fullfile, final_fullfile)
-			itemlogfile.write("%s %s/%s\n" %(item_id, subdir, name))
+			move_item_to_final(item_id, prefix, username, transaction, subdir, name, itemlogfile)
 		itemlogfile.close()
 		bundledir = "%s/%s/bundle/%s" %(prefix, username, transaction)
 		for (root, dirs, files) in os.walk(bundledir, topdown=False):

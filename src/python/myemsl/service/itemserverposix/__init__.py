@@ -13,6 +13,7 @@ config = getconfig()
 logger = getLogger(__name__)
 
 def process(item, filename, req):
+	"""Actually process the request."""
 	request_data = util.FieldStorage(req, keep_blank_values=True)
 	get_levels = request_data.getfirst("levels")
 	if get_levels != None:
@@ -49,6 +50,7 @@ def process(item, filename, req):
 #FIXME split this into handler and service.
 #FIXME this is specific to the MyEMSL 1, old way of doing things. Make this better in 2.0
 def handler(req):
+	"""Find the requested item and process the request. It will look in the new archive location and fall back to asking the database where the old location is and use that if it doesn't exist. This behavior should only exist until migration to 2.0 layout is complete."""
 	prefix = "/srv/myemsl-item/"
 	path = req.unparsed_uri.split('/', 6)
 	item = int(path[5])

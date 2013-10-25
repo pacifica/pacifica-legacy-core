@@ -87,6 +87,7 @@ RETURNING
 	return res
 
 def insert_file(trans, subdir, name, size, hashsum, groups, cursor=None):
+	"""Insert file into database. Returns the item_id of the file inserted."""
 	insert_item('file', cursor)
 	sql = """
 INSERT INTO
