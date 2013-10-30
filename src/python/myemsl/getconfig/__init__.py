@@ -78,6 +78,7 @@ class notification:
 
 def getconfig():
 	config = ConfigParser.SafeConfigParser()
+	config.read('/usr/share/pacifica/general.ini')
 	config.read('/etc/myemsl/general.ini')
 	config.cartd = cartd(config)
 	config.ingest = ingest(config)

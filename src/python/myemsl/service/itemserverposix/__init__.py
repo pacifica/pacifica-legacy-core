@@ -6,6 +6,7 @@ import myemsl.token.rfc3339enc
 from myemsl.dbconnect import myemsldb_connect
 from myemsl.logging import getLogger
 from myemsl.getconfig import getconfig
+from pymongo import Connection
 config = getconfig()
 
 logger = getLogger(__name__)
@@ -64,6 +65,13 @@ def handler(req):
 			logentry['p'] = int(req.user)
 		except:
 			pass
-		#FIXME log the entry
+		db_host = config.get('download_log', 'server')
+		db_port = config.getint('download_log', 'port')
+		db_name = config.get('download_log', 'db_name')
+		collection_name = config.get('download_log', 'single_collection')
+		client = Connection(db_host, db_port)
+		db = client[db_name]
+		collection = pymongo.collection.Collection(db, collection_name, create=False)
+		collection.insert(logentry, w=1)
 		return apache.OK
 	return apache.FNF

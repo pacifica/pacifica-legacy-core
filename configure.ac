@@ -197,6 +197,7 @@ AC_OUTPUT([
 		src/elasticsearch/Makefile
 		src/fuse-myemslauth/Makefile
 		src/rmds/Makefile
+		src/conf/Makefile
 		docs/Makefile
 		docs/format/Makefile
 		docs/plugins/Makefile
