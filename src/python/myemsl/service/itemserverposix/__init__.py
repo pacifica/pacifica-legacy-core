@@ -1,6 +1,7 @@
 from mod_python import apache, util
 
 import xattr
+import myemsl.token.rfc3339enc
 
 from myemsl.dbconnect import myemsldb_connect
 from myemsl.logging import getLogger
@@ -13,7 +14,7 @@ logger = getLogger(__name__)
 #FIXME this is specific to the MyEMSL 1, old way of doing things. Make this better in 2.0
 def handler(req):
 	path = req.unparsed_uri.split('/', 6)
-	item = path[5]
+	item = int(path[5])
 	sql = """
 	select name, subdir, f.transaction, submitter from myemsl.files as f, myemsl.transactions as t where item_id = %(item_id)s and f.transaction = t.transaction
 	"""
@@ -55,5 +56,14 @@ def handler(req):
 		logger.debug("Returning: %s" %(filename))
 		req.headers_out['X-SENDFILE'] = filename
 		req.headers_out['Content-Disposition'] = 'attachment'
+		logentry = {
+			't': rfc3339enc.rfc3339(time.time()),
+			'i': item
+		}
+		try:
+			logentry['p'] = int(req.user)
+		except:
+			pass
+		#FIXME log the entry
 		return apache.OK
 	return apache.FNF

@@ -11,10 +11,12 @@ import sign
 import time
 import verify
 
-def simple_items_token_gen(items, duration=60 * 60):
+def simple_items_token_gen(items, duration=60 * 60, person_id=None):
 #FIXME read in from config.
 	uuid = 'huYNwptYEeGzDAAmucepzw';
 	js = {'s':rfc3339enc.rfc3339(time.time()), 'd':duration, 'u':uuid, 'i':items, 'o':0}
+	if person_id != None and person_id != "":
+		js['p'] = person_id
 	stok = token_gen(js, '')
 	return stok
 

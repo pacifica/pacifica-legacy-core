@@ -80,21 +80,12 @@ except:
 
 logger = getLogger(__name__)
 
-def auth_sign(items):
-#FIXME read in from config.
-	uuid = 'huYNwptYEeGzDAAmucepzw';
-#FIXME read in from config.
-	duration = 60 * 60
-	js = {'s':rfc3339enc.rfc3339(time.time()), 'd':duration, 'u':uuid, 'i':items, 'o':0}
-	stok = myemsl.token.token_gen(js, '')
-	return stok
-
 #QUERY url looks like:
 #/user/cat/arg/arg/cat/cat/arg/.../data/t1/t2/realdata/realdata/...
 
 DOCUMENT_FILTERS, DOCUMENT_FILTER_ARGS, DOCUMENT_REGULAR, DOCUMENT_ERROR, DOCUMENT_DATA = (0, 1, 2, 3, 4)
 
-def return_document(directories, files, error, type, after_data, op, auth_add, writer):
+def return_document(directories, files, error, type, after_data, op, auth_add, user, writer):
 	writer.write("<?xml version=\"1.0\"?>\n")
 	tag = "unknown"
 	if op == "readdir" or op == "stat":
@@ -136,7 +127,7 @@ def return_document(directories, files, error, type, after_data, op, auth_add, w
 				if auth_add:
 					auth_items.append(f["itemid"])
 					if len(auth_items) >= items_per_auth_token:
-						auth_tokens.append(auth_sign(auth_items))
+						auth_tokens.append(myemsl.token.simple_items_token_gen(auth_items, person_id=user_id))
 						auth_items = []
 						token_offset += 1
 			if auth_add:
@@ -155,14 +146,14 @@ def base_query(QUERY, op, auth_add, writer, config=None):
 	later = []
 	query[:] = [i for i in query if i != '']
 	if len(query) < 1:
-		return_document(None, None, "You must specify a user", DOCUMENT_ERROR, False, op, False, writer)
+		return_document(None, None, "You must specify a user", DOCUMENT_ERROR, False, op, False, None, writer)
 		return -1
 	user = query.pop(0)
 	for (id, value) in enumerate(query):
 		if value == '-later-':
 			later.append(id)
 			query[id] = '-any-'
-	return raw_query(query, later, user, False, op, auth_add, writer, config=config)
+	return raw_query(query, later, int(user), False, op, auth_add, writer, config=config)
 
 base_sql = """
 SELECT 'f' as type, name, subdir, transaction, item_id, aged FROM myemsl.files
@@ -178,7 +169,7 @@ def raw_query(query, later, user, after_data, op, auth_add, writer, config=None)
 	#print query
 	while id < len(query):
 		if not funcs.has_key(query[id]):
-			return_document(None, None, "Unknown function %s" %(query[id]), DOCUMENT_ERROR, False, op, False, writer)
+			return_document(None, None, "Unknown function %s" %(query[id]), DOCUMENT_ERROR, False, op, False, user, writer)
 			return -1
 		result = funcs[query[id]](query, sql, id + 1, later, user, after_data, op, auth_add, writer, config=config)
 		if result["done"]:
@@ -188,9 +179,9 @@ def raw_query(query, later, user, after_data, op, auth_add, writer, config=None)
 	#if here, didn't end.
 #FIXME is DOCUMENT_FILTERS correct?
 	if op == "stat":
-		return_document([{"name":"stat"}], None, None, DOCUMENT_FILTERS, True, op, auth_add, writer)
+		return_document([{"name":"stat"}], None, None, DOCUMENT_FILTERS, True, op, auth_add, user, writer)
 		return {"done":True}
-	return_document([{"name":i} for i in funcs.iterkeys()], None, None, DOCUMENT_FILTERS, after_data, op, False, writer)
+	return_document([{"name":i} for i in funcs.iterkeys()], None, None, DOCUMENT_FILTERS, after_data, op, False, user, writer)
 	return 0
 
 #FIXME split if blocks into functions
@@ -233,7 +224,7 @@ def select_and_return(sql, left, user, op, auth_add, writer, config=None):
 	if left == None or len(left) == 0:
 		subdir = ""
 		if op == "stat":
-			return_document([{"name":"stat"}], None, None, DOCUMENT_DATA, True, op, auth_add, writer)
+			return_document([{"name":"stat"}], None, None, DOCUMENT_DATA, True, op, auth_add, user, writer)
 			return {"done":True}
 	else:
 		tmpleft = left
@@ -320,13 +311,13 @@ select myemsl.subgroups.child_id as group_id from myemsl.subgroups, t where myem
 	if len(files) == 0:
 		files = None
 #FIXME is DOCUMENT_REGULAR correct?
-	return_document(dirs, files, None, DOCUMENT_REGULAR, True, op, auth_add, writer)
+	return_document(dirs, files, None, DOCUMENT_REGULAR, True, op, auth_add, user, writer)
 	return {"done":True}
 
 def submitter_function(query, sql, arg_offset, later, user, after_data, op, auth_add, writer, config=None):
 	if len(query) - arg_offset < 1:
 		if op == "stat":
-			return_document([{"name":"stat"}], None, None, DOCUMENT_FILTERS, True, op, auth_add, writer)
+			return_document([{"name":"stat"}], None, None, DOCUMENT_FILTERS, True, op, auth_add, user, writer)
 			return {"done":True}
 		sql = "select submitter from (%s) as foo, myemsl.transactions where foo.transaction = myemsl.transactions.transaction group by myemsl.transactions.submitter" %(sql)
 		cnx = myemsldb_connect(myemsl_schema_versions=['1.0'], dbconf=config)
@@ -338,10 +329,10 @@ def submitter_function(query, sql, arg_offset, later, user, after_data, op, auth
 			dirs.append({"name":row[0]})
 		if len(dirs) == 0:
 			dirs = None
-		return_document(dirs, None, None, DOCUMENT_FILTER_ARGS, after_data, op, False, writer)
+		return_document(dirs, None, None, DOCUMENT_FILTER_ARGS, after_data, op, False, user, writer)
 		return {"done":True}
 	if len(query) - arg_offset == 1 and op == "stat":
-		return_document([{"name":"stat"}], None, None, DOCUMENT_FILTER_ARGS, True, op, auth_add, writer)
+		return_document([{"name":"stat"}], None, None, DOCUMENT_FILTER_ARGS, True, op, auth_add, user, writer)
 		return {"done":True}
 	qry_string = ''
 	if query[arg_offset] != '-any-':
@@ -361,7 +352,7 @@ select group_id from (%s) as foo, myemsl.group_items as gi where gi.item_id = fo
 def instrument_id_function(query, sql, arg_offset, later, user, after_data, op, auth_add, writer, config=None):
 	if len(query) - arg_offset < 1:
 		if op == "stat":
-			return_document([{"name":"stat"}], None, None, DOCUMENT_FILTERS, True, op, auth_add, writer)
+			return_document([{"name":"stat"}], None, None, DOCUMENT_FILTERS, True, op, auth_add, user, writer)
 			return {"done":True}
 		sql = instrument_id_sql(sql)
 		cnx = myemsldb_connect(myemsl_schema_versions=['1.0'], dbconf=config)
@@ -373,10 +364,10 @@ def instrument_id_function(query, sql, arg_offset, later, user, after_data, op, 
 			dirs.append({"name":row[0]})
 		if len(dirs) == 0:
 			dirs = None
-		return_document(dirs, None, None, DOCUMENT_FILTER_ARGS, after_data, op, False, writer)
+		return_document(dirs, None, None, DOCUMENT_FILTER_ARGS, after_data, op, False, user, writer)
 		return {"done":True}
 	if len(query) - arg_offset == 1 and op == "stat":
-		return_document([{"name":"stat"}], None, None, DOCUMENT_FILTER_ARGS, True, op, auth_add, writer)
+		return_document([{"name":"stat"}], None, None, DOCUMENT_FILTER_ARGS, True, op, auth_add, user, writer)
 		return {"done":True}
 	qry_string = ''
 	if query[arg_offset] != '-any-':
@@ -388,7 +379,7 @@ select type, name, subdir, transaction, files.item_id, aged from (%s) as files, 
 def instrument_name_function(query, sql, arg_offset, later, user, after_data, op, auth_add, writer, config=None):
 	if len(query) - arg_offset < 1:
 		if op == "stat":
-			return_document([{"name":"stat"}], None, None, DOCUMENT_FILTERS, True, op, auth_add, writer)
+			return_document([{"name":"stat"}], None, None, DOCUMENT_FILTERS, True, op, auth_add, user, writer)
 			return {"done":True}
 		sql = "select name_short from (%s) as foo, eus.instruments as i where i.instrument_id = foo.instrument_id::integer" %(instrument_id_sql(sql))
 		cnx = myemsldb_connect(myemsl_schema_versions=['1.0'], dbconf=config)
@@ -400,10 +391,10 @@ def instrument_name_function(query, sql, arg_offset, later, user, after_data, op
 			dirs.append({"name":row[0]})
 		if len(dirs) == 0:
 			dirs = None
-		return_document(dirs, None, None, DOCUMENT_FILTER_ARGS, after_data, op, False, writer)
+		return_document(dirs, None, None, DOCUMENT_FILTER_ARGS, after_data, op, False, user, writer)
 		return {"done":True}
 	if len(query) - arg_offset == 1 and op == "stat":
-		return_document([{"name":"stat"}], None, None, DOCUMENT_FILTER_ARGS, True, op, auth_add, writer)
+		return_document([{"name":"stat"}], None, None, DOCUMENT_FILTER_ARGS, True, op, auth_add, user, writer)
 		return {"done":True}
 	qry_string = ''
 	if query[arg_offset] != '-any-':
@@ -416,7 +407,7 @@ select type, name, subdir, transaction, files.item_id, aged from (%s) as files, 
 def proposal_function(query, sql, arg_offset, later, user, after_data, op, auth_add, writer, config=None):
 	if len(query) - arg_offset < 1:
 		if op == "stat":
-			return_document([{"name":"stat"}], None, None, DOCUMENT_FILTERS, True, op, auth_add, writer)
+			return_document([{"name":"stat"}], None, None, DOCUMENT_FILTERS, True, op, auth_add, user, writer)
 			return {"done":True}
 		sql = """
 select eus.proposals.proposal_id from (with recursive t(group_id) as (select myemsl.group_items.group_id from (%s) as foo, myemsl.items, myemsl.group_items where foo.item_id = myemsl.items.item_id and myemsl.items.item_id = myemsl.group_items.item_id group by myemsl.group_items.group_id union all select myemsl.subgroups.parent_id as group_id from myemsl.subgroups, t where myemsl.subgroups.child_id = t.group_id) select group_id from t) as groups, eus.proposals where eus.proposals.group_id = groups.group_id group by eus.proposals.proposal_id;
@@ -430,10 +421,10 @@ select eus.proposals.proposal_id from (with recursive t(group_id) as (select mye
 			dirs.append({"name":row[0]})
 		if len(dirs) == 0:
 			dirs = None
-		return_document(dirs, None, None, DOCUMENT_FILTER_ARGS, after_data, op, False, writer)
+		return_document(dirs, None, None, DOCUMENT_FILTER_ARGS, after_data, op, False, user, writer)
 		return {"done":True}
 	if len(query) - arg_offset == 1 and op == "stat":
-		return_document([{"name":"stat"}], None, None, DOCUMENT_FILTER_ARGS, True, op, auth_add, writer)
+		return_document([{"name":"stat"}], None, None, DOCUMENT_FILTER_ARGS, True, op, auth_add, user, writer)
 		return {"done":True}
 	qry_string = ''
 	if query[arg_offset] != '-any-':
@@ -446,7 +437,7 @@ select type, name, subdir, transaction, files.item_id, aged from (%s) as files, 
 def group_name_function(query, sql, arg_offset, later, user, after_data, op, auth_add, writer, config=None):
 	if len(query) - arg_offset < 1:
 		if op == "stat":
-			return_document([{"name":"stat"}], None, None, DOCUMENT_FILTERS, True, op, auth_add, writer)
+			return_document([{"name":"stat"}], None, None, DOCUMENT_FILTERS, True, op, auth_add, user, writer)
 			return {"done":True}
 #FIXME upper
 		sql = "select myemsl.groups.name from myemsl.group_items, myemsl.groups, (%s) as d where myemsl.group_items.item_id = d.item_id and myemsl.group_items.group_id = myemsl.groups.group_id and myemsl.groups.name != '' group by myemsl.groups.name" %(sql)
@@ -460,10 +451,10 @@ def group_name_function(query, sql, arg_offset, later, user, after_data, op, aut
 			dirs.append({"name":row[0]})
 		if len(dirs) == 0:
 			dirs = None
-		return_document(dirs, None, None, DOCUMENT_FILTER_ARGS, after_data, op, False, writer)
+		return_document(dirs, None, None, DOCUMENT_FILTER_ARGS, after_data, op, False, user, writer)
 		return {"done":True}
 	if len(query) - arg_offset == 1 and op == "stat":
-		return_document([{"name":"stat"}], None, None, DOCUMENT_FILTER_ARGS, True, op, auth_add, writer)
+		return_document([{"name":"stat"}], None, None, DOCUMENT_FILTER_ARGS, True, op, auth_add, user, writer)
 		return {"done":True}
 	sql = """
 select type, name, subdir, transaction, files.item_id, aged from (%s) as files, (select item_id from myemsl.group_items, (with recursive t(group_id) as (select myemsl.groups.group_id from myemsl.groups where myemsl.groups.name = '%s' union all select child_id from myemsl.subgroups, t where myemsl.subgroups.parent_id = t.group_id) select group_id from t) as groups where myemsl.group_items.group_id = groups.group_id) as items where files.item_id = items.item_id
@@ -475,7 +466,7 @@ def group_function(query, sql, arg_offset, later, user, after_data, op, auth_add
 	sys.stderr.write("len %s\n" %(l))
 	if l == 1:
 		if op == "stat":
-			return_document([{"name":"stat"}], None, None, DOCUMENT_FILTER_ARGS, True, op, auth_add, writer)
+			return_document([{"name":"stat"}], None, None, DOCUMENT_FILTER_ARGS, True, op, auth_add, user, writer)
 			return {"done":True}
 		if query[arg_offset] == '-any-':
 			sql = "select myemsl.groups.name from myemsl.group_items, myemsl.groups, (%s) as d where myemsl.group_items.item_id = d.item_id and myemsl.group_items.group_id = myemsl.groups.group_id and myemsl.groups.name != '' group by myemsl.groups.name" %(sql)
@@ -491,11 +482,11 @@ def group_function(query, sql, arg_offset, later, user, after_data, op, auth_add
 			dirs.append({"name":row[0]})
 		if len(dirs) == 0:
 			dirs = None
-		return_document(dirs, None, None, DOCUMENT_FILTER_ARGS, after_data, op, False, writer)
+		return_document(dirs, None, None, DOCUMENT_FILTER_ARGS, after_data, op, False, user, writer)
 		return {"done":True}
 	elif l < 2:
 		if op == "stat":
-			return_document([{"name":"stat"}], None, None, DOCUMENT_FILTERS, True, op, auth_add, writer)
+			return_document([{"name":"stat"}], None, None, DOCUMENT_FILTERS, True, op, auth_add, user, writer)
 			return {"done":True}
 		sql = "select myemsl.groups.type from myemsl.group_items, myemsl.groups, (%s) as d where myemsl.group_items.item_id = d.item_id and myemsl.group_items.group_id = myemsl.groups.group_id and myemsl.groups.name != '' group by myemsl.groups.type" %(sql)
 		sys.stderr.write("SQL: %s\n" %(sql))
@@ -508,10 +499,10 @@ def group_function(query, sql, arg_offset, later, user, after_data, op, auth_add
 			dirs.append({"name":row[0]})
 		if len(dirs) == 0:
 			dirs = None
-		return_document(dirs, None, None, DOCUMENT_FILTER_ARGS, after_data, op, False, writer)
+		return_document(dirs, None, None, DOCUMENT_FILTER_ARGS, after_data, op, False, user, writer)
 		return {"done":True}
 	if len(query) - arg_offset == 2 and op == "stat":
-		return_document([{"name":"stat"}], None, None, DOCUMENT_FILTER_ARGS, True, op, auth_add, writer)
+		return_document([{"name":"stat"}], None, None, DOCUMENT_FILTER_ARGS, True, op, auth_add, user, writer)
 		return {"done":True}
 	qry_string = ''
 	if query[arg_offset] != '-any-' or query[arg_offset + 1] != '-any-':
@@ -532,7 +523,7 @@ def raw_function(query, sql, arg_offset, later, user, after_data, op, auth_add, 
 	sys.stderr.write("len %s\n" %(l))
 	if l == 2:
 		if op == "stat":
-			return_document([{"name":"stat"}], None, None, DOCUMENT_FILTER_ARGS, True, op, auth_add, writer)
+			return_document([{"name":"stat"}], None, None, DOCUMENT_FILTER_ARGS, True, op, auth_add, user, writer)
 			return {"done":True}
 		if query[arg_offset] == '-any-':
 			sql = "select transaction from (%s) as d group by d.transaction" %(sql)
@@ -548,19 +539,19 @@ def raw_function(query, sql, arg_offset, later, user, after_data, op, auth_add, 
 			dirs.append({"name":row[0]})
 		if len(dirs) == 0:
 			dirs = None
-		return_document(dirs, None, None, DOCUMENT_FILTER_ARGS, after_data, op, False, writer)
+		return_document(dirs, None, None, DOCUMENT_FILTER_ARGS, after_data, op, False, user, writer)
 		return {"done":True}
 	if l == 1:
 		if op == "stat":
-			return_document([{"name":"stat"}], None, None, DOCUMENT_FILTER_ARGS, True, op, auth_add, writer)
+			return_document([{"name":"stat"}], None, None, DOCUMENT_FILTER_ARGS, True, op, auth_add, user, writer)
 			return {"done":True}
 		dirs = []
 		dirs.append({"name":'bundle'})
-		return_document(dirs, None, None, DOCUMENT_FILTER_ARGS, after_data, op, False, writer)
+		return_document(dirs, None, None, DOCUMENT_FILTER_ARGS, after_data, op, False, user, writer)
 		return {"done":True}
 	elif l < 3:
 		if op == "stat":
-			return_document([{"name":"stat"}], None, None, DOCUMENT_FILTERS, True, op, auth_add, writer)
+			return_document([{"name":"stat"}], None, None, DOCUMENT_FILTERS, True, op, auth_add, user, writer)
 			return {"done":True}
 		sql = "select myemsl.transactions.submitter from myemsl.transactions, (%s) as d where myemsl.transactions.transaction = d.transaction group by myemsl.transactions.submitter" %(sql)
 		sys.stderr.write("SQL: %s\n" %(sql))
@@ -573,10 +564,10 @@ def raw_function(query, sql, arg_offset, later, user, after_data, op, auth_add, 
 			dirs.append({"name":row[0]})
 		if len(dirs) == 0:
 			dirs = None
-		return_document(dirs, None, None, DOCUMENT_FILTER_ARGS, after_data, op, False, writer)
+		return_document(dirs, None, None, DOCUMENT_FILTER_ARGS, after_data, op, False, user, writer)
 		return {"done":True}
 	if len(query) - arg_offset == 3 and op == "stat":
-		return_document([{"name":"stat"}], None, None, DOCUMENT_FILTER_ARGS, True, op, auth_add, writer)
+		return_document([{"name":"stat"}], None, None, DOCUMENT_FILTER_ARGS, True, op, auth_add, user, writer)
 		return {"done":True}
 	sql = """
 		select type, name, subdir, d.transaction, item_id, aged from (%s) as d, myemsl.transactions where myemsl.transactions.transaction = d.transaction and d.transaction = %s and myemsl.transactions.submitter = %s
@@ -588,7 +579,7 @@ def item_function(query, sql, arg_offset, later, user, after_data, op, auth_add,
 	sys.stderr.write("len %s\n" %(l))
 	if l < 1:
 		if op == "stat":
-			return_document([{"name":"stat"}], None, None, DOCUMENT_FILTERS, True, op, auth_add, writer)
+			return_document([{"name":"stat"}], None, None, DOCUMENT_FILTERS, True, op, auth_add, user, writer)
 			return {"done":True}
 		sql = "select d.item_id from (%s) as d group by d.item_id" %(sql)
 		sys.stderr.write("SQL: %s\n" %(sql))
@@ -601,10 +592,10 @@ def item_function(query, sql, arg_offset, later, user, after_data, op, auth_add,
 			dirs.append({"name":row[0]})
 		if len(dirs) == 0:
 			dirs = None
-		return_document(dirs, None, None, DOCUMENT_FILTER_ARGS, after_data, op, False, writer)
+		return_document(dirs, None, None, DOCUMENT_FILTER_ARGS, after_data, op, False, user, writer)
 		return {"done":True}
 	if len(query) - arg_offset == 1 and op == "stat":
-		return_document([{"name":"stat"}], None, None, DOCUMENT_FILTER_ARGS, True, op, auth_add, writer)
+		return_document([{"name":"stat"}], None, None, DOCUMENT_FILTER_ARGS, True, op, auth_add, user, writer)
 		return {"done":True}
 	qry_string = ''
 	if query[arg_offset] != '-any-':
@@ -619,7 +610,7 @@ def transaction_function(query, sql, arg_offset, later, user, after_data, op, au
 	sys.stderr.write("len %s\n" %(l))
 	if l < 1:
 		if op == "stat":
-			return_document([{"name":"stat"}], None, None, DOCUMENT_FILTERS, True, op, auth_add, writer)
+			return_document([{"name":"stat"}], None, None, DOCUMENT_FILTERS, True, op, auth_add, user, writer)
 			return {"done":True}
 		sql = "select d.transaction from (%s) as d group by d.transaction order by d.transaction" %(sql)
 		sys.stderr.write("SQL: %s\n" %(sql))
@@ -632,10 +623,10 @@ def transaction_function(query, sql, arg_offset, later, user, after_data, op, au
 			dirs.append({"name":row[0]})
 		if len(dirs) == 0:
 			dirs = None
-		return_document(dirs, None, None, DOCUMENT_FILTER_ARGS, after_data, op, False, writer)
+		return_document(dirs, None, None, DOCUMENT_FILTER_ARGS, after_data, op, False, user, writer)
 		return {"done":True}
 	if len(query) - arg_offset == 1 and op == "stat":
-		return_document([{"name":"stat"}], None, None, DOCUMENT_FILTER_ARGS, True, op, auth_add, writer)
+		return_document([{"name":"stat"}], None, None, DOCUMENT_FILTER_ARGS, True, op, auth_add, user, writer)
 		return {"done":True}
 	qry_string = ''
 	if query[arg_offset] != '-any-':
@@ -648,7 +639,7 @@ def transaction_function(query, sql, arg_offset, later, user, after_data, op, au
 def submit_time_function(query, sql, arg_offset, later, user, after_data, op, auth_add, writer, config=None):
 	if len(query) - arg_offset < 1:
 		if op == "stat":
-			return_document([{"name":"stat"}], None, None, DOCUMENT_FILTERS, True, op, auth_add, writer)
+			return_document([{"name":"stat"}], None, None, DOCUMENT_FILTERS, True, op, auth_add, user, writer)
 			return {"done":True}
 		sql = "select stime from (%s) as foo, myemsl.transactions where foo.transaction = myemsl.transactions.transaction group by myemsl.transactions.stime order by myemsl.transactions.stime" %(sql)
 		cnx = myemsldb_connect(myemsl_schema_versions=['1.0'], dbconf=config)
@@ -660,10 +651,10 @@ def submit_time_function(query, sql, arg_offset, later, user, after_data, op, au
 			dirs.append({"name":row[0]})
 		if len(dirs) == 0:
 			dirs = None
-		return_document(dirs, None, None, DOCUMENT_FILTER_ARGS, after_data, op, False, writer)
+		return_document(dirs, None, None, DOCUMENT_FILTER_ARGS, after_data, op, False, user, writer)
 		return {"done":True}
 	if len(query) - arg_offset == 1 and op == "stat":
-		return_document([{"name":"stat"}], None, None, DOCUMENT_FILTER_ARGS, True, op, auth_add, writer)
+		return_document([{"name":"stat"}], None, None, DOCUMENT_FILTER_ARGS, True, op, auth_add, user, writer)
 		return {"done":True}
 	qry_string = ''
 	if query[arg_offset] != '-any-':
@@ -673,7 +664,7 @@ def submit_time_function(query, sql, arg_offset, later, user, after_data, op, au
 def directly_derived_from_item_function(query, sql, arg_offset, later, user, after_data, op, auth_add, writer, config=None):
 	if len(query) - arg_offset < 1:
 		if op == "stat":
-			return_document([{"name":"stat"}], None, None, DOCUMENT_FILTERS, True, op, auth_add, writer)
+			return_document([{"name":"stat"}], None, None, DOCUMENT_FILTERS, True, op, auth_add, user, writer)
 			return {"done":True}
 		sql = "select ai.item_id from (%s) as foo, myemsl.action_output_items as ao, myemsl.action_input_items as ai where foo.item_id = ai.item_id and ai.action_id = ao.action_id group by ai.item_id order by ai.item_id" %(sql)
 		cnx = myemsldb_connect(myemsl_schema_versions=['1.0'], dbconf=config)
@@ -685,10 +676,10 @@ def directly_derived_from_item_function(query, sql, arg_offset, later, user, aft
 			dirs.append({"name":row[0]})
 		if len(dirs) == 0:
 			dirs = None
-		return_document(dirs, None, None, DOCUMENT_FILTER_ARGS, after_data, op, False, writer)
+		return_document(dirs, None, None, DOCUMENT_FILTER_ARGS, after_data, op, False, user, writer)
 		return {"done":True}
 	if len(query) - arg_offset == 1 and op == "stat":
-		return_document([{"name":"stat"}], None, None, DOCUMENT_FILTER_ARGS, True, op, auth_add, writer)
+		return_document([{"name":"stat"}], None, None, DOCUMENT_FILTER_ARGS, True, op, auth_add, user, writer)
 		return {"done":True}
 	return {"done":False, "consumed":1, "sql":"select type, name, subdir, transaction, bar.item_id, aged from (%s) as bar, myemsl.action_output_items as ao, myemsl.action_input_items as ai where ai.item_id = %s and ai.action_id = ao.action_id and ao.item_id = bar.item_id" %(sql, int(query[arg_offset]))}
 

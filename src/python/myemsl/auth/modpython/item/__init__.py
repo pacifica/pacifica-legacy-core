@@ -40,7 +40,7 @@ def authenhandler(req):
 		if token == '':
 			return apache.HTTP_UNAUTHORIZED
 
-	req.user = "myemsl"
+	req.user = ""
 	pub = None
 	try:
 		pub, priv = myemsl.token.token_parse(token)
@@ -50,6 +50,8 @@ def authenhandler(req):
 		time.sleep(2)
 		return apache.HTTP_UNAUTHORIZED
 	logger.debug("Authorization: %s", pub)
+	if 'p' in pub and pub['p'] != None:
+		req.user = "%s" %(pub['p'])
 	valid = myemsl.token.token_validate_time(pub)
 	if not valid:
 		return apache.HTTP_UNAUTHORIZED

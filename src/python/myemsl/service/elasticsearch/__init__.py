@@ -21,16 +21,6 @@ import simplejson as json
 
 logger = getLogger(__name__)
 
-#FIXME this code also exists in query engine. libraryize it.
-def auth_sign(items):
-#FIXME read in from config.
-	uuid = 'huYNwptYEeGzDAAmucepzw';
-#FIXME read in from config.
-	duration = 60 * 60
-	js = {'s':rfc3339enc.rfc3339(time.time()), 'd':duration, 'u':uuid, 'i':items, 'o':0}
-	stok = myemsl.token.token_gen(js, '')
-	return stok
-
 def elasticsearchquery(user, index, type, req, retries=1, auth_add=False, search_type=None, scan=None):
 	req_data = req.read()
 	if type != 'released_publications' and user == '':
@@ -75,7 +65,7 @@ def elasticsearchquery(user, index, type, req, retries=1, auth_add=False, search
 				for i in j['hits']['hits']:
 					auth_items.append(i['_id'])
 				if len(auth_items) > 0:
-					token = auth_sign(auth_items)
+					token = myemsl.token.simple_items_token_gen(auth_items, person_id=int(user))
 					logger.debug("Requested auth. %s" %(auth_items))
 					j['myemsl_auth_token'] = token
 				req.write(json.dumps(j))
