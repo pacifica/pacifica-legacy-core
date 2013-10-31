@@ -71,7 +71,7 @@ def handler(req):
 		collection_name = config.get('download_log', 'single_collection')
 		client = Connection(db_host, db_port)
 		db = client[db_name]
-		collection = pymongo.collection.Collection(db, collection_name, create=False)
+		collection = pymongo.collection.Collection(db, collection_name)
 		collection.insert(logentry, w=1)
 		return apache.OK
 	return apache.FNF
