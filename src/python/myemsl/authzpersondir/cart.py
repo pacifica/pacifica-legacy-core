@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import myemsl.token.rfc3339enc
+import datetime
 
 from mod_python import apache
 from myemsl.authzpersondir import *
@@ -14,7 +14,7 @@ def authzhandler(req):
 		list = req.uri.split('/', 6)
 		cart_id = int(list[5].split('.', 1)[0])
 		logentry = {
-			't': rfc3339enc.rfc3339(time.time()),
+			'd': datetime.datetime.now(),
 			'c': cart_id
 		}
 		try:

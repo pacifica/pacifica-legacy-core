@@ -1,7 +1,7 @@
 from mod_python import apache, util
 
 import xattr
-import myemsl.token.rfc3339enc
+import datetime
 
 from myemsl.dbconnect import myemsldb_connect
 from myemsl.logging import getLogger
@@ -58,7 +58,7 @@ def handler(req):
 		req.headers_out['X-SENDFILE'] = filename
 		req.headers_out['Content-Disposition'] = 'attachment'
 		logentry = {
-			't': rfc3339enc.rfc3339(time.time()),
+			'd': datetime.datetime.now(),
 			'i': item
 		}
 		try:
