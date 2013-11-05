@@ -6,6 +6,7 @@ from mod_python import apache
 from myemsl.authzpersondir import *
 from myemsl.getconfig import getconfig
 from pymongo import Connection
+import pymongo
 config = getconfig()
 
 def authzhandler(req):
