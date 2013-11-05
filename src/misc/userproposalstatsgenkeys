@@ -1,0 +1,41 @@
+#!/bin/bash
+set -e
+keypath='/etc/myemsl/keys/userproposalstats'
+
+unixuser=apache
+
+umask 022
+mkdir -p $keypath
+dopem=0
+if [ ! -f "$keypath"/local.pem ]
+then
+	touch "$keypath"/local.key
+	touch "$keypath"/local.pem
+	touch $keypath/client.p12
+	chmod 400 "$keypath"/local.key
+	chmod 400 "$keypath"/local.pem
+	chown $unixuser.$unixuser "$keypath"/local.key
+	chown $unixuser.$unixuser "$keypath"/local.pem
+	chmod 600 "$keypath"/client.p12
+	openssl genrsa 2048 > "$keypath"/local.key
+	dopem=1
+fi
+if [ ! -f "$keypath"/local.crt ]
+then
+	touch "$keypath"/local.crt
+	touch "$keypath"/local.csr
+	chmod 400 "$keypath"/local.crt
+	chmod 400 "$keypath"/local.csr
+	chown $unixuser.$unixuser "$keypath"/local.crt
+	chown $unixuser.$unixuser "$keypath"/local.csr
+	openssl req -new -key "$keypath"/local.key -subj "/CN=userproposalstats" > "$keypath"/local.csr
+	openssl x509 -req -days $((365*20)) -in "$keypath"/local.csr -signkey "$keypath"/local.key -out "$keypath"/local.crt
+#	openssl pkcs12 -export -in $keypath/local.crt -inkey $keypath/local.key -out $keypath/client.p12
+	dopem=1
+fi
+if [ $dopem -eq 1 ]
+then
+	cat "$keypath"/local.crt "$keypath"/local.key > "$keypath"/local.pem
+#	rm -f $keypath/local.key
+fi
+

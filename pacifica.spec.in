@@ -197,6 +197,14 @@ Requires: %{name}-web-common, %{name}-ingestor-core
 %description    web-sample-ingest-common
 Common sample ingest page for MyEMSL
 
+%package        web-user-proposal-stats
+Summary:        User Proposal Stat Gathering Service
+Group:          System Environment/Base
+Requires: %{name}-web-common
+
+%description    web-user-proposal-stats
+User Proposal Stat Gathering Service
+
 %package        web-test
 Summary:        Test code
 Group:          System Environment/Base
@@ -768,6 +776,14 @@ rm -rf %{buildroot}
 %{_libexecdir}/myemsl/mount.d/50-nagios
 %{_bindir}/myemsl_nagios_rmtrans
 %defattr(0755,root,root)
+
+%files web-user-proposal-stats
+%{_prefix}/lib/myemsl/apache/myemsl-ssl.d/userproposalstats.conf
+%defattr(0644,root,root)
+/%{python_sitelib}/myemsl/service/userproposalstats/__init__.py*
+/%{python_sitelib}/myemsl/handler/userproposalstats/__init__.py*
+%defattr(0755,root,root)
+%{_libexecdir}/myemsl/userproposalstatsgenkeys
 
 %files web-services
 %{_prefix}/lib/myemsl/apache/myemsl.d/services.conf

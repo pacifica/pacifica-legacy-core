@@ -1,0 +1,13 @@
+<Location /myemsl/api/1/userproposalstats>
+	Options Indexes FollowSymLinks MultiViews
+	Order deny,allow
+	<LimitExcept POST>
+		deny from all
+	</LimitExcept>
+	SSLVerifyClient require
+	SSLVerifyDepth 1
+	SSLCACertificateFile /etc/myemsl/keys/userproposalstats/local.crt
+	SetHandler mod_python
+	PythonInterpreter main_interpreter
+	PythonHandler myemsl.handler.userproposalstats
+</Location>

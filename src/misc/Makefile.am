@@ -1,5 +1,5 @@
 ulmdir = $(libexecdir)/myemsl
-ulm_SCRIPTS = itemauthgenkeys itemtokengen servergenkeys
+ulm_SCRIPTS = itemauthgenkeys itemtokengen servergenkeys userproposalstatsgenkeys
 
 dist-hook:
 	rm -f $(distdir)/_myemsl_archive.py
