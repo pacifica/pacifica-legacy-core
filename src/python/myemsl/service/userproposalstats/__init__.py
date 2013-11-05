@@ -6,6 +6,8 @@ import simplejson as json
 from myemsl.callcurl import call_curl
 from myemsl.dbconnect import myemsldb_connect
 import sys
+from myemsl.getconfig import getconfig
+config = getconfig()
 
 chunk_size = 100
 
@@ -41,14 +43,16 @@ def log_items_to_person_proposals(start, end, found_cb):
 	""")
 
 	date_query = {'d': {"$gte": start, "$lt": end}, 'p': {'$exists': True}}
+	db_host = config.get('download_log', 'server')
+	db_port = config.getint('download_log', 'port')
+	connection = pymongo.Connection(db_host, db_port)
+	db = connection[config.get('download_log', 'db_name')]
 
-	db = pymongo.Connection().pacifica
-
-	db_name_single_items = 'download_single_log'
-	db_name_cart_items = 'download_cart_log'
-	db_name_uniq_cart_items = 'uniq_cart_items_log'
-	db_name_uniq_items = 'uniq_items_log'
-	db_name_user2proposals = 'user2proposals_log'
+	db_name_single_items = config.get('download_log', 'single_collection')
+	db_name_cart_items = config.get('download_log', 'cart_collection')
+	db_name_uniq_cart_items = config.get('download_log', 'uniq_cart_collection')
+	db_name_uniq_items = config.get('download_log', 'uniq_single_collection')
+	db_name_user2proposals = config.get('download_log', 'user2proposals_collection')
 	
 	cart_map_cb = Code("""
 	function() {
@@ -144,7 +148,8 @@ def log_items_to_person_proposals(start, end, found_cb):
 				}
 			}
 		}
-		results = json.loads(call_curl('http://localhost:9200/myemsl_current_simple_items/simple_items/_search', method='POST', idata=json.dumps(query)))
+		server = config.get('elasticsearch', 'server')
+		results = json.loads(call_curl("%s/myemsl_current_simple_items/simple_items/_search" %(server), method='POST', idata=json.dumps(query)))
 		if results['hits']['total'] != len(chunk_items):
 			raise Exception('Failed to find some items')
 		for hit in results['hits']['hits']:
