@@ -16,6 +16,7 @@ import nntplib
 import tempfile
 import StringIO
 from optparse import OptionParser
+from myemsl.id2filename import id2filename
 from myemsl.dbconnect import myemsldb_connect
 from myemsl.getconfig import getconfig
 config = getconfig()
@@ -61,6 +62,7 @@ options.step+=1
 timingfile.write("ingest_job_metadata_process:s:%s\n" %(time.time()))
 metadata = None
 major_version = 1
+itemlogfilename = None
 
 #Currently always run. pass metadata file through from post for version 2.0 uploads in the future.
 if not metadata:
@@ -75,14 +77,18 @@ if not metadata:
 			archive.data_skip()
 		else:
 #FIXME decide what to do with metadata.txt files.
-			metadatadir = unbundledir.replace('bundle', 'metadata')
-			metadatafile = open(metadatadir + '/metadata.txt', 'w')
+			ff = id2filename(transaction)
+#FIXME make this configurable.
+			prefix = "/srv/myemsl-ingest/%s/metadata" %(options.username)
+			metadatafilename = "%s/%s.md.json" %(prefix, ff)
+			itemlogfilename = "%s/%s.it" %(prefix, ff)
+			metadatafile = myemsl.util.try_open_create(metadatafilename, priv=False, dirmode=0770)
 			d = archive.read_data()
 			while(len(d) > 0):
 				metadatafile.write(d)
 				d = archive.read_data()
 			metadatafile.close()
-			metadata = simplejson.load(open("%s/metadata.txt" %(metadatadir), "r"))
+			metadata = simplejson.load(open(metadatafilename, "r"))
 			break
 		he = archive.next_header()
 	if not metadata:
@@ -125,7 +131,7 @@ while he:
 			myemsl.ingest.update_state(options.jobid, options.step, 'ERROR', 'Bad filename in archive. ../')
 			sys.exit(-1)
 
-		file = myemsl.util.try_open_create(filename, priv=False)
+		file = myemsl.util.try_open_create(filename, priv=False, dirmode=0770)
 #FIXME verify filename is in metadata
 #FIXME verify file size against metadata.
 #FIXME can probably cheeply verify checksum here too.
@@ -159,7 +165,7 @@ for i in d:
 #	os.chown(i, myuid, mygid)
 #FIXME Close off later
 #	os.chmod(i, stat.S_IRUSR | stat.S_IXUSR)
-	os.chmod(i, stat.S_IRUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
+	os.chmod(i, stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
 	subdir = i.rsplit('/', 1)
 	if len(subdir) < 2:
 		name = subdir[0]
@@ -176,7 +182,7 @@ for i,size in f:
 
 #FIXME this should just commit. Need to be putting in objects as extracting above.
 try:
-	myemsl.ingest.ingest_metadata(metadata, f, options.username, transaction)
+	myemsl.ingest.ingest_metadata(metadata, f, options.username, transaction, itemlogfilename)
 except Exception, e:
 	myemsl.ingest.update_state(options.jobid, options.step, 'ERROR', str(e))
 	sys.exit(-1)

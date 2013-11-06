@@ -46,7 +46,6 @@ try:
 	myemsl.util.try_mkdir(unbundledir.replace('bundle', 'metadata'))
 	unbundledir = "%s/%s/bundle/%i" %(options.prefix,options.username, transaction)
 	os.mkdir(unbundledir)
-	os.mkdir(unbundledir.replace('bundle', 'metadata'))
 except Exception, e:
 	print e
 	sys.exit(-1)

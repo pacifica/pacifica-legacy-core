@@ -4,6 +4,10 @@ from socket import gethostname
 from myemsl.callcurl import call_curl
 from myemsl.getconfig import getconfig_secret
 from myemsl.metadata import *
+from myemsl.id2filename import id2dirandfilename
+import os
+import stat
+import myemsl.util
 import myemsl.getpermission
 import xml.dom.minidom
 config = getconfig_secret()
@@ -84,7 +88,19 @@ def update_trans_id(jobid, trans_id):
 def update_person_id(jobid, person_id):
 	_update_int(jobid, person_id, 'person_id')
 
-def ingest_metadata(metadata, files, username, transaction):
+def move_item_to_final(item_id, prefix, username, transaction, subdir, name, itemlogfile):
+	"""Move item into its final location in the archive."""
+	(d, f, ff) = id2dirandfilename(item_id)
+	final_fulldir = "%s/bundle/%s" %(prefix, d)
+	myemsl.util.try_mkdir(final_fulldir)
+	final_fullfile = "%s/%s" %(final_fulldir, f)
+	old_fullfile = "%s/%s/bundle/%s/%s/%s" %(prefix, username, transaction, subdir, name)
+	os.rename(old_fullfile, final_fullfile)
+	itemlogfile.write("%s %s/%s\n" %(item_id, subdir, name))
+
+#FIXME ideally, this function should be recoded to have item id's already allocated and files in their final position before this gets called. This is currently not the case.
+def ingest_metadata(metadata, files, username, transaction, itemlogfilename):
+	"""Ingest the metadata into the metadata server. It currently also logs which items map to which original filenames, moves the files into their final resting place and prunes out unneeded directory entries."""
 	try:
 		proposal = metadata['eusInfo']['proposalID']
 	except:
@@ -172,6 +188,8 @@ def ingest_metadata(metadata, files, username, transaction):
 			insert_subgroup(cgid, pgid)
 
 	update_transaction_stime(transaction)
+#FIXME make this prefix configurable?
+	prefix = "/srv/myemsl-ingest/"
 	sql = ''
 	# we'll just have to do this manually for sql injection checking
 	cnx = myemsldb_connect(myemsl_schema_versions=['1.3'])
@@ -185,7 +203,7 @@ def ingest_metadata(metadata, files, username, transaction):
 			metadata_merged[i]['sha1Hash'] = file["sha1Hash"]
 			if "groups" in file:
 				metadata_merged[i]['groups'] = file['groups']
-		
+		itemlogfile = open(itemlogfilename, 'w')
 		for file,size in files:
 			subdir = file.rsplit('/', 1)
 			if len(subdir) < 2:
@@ -207,7 +225,16 @@ def ingest_metadata(metadata, files, username, transaction):
 			pgroup = []
 			if proposal:
 				pgroup.append({'name':proposal, 'type':'proposal'})
-			insert_file(transaction, subdir, name, size, hashsum, groups+file_groups+pgroup, cursor)
+			item_id = insert_file(transaction, subdir, name, size, hashsum, groups+file_groups+pgroup, cursor)
+			move_item_to_final(item_id, prefix, username, transaction, subdir, name, itemlogfile)
+		itemlogfile.close()
+		bundledir = "%s/%s/bundle/%s" %(prefix, username, transaction)
+		for (root, dirs, files) in os.walk(bundledir, topdown=False):
+			for d in dirs:
+				os.rmdir("%s/%s" %(root, d))
+		os.chmod("%s" %(bundledir), stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
+		os.chmod("%s/.." %(bundledir), stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR | stat.S_IRGRP | stat.S_IWGRP | stat.S_IXGRP | stat.S_IROTH | stat.S_IXOTH)
+		os.rmdir(bundledir)
 		cnx.commit()
 	except Exception, e:
 		cnx.rollback()

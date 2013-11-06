@@ -48,12 +48,15 @@ def try_remove(filename):
 		if e.errno != errno.ENOENT:
 			raise
 
-def try_mkdir(dir, priv=False):
+def try_mkdir(dir, priv=False, mode=None):
 	try:
 		if priv:
 			os.makedirs(dir, 0700)
 		else:
-			os.makedirs(dir)
+			if mode != None:
+				os.makedirs(dir, mode)
+			else:
+				os.makedirs(dir)
 	except OSError, e:
 		if e.errno != errno.EEXIST:
 			raise
@@ -61,13 +64,13 @@ def try_mkdir(dir, priv=False):
 def string_to_bool(str):
 	return not str.lower() in ("no", "false", "f", "0", "n")
 
-def try_open_create(filename, priv=False):
+def try_open_create(filename, priv=False, dirmode=None):
 	try:
 		res = open(filename, 'w')
 	except IOError, e:
 		if e.errno != errno.ENOENT:
 			raise
-		try_mkdir(os.path.dirname(filename), priv=priv)
+		try_mkdir(os.path.dirname(filename), priv=priv, mode=dirmode)
 		res = open(filename, 'w')
 	return res
 		

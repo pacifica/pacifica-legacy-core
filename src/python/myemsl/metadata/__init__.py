@@ -79,7 +79,7 @@ SET
 WHERE
   transaction=%(trans)s
 RETURNING
-  stime;
+  stime AT TIME ZONE current_setting('TIMEZONE');
 """
 	res = do_sql_select(sql, True, myemsl_schema_versions=['1.0'], params={'trans':str(trans)});
 	if res and len(res) > 0 and len(res[0]) > 0:
@@ -87,6 +87,7 @@ RETURNING
 	return res
 
 def insert_file(trans, subdir, name, size, hashsum, groups, cursor=None):
+	"""Insert file into database. Returns the item_id of the file inserted."""
 	insert_item('file', cursor)
 	sql = """
 INSERT INTO
@@ -121,11 +122,21 @@ VALUES
     %(sum)s,
     %(type)s
 );
+SELECT
+  currval(pg_get_serial_sequence('myemsl.items', 'item_id'))
+;
 """
 	if not cursor:
 		cnx = myemsldb_connect(myemsl_schema_versions=['1.3'])
 		cursor = cnx.cursor()
 	cursor.execute(sql, params={'trans':int(trans), 'subdir':str(subdir), 'name':str(name), 'size':int(size), 'type':'sha1', 'sum':hashsum})
+	found = False
+	rows = cursor.fetchall()
+	for row in rows:
+		id = row[0]
+		found = True
+	if found != True:
+		raise Exception("Could not get id")
 	for group in groups:
 		sql = """
 INSERT INTO
@@ -140,6 +151,7 @@ VALUES
 		except Exception, ex:
 			cnx.rollback()
 		cnx.close()
+	return id
 
 def insert_item(item_type, cursor=None):
 	sql = """
