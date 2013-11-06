@@ -333,7 +333,7 @@ install \
            go-pacifica-auth pacifica-auth-default-local pacifica-uploader pacifica-auth libpacificaauth-devel \
            pacifica-notification-common pacifica-notification-client pacifica-notification-server \
            pacifica-metadata-tmds pacifica-metadata-fmds pacifica-metadata-jmds pacifica-web-rmds-notification-ssl \
-           mongo-10gen mongo-10gen-server
+           mongo-10gen mongo-10gen-server pacifica-web-user-proposal-stats
 run -y 
 EOF
 yum shell &lt; &lt;(cat rpmtransaction; echo Y)
