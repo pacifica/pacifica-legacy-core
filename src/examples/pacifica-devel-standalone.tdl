@@ -237,7 +237,6 @@ sed -i 's/# \(nojournal = true\)/\1/' /etc/mongod.conf
 sed -i 's/#[ \t]*\(noprealloc = true\)/\1/' /etc/mongod.conf
 /etc/init.d/mongod restart
 sleep 5
-+#FIXME probably should move this to build time.
 /usr/libexec/pacifica/notification/init -n localhost -c rmds
 /usr/libexec/pacifica/notification/init -n localhost -c fmds
 /usr/libexec/pacifica/notification/init -n localhost -c tmds
