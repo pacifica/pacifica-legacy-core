@@ -22,12 +22,21 @@ def authzhandler(req):
 			logentry['p'] = int(req.user)
 		except:
 			pass
+		db_user = ''
+		db_password = ''
 		db_host = config.get('download_log', 'server')
 		db_port = config.getint('download_log', 'port')
 		db_name = config.get('download_log', 'db_name')
 		collection_name = config.get('download_log', 'cart_collection')
+		try:
+			db_user = config.get('download_log', 'username')
+			db_password = config.get('download_log', 'password')
+		except:
+			pass
 		client = Connection(db_host, db_port)
 		db = client[db_name]
+		if db_user != '':
+			db.authenticate(db_user, db_password)
 		collection = pymongo.collection.Collection(db, collection_name)
 		collection.insert(logentry, w=1)
 	return res
