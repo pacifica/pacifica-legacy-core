@@ -4,10 +4,10 @@ import datetime
 
 from mod_python import apache
 from myemsl.authzpersondir import *
-from myemsl.getconfig import getconfig
+from myemsl.getconfig import getconfig_secret
 from pymongo import Connection
 import pymongo
-config = getconfig()
+config = getconfig_secret()
 
 def authzhandler(req):
 	res = general_authzhandler(req, position=5)
