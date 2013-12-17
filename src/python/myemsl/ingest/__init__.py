@@ -146,7 +146,7 @@ def ingest_metadata(metadata, files, username, transaction, itemlogfilename):
 	for prop in proposals:
 		perm = myemsl.getpermission.get_permission_bool(int(username), 'proposal', 'p', config)
 		if not perm:
-			perm = myemsl.getpermission.get_permission_upload(prop, int(username), config)
+			perm = myemsl.getpermission.get_permission_upload(int(username), prop, config)
 		if not perm:
 			raise Exception('You(%s) do not have upload permissions to proposal %s.\n'%(str(username), prop))
 

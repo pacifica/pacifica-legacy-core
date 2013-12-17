@@ -212,6 +212,7 @@ myemsl.ingest.update_state(options.jobid, options.step, 'SUCCESS', 'completed')
 timingfile.write("ingest_job:e:%s\n" %(time.time()))
 timingfile.close()
 
+os.chdir('/')
 #FIXME This is a perfect candidate for service-poke.
 (bfdesc, bfname) = tempfile.mkstemp()
 os.write(bfdesc, "#!/bin/sh\n")

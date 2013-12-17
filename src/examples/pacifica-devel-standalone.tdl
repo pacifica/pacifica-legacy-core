@@ -237,7 +237,6 @@ sed -i 's/# \(nojournal = true\)/\1/' /etc/mongod.conf
 sed -i 's/#[ \t]*\(noprealloc = true\)/\1/' /etc/mongod.conf
 /etc/init.d/mongod restart
 sleep 5
-+#FIXME probably should move this to build time.
 /usr/libexec/pacifica/notification/init -n localhost -c rmds
 /usr/libexec/pacifica/notification/init -n localhost -c fmds
 /usr/libexec/pacifica/notification/init -n localhost -c tmds
@@ -333,7 +332,7 @@ install \
            go-pacifica-auth pacifica-auth-default-local pacifica-uploader pacifica-auth libpacificaauth-devel \
            pacifica-notification-common pacifica-notification-client pacifica-notification-server \
            pacifica-metadata-tmds pacifica-metadata-fmds pacifica-metadata-jmds pacifica-web-rmds-notification-ssl \
-           mongo-10gen mongo-10gen-server
+           mongo-10gen mongo-10gen-server pacifica-web-user-proposal-stats
 run -y 
 EOF
 yum shell &lt; &lt;(cat rpmtransaction; echo Y)
