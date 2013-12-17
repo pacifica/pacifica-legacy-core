@@ -8,10 +8,10 @@ import datetime
 import myemsl.id2filename
 from myemsl.dbconnect import myemsldb_connect
 from myemsl.logging import getLogger
-from myemsl.getconfig import getconfig
+from myemsl.getconfig import getconfig_secret
 from pymongo import Connection
 import pymongo
-config = getconfig()
+config = getconfig_secret()
 
 logger = getLogger(__name__)
 
