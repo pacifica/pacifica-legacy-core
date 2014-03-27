@@ -25,6 +25,7 @@ services = myemsl.getservices.getservices()
 from myemsl.dbconnect import do_sql_insert as do_sql
 
 parser = OptionParser()
+parser.add_option("-j", "--jobid", dest="jobid", help="Checksum Job ID")
 parser.add_option("-i", "--itemid", dest="itemid", help="MyEMSL Item ID")
 parser.add_option("-s", "--hash", dest="hash", help="MyEMSL Item Hash")
 
@@ -64,4 +65,21 @@ if h.hexdigest() == hashsum:
 	update_file(True)
 else:
 	update_file(False)
+
+os.chdir('/')
+#FIXME This is a perfect candidate for service-poke.
+(bfdesc, bfname) = tempfile.mkstemp()
+os.write(bfdesc, "#!/bin/sh\n")
+os.write(bfdesc, "#SBATCH -o /dev/null\n")
+os.write(bfdesc, "#SBATCH -e /dev/null\n")
+os.write(bfdesc, "srun -n 1 find /var/log/pacifica/sumcheck -maxdepth 1 -name 'output."+str(options.jobid)+"' -exec rm -f {} \\;\n")
+os.write(bfdesc, "srun -n 1 find /var/log/pacifica/sumcheck -maxdepth 1 -name 'error."+str(options.jobid)+"' -exec rm -f {} \\;\n")
+os.close(bfdesc)
+if os.system("/usr/bin/sbatch "+bfname) != 0:
+	pass
+	#myemsl.ingest.update_state(options.jobid, options.step, 'ERROR', 'submitting cleanup job.')
+	#sys.exit(-1)
+
+os.unlink(bfname)
+
 sys.exit(0)

@@ -78,7 +78,7 @@ for item_id, sha1 in rows:
 	if sha1 == None:
                 sha1 = ""
         try:
-		os.write(bfdesc, "srun -n 1 /usr/bin/python /usr/libexec/myemsl/sumcheck/sumcheck_job -i "+str(item_id)+" -s " + pipes.quote(sha1))
+		os.write(bfdesc, "srun -n 1 /usr/bin/python /usr/libexec/myemsl/sumcheck/sumcheck_job -j $SLURM_JOBID -i "+str(item_id)+" -s " + pipes.quote(sha1))
 	except TypeError, e:
                 print "Error, \'%s\' \'%s\'" %(item_id, sha1)
                 raise
