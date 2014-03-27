@@ -737,6 +737,7 @@ rm -rf %{buildroot}
 %{_defaultdocdir}/myemsl/ingestor-core
 %attr(4111,root,root) %{_bindir}/myemsl_ingest
 %attr(4111,root,root) %{_bindir}/myemsl_status
+%dir %{_localstatedir}/log/pacifica/ingest
 %{_datadir}/%{name}/*.xsl
 %{_libexecdir}/myemsl/ingest/ingest_vni
 %{_libexecdir}/myemsl/ingest/status_vni
@@ -755,6 +756,7 @@ rm -rf %{buildroot}
 /%{python_sitearch}/__myemsl_archive.so.0.0.0
 
 %files sumcheck
+%dir %{_localstatedir}/log/pacifica/sumcheck
 %{_defaultdocdir}/myemsl/sumcheck
 %{_sysconfdir}/cron.hourly/myemsl_sumcheck
 %{_libexecdir}/myemsl/sumcheck/sumcheck
@@ -1295,6 +1297,7 @@ chkconfig --add notification-service
 %{_sysconfdir}/cron.hourly/pacifica_jmds_recoverer
 
 %files common
+%dir %{_localstatedir}/log/pacifica
 %{_defaultdocdir}/myemsl/common
 /%{python_sitelib}/pacifica/__init__.py*
 /%{python_sitelib}/pacifica/metadata/__init__.py*
