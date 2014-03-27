@@ -39,7 +39,7 @@ parser.add_option("-d", "--unbundledir", dest="unbundledir", help="Bundle extrac
 parser.add_option("-p", "--prefix", dest="prefix", help="MyEMSL Prefix", default="/myemsl")
 parser.add_option("-j", "--jobid", dest="jobid", help="JobID")
 parser.add_option("-i", "--step", dest="step", help="step we are operating", default=0, type=int)
-parser.add_option("-m", "--timing", dest="timingfile", help="Timing file", default="/tmp/timing")
+parser.add_option("-m", "--timing", dest="timingfile", help="Timing file", default="/var/log/pacifica/ingest/timing")
 
 (options, args) = parser.parse_args()
 timingfile = open(options.timingfile+"."+str(options.jobid), 'a')
@@ -218,8 +218,8 @@ os.chdir('/')
 os.write(bfdesc, "#!/bin/sh\n")
 os.write(bfdesc, "#SBATCH -o /dev/null\n")
 os.write(bfdesc, "#SBATCH -e /dev/null\n")
-os.write(bfdesc, "srun -n 1 find /tmp -maxdepth 1 -name 'output."+str(options.jobid)+"' -exec rm -f {} \\;\n")
-os.write(bfdesc, "srun -n 1 find /tmp -maxdepth 1 -name 'error."+str(options.jobid)+"' -exec rm -f {} \\;\n")
+os.write(bfdesc, "srun -n 1 find /var/log/pacifica/ingest -maxdepth 1 -name 'output."+str(options.jobid)+"' -exec rm -f {} \\;\n")
+os.write(bfdesc, "srun -n 1 find /var/log/pacifica/ingest -maxdepth 1 -name 'error."+str(options.jobid)+"' -exec rm -f {} \\;\n")
 os.close(bfdesc)
 if os.system("/usr/bin/sbatch "+bfname) != 0:
 	pass
