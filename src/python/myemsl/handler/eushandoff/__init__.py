@@ -26,5 +26,5 @@ def handler(req):
 			get[t[0]] = t[1]
 		except:
 			pass
-	cookie_and_redirect(req, session_id, "%s" %(urllib.unquote(get.get("url", "/myemsl/files"))))
+	cookie_and_redirect(req, session_id, "%s" %(urllib.unquote(get.get("url", "/myemsl/search/simple/"))))
 	return apache.OK
