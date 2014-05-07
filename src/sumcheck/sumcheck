@@ -70,15 +70,15 @@ for item_id, sha1 in rows:
 	(bfdesc, bfname) = tempfile.mkstemp()
 	os.write(bfdesc, "#!/bin/sh\n")
 	os.write(bfdesc, "#SBATCH --uid=%s\n" %(myemsl.getunixuser.get_unix_user()))
-	os.write(bfdesc, "#SBATCH -o /tmp/output.%j\n")
-	os.write(bfdesc, "#SBATCH -e /tmp/error.%j\n")
+	os.write(bfdesc, "#SBATCH -o /var/log/pacifica/sumcheck/output.%j\n")
+	os.write(bfdesc, "#SBATCH -e /var/log/pacifica/sumcheck/error.%j\n")
 	os.write(bfdesc, "#SBATCH --open-mode=append\n")
 	os.write(bfdesc, "#SBATCH -p lopri\n")
 	os.write(bfdesc, "#SBATCH -J CHECKSUM\n")
 	if sha1 == None:
                 sha1 = ""
         try:
-		os.write(bfdesc, "srun -n 1 /usr/bin/python /usr/libexec/myemsl/sumcheck/sumcheck_job -i "+str(item_id)+" -s " + pipes.quote(sha1))
+		os.write(bfdesc, "srun -n 1 /usr/bin/python /usr/libexec/myemsl/sumcheck/sumcheck_job -j $SLURM_JOBID -i "+str(item_id)+" -s " + pipes.quote(sha1))
 	except TypeError, e:
                 print "Error, \'%s\' \'%s\'" %(item_id, sha1)
                 raise
