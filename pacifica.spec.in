@@ -60,7 +60,7 @@ Devel package for MyEMSL
 %package        notification
 Summary:        Notification Services for MyEMSL
 Group:          System Environment/Base
-Requires: inn, python-cheetah
+Requires: python-cheetah
 
 %description    notification
 Notification Daemon for MyEMSL
