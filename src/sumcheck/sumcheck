@@ -28,8 +28,13 @@ parser.add_option("-p", "--prefix", dest="prefix", help="MyEMSL Prefix", default
 
 sql = """
 SELECT
+  item_id,
+  hashsum
+FROM (
+SELECT
   items.item_id,
-  hashsums.hashsum
+  hashsums.hashsum,
+  items.transaction
 FROM
   myemsl.files,
   myemsl.items,
@@ -38,7 +43,9 @@ WHERE
   myemsl.files.item_id = myemsl.items.item_id and
   myemsl.hashsums.item_id = myemsl.items.item_id and
   myemsl.hashsums.hashtype = 'sha1' and
-  myemsl.files.vtime is NULL;
+  myemsl.files.vtime is NULL
+) as items
+ORDER BY transaction ASC;
 """
 rows = do_sql(sql, myemsl_schema_versions=['1.0'])
 
@@ -63,25 +70,34 @@ for item_id, sha1 in rows:
 		if e.http_code != 503:
 			raise
 
-	if int(headers['X-MyEMSL-Levels']) < int(headers['X-MyEMSL-Levels-Total']):
-		continue
+	if 'X-MyEMSL-Levels' in headers and 'X-MyEMSL-Levels-Total' in headers:
+		if int(headers['X-MyEMSL-Levels']) < int(headers['X-MyEMSL-Levels-Total']):
+			continue
+#FIXME Update foo/bar when uuids become part of the protocol.
+	url = "%sfoo/bar/%s/0?levels" %(services['item'], item_id)
+	url = url.encode('utf-8')
+
 	if not available:
-		myemsl.callcurl.call_curl(url, method="GET", auth="bearer", token=token, getread=cancel_download)
+		try:
+			myemsl.callcurl.call_curl(url, method="GET", auth="bearer", token=token, getread=cancel_download)
+		except Exception, e:
+			print e
+			continue
 	(bfdesc, bfname) = tempfile.mkstemp()
 	os.write(bfdesc, "#!/bin/sh\n")
 	os.write(bfdesc, "#SBATCH --uid=%s\n" %(myemsl.getunixuser.get_unix_user()))
-	os.write(bfdesc, "#SBATCH -o /var/log/pacifica/sumcheck/output.%j\n")
-	os.write(bfdesc, "#SBATCH -e /var/log/pacifica/sumcheck/error.%j\n")
+	os.write(bfdesc, "#SBATCH -o /tmp/output.%j\n")
+	os.write(bfdesc, "#SBATCH -e /tmp/error.%j\n")
 	os.write(bfdesc, "#SBATCH --open-mode=append\n")
 	os.write(bfdesc, "#SBATCH -p lopri\n")
 	os.write(bfdesc, "#SBATCH -J CHECKSUM\n")
 	if sha1 == None:
-                sha1 = ""
-        try:
-		os.write(bfdesc, "srun -n 1 /usr/bin/python /usr/libexec/myemsl/sumcheck/sumcheck_job -j $SLURM_JOBID -i "+str(item_id)+" -s " + pipes.quote(sha1))
+		sha1 = "\"\""
+	try:
+		os.write(bfdesc, "srun -n 1 /usr/bin/python /usr/libexec/myemsl/sumcheck/sumcheck_job -i "+str(item_id)+" -s " + pipes.quote(sha1))
 	except TypeError, e:
-                print "Error, \'%s\' \'%s\'" %(item_id, sha1)
-                raise
+		print "Error, \'%s\' \'%s\'" %(item_id, sha1)
+		raise
 	os.close(bfdesc)
 	p1 = Popen(["/usr/bin/sbatch", bfname], stdout=PIPE)
 	jobid = p1.communicate()

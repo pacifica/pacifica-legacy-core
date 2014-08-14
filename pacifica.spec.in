@@ -719,6 +719,8 @@ do
 	./svnbranch.sh . > $dir/$package/svnbranch.txt
 done
 rm -vf %{python_sitelib}/%{name}-*egg-info
+mkdir -p %{buildroot}%{_localstatedir}/log/pacifica/ingest
+mkdir -p %{buildroot}%{_localstatedir}/log/pacifica/sumcheck
 
 %clean
 rm -rf %{buildroot}
