@@ -418,7 +418,7 @@ Predicate related common code for MyEMSL
 %package        web-cart
 Summary:        Cart programs
 Group:          System Environment/Base
-Requires: %{name}-web-cart-common %{name}-web elasticsearch
+Requires: %{name}-web-cart-common %{name}-web
 #BuildArch: noarch
 
 %description    web-cart
@@ -436,7 +436,7 @@ Cart for MyEMSL
 %package        web-cart-proxy
 Summary:        Cart Proxy programs
 Group:          System Environment/Base
-Requires: %{name}-web-cart-proxy-common %{name}-web elasticsearch
+Requires: %{name}-web-cart-proxy-common %{name}-web
 #BuildArch: noarch
 
 %description    web-cart-proxy
