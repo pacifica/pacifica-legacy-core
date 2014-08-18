@@ -1,19 +1,36 @@
 #!/usr/bin/python
-
+"""
+CallCurl module for MyEMSL should be use for all curl calls in MyEMSL.
+"""
 from myemsl.getconfig import getconfig
 config = getconfig()
 
 class CurlException(Exception):
+	"""
+	Curl exception class specific to MyEMSL
+	"""
 	def __init__(self, code):
+		"""
+		Constructor initialize standard exception
+		"""
 		Exception.__init__(self, "HTTP_CODE: %d" %(code))
 		self.http_code = code
 
 class _BytesRecievedCounter:
+	"""
+	Used for counting recieved bytes from http transfers
+	"""
 	def __init__(self, writecb, bytesrecieved):
+		"""
+		Set counter to 0 and write callback
+		"""
 		self.counter = 0
 		self.writecb = writecb
 		self.bytesrecieved = bytesrecieved
 	def write(self, data):
+		"""
+		Do the write thing tracking the length of data
+		"""
 		self.counter += len(data)
 		self.bytesrecieved(self.counter)
 		self.writecb(data)
@@ -69,12 +86,12 @@ def call_curl(url, **kwargs):
 	c.setopt(pycurl.FOLLOWLOCATION, 1)
 	c.setopt(pycurl.MAXREDIRS, 5)
 
-	map = {
-		'capath':pycurl.CAPATH,
-		'cainfo':pycurl.CAINFO,
-		'sslcert':pycurl.SSLCERT,
-		'sslcerttype':pycurl.SSLCERTTYPE
-	}
+	map = {}
+	map['capath'] = pycurl.CAPATH
+	map['cainfo'] = pycurl.CAINFO,
+	map['sslcert'] = pycurl.SSLCERT,
+	map['sslcerttype'] = pycurl.SSLCERTTYPE
+
 	for opt in map:
 		if opt in kwargs:
 			if kwargs[opt] == None:
