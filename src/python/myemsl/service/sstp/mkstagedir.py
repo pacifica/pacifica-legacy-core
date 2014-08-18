@@ -60,7 +60,7 @@ def mkstagedir( username=None ):
     except KeyError:
         raise Mkstagedir_Error( "Couldn't find a pwd entry for the current uid %i" % realuid )
         
-    require_condtion( pwent.pw_name == allowed_user ), "Only the apache user can use this tool" )
+    require_condtion( pwent.pw_name == allowed_user , "Only the apache user can use this tool" )
         
     grpent = None
     try:
