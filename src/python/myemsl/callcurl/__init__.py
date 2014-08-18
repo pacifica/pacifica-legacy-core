@@ -39,11 +39,13 @@ def call_curl(url, **kwargs):
 	headers - A function or dict that receives the response headers.
 	getread - A function that gets called as data arives.
 
-	insecure - if defined and true https will work reguardless. If not defined, it uses the settings from general.ini
+	insecure_peer - if defined it will use that value for SSL_VERIFYPEER. If not defined, it uses the settings from general.ini
+	insecure_host - if defined it will use that value for SSL_VERIFYHOST. If not defined, it uses the settings from general.ini
 	capath - if None unset otherwise set it
 	cainfo - if None unset otherwise set it
 	sslcert - if None unset otherwise set it
 	sslcerttype - if None unset otherwise set it
+        postfields - String passed to postfields if set
 
 	This is a simple interface to curl basically you give it a string
 	for input to a url and then you recieve the output string.
@@ -77,12 +79,14 @@ def call_curl(url, **kwargs):
 			else:
 				c.setopt( map[opt], kwargs[opt] )
 
-	if 'insecure' in kwargs and kwargs['insecure']:
-		c.setopt( pycurl.SSL_VERIFYPEER, 0 )
-		c.setopt( pycurl.SSL_VERIFYHOST, 0 )
-	else:
-		c.setopt( pycurl.SSL_VERIFYPEER, config.getboolean('webservice', 'ssl_verify_peer') )
-		c.setopt( pycurl.SSL_VERIFYHOST, config.getboolean('webservice', 'ssl_verify_host') )
+	for ssltype in ['peer', 'host']:
+		if 'insecure_'+ssltype in kwargs:
+			c.setopt( eval "pycurl.SSL_VERIFY"+ssltype.upper(), kwargs['insecure_'+ssltype )
+		else:
+			c.setopt( eval "pycurl.SSL_VERIFY"+ssltype.upper(), 2 if config.getboolean('webservice', 'ssl_verify_'+ssltype) else 0 )
+
+	if 'postfields' in kwargs:
+		c.setopt( pycurl.POSTFIELDS, kwargs['postfields'])
 
 	if 'headers' in kwargs and kwargs['headers'] != None:
 		h = kwargs['headers']
@@ -150,7 +154,7 @@ def call_curl(url, **kwargs):
 			c.setopt( pycurl.READFUNCTION, idata.read )
 			c.setopt( pycurl.INFILESIZE_LARGE, len(tmp) )
 		elif str(kwargs['method']) == 'DELETE':
-			c.setopt( pycurl.CUSTOMREQUEST, 'delete' )
+			c.setopt( pycurl.CUSTOMREQUEST, 'DELETE' )
 		elif str(kwargs['method']) == 'HEAD':
 			c.setopt( pycurl.NOBODY, 1 )
 		elif str(kwargs['method']) == 'DOWNLOAD':

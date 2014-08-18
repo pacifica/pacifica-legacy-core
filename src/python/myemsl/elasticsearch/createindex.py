@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import sys
-import pycurl
+from myemsl.callcurl import call_curl, CurlException
 
 import myemsl.elasticsearch.schema
 
@@ -14,28 +14,15 @@ def create_index(index_name, server=None, config=config, desc=None):
 		desc = myemsl.elasticsearch.schema.schema_get('simple_item')
 	if server == None:
 		server = config.get('elasticsearch', 'server')
-	curl = pycurl.Curl()
-	curl.setopt(pycurl.FOLLOWLOCATION, 1)
-	curl.setopt(pycurl.MAXREDIRS, 5)
-	curl.setopt(pycurl.SSL_VERIFYPEER, config.get('webservice', 'ssl_verify_peer') != 'False')
-	curl.setopt(pycurl.SSL_VERIFYHOST, config.get('webservice', 'ssl_verify_host') != 'False')
-	readbody = StringIO()
-	writebody = StringIO()
-	readbody.write(desc)
-	readbody.seek(0)
+	writebody = ""
 	url = server
 	if url[-1:] != '/':
 		url += '/'
 	url += index_name
-	curl.setopt(curl.URL, url)
-	curl.setopt(curl.UPLOAD, 1) 
-	curl.setopt(curl.PUT, 1)
-	curl.setopt(curl.INFILESIZE, len(desc))
-	curl.setopt(curl.WRITEFUNCTION, writebody.write)
-	curl.setopt(curl.READFUNCTION, readbody.read)
-	curl.perform()
-	code = curl.getinfo(pycurl.HTTP_CODE)
-	curl.close()
+	try:
+		writebody = call_curl(url, method="PUT", idata=desc)
+	except CurlException, ex:
+		return ex.http_code
 	return code
 
 if __name__ == "__main__":

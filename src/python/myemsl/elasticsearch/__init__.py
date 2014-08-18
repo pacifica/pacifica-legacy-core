@@ -9,7 +9,7 @@ from jsonentry import *
 from schema import *
 from StringIO import StringIO
 
-import pycurl
+from myemsl.callcurl import call_curl, CurlException
 import myemsl.getconfig
 
 import simplejson as json
@@ -46,31 +46,21 @@ class bulkupload:
 def item_get(item_id):
 	user_tries = 2
 	while user_tries > 0:
-		server = config.get('elasticsearch', 'server')
-		writebody = StringIO()
-		curl = pycurl.Curl()
-		curl.setopt(pycurl.FOLLOWLOCATION, 1)
-		curl.setopt(pycurl.MAXREDIRS, 5)
-		curl.setopt(pycurl.SSL_VERIFYPEER, config.get('webservice', 'ssl_verify_peer') != 'False')
-		curl.setopt(pycurl.SSL_VERIFYHOST, config.get('webservice', 'ssl_verify_host') != 'False')
-		url = server
+		url = config.get('elasticsearch', 'server')
 		if url[-1:] != '/':
 			url += '/'
 #FIXME unhardcode these...
 		url += "%s/%s/%i" %('myemsl_current_simple_items', 'simple_items', item_id)
-		curl.setopt(curl.URL, url)
-		curl.setopt(curl.WRITEFUNCTION, writebody.write)
-		curl.perform()
-		code = curl.getinfo(pycurl.HTTP_CODE)
-		curl.close()
-		if code != 404:
-			writebody.seek(0)
-			j = json.load(writebody)
-			if not j.get('_source'):
-				return 500, None
-			return code, j['_source']
-		user_tries -= 1
-		return 404, None
+		writebody = ""
+		try:
+			writebody = call_curl(url)
+		except CurlException, ex:
+			return ex.http_code, None
+
+		j = json.loads(writebody)
+		if not j.get('_source'):
+			return 500, None
+		return 200, j['_source']
 
 def item_auth(user_id, item_id):
 	(code, document) = item_get(item_id)

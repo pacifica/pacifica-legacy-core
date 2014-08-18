@@ -35,14 +35,6 @@ def elasticsearchquery(user, index, type, req, retries=1, auth_add=False, search
 			index = "myemsl_current_released_publications"
 			auth_add = False
 		server = config.get('elasticsearch', 'server')
-		writebody = StringIO()
-		curl = pycurl.Curl()
-		curl.setopt(curl.POST, 1)
-		curl.setopt(curl.POSTFIELDS, req_data)
-		curl.setopt(pycurl.FOLLOWLOCATION, 1)
-		curl.setopt(pycurl.MAXREDIRS, 5)
-		curl.setopt(pycurl.SSL_VERIFYPEER, config.get('webservice', 'ssl_verify_peer') != 'False')
-		curl.setopt(pycurl.SSL_VERIFYHOST, config.get('webservice', 'ssl_verify_host') != 'False')
 		url = server
 		if url[-1:] != '/':
 			url += '/'
@@ -52,16 +44,16 @@ def elasticsearchquery(user, index, type, req, retries=1, auth_add=False, search
 			url += "%s/%s/_search" %(index, type)
 			if search_type:
 				url += '?search_type=scan&scroll=10m&size=50'
-		curl.setopt(curl.URL, url)
-		curl.setopt(curl.WRITEFUNCTION, writebody.write)
-		curl.perform()
-		code = curl.getinfo(pycurl.HTTP_CODE)
-		curl.close()
-		if code != 404:
-			writebody.seek(0)
+		writebody = ""
+		skipit = true
+		try:
+			writebody = call_curl(url, method="POST", postfields=req_data)
+		except CurlException, ex:
+			skipit = false
+		if skipit:
 			if auth_add:
 				auth_items = []
-				j = json.load(writebody)
+				j = json.loads(writebody)
 				for i in j['hits']['hits']:
 					auth_items.append(i['_id'])
 				if len(auth_items) > 0:
@@ -71,7 +63,7 @@ def elasticsearchquery(user, index, type, req, retries=1, auth_add=False, search
 				req.write(json.dumps(j))
 				return code
 			else:
-				req.write('\n'.join(writebody.readlines()))
+				req.write(writebody)
 				return code
 		retval = ""
 		alias_tries = 3

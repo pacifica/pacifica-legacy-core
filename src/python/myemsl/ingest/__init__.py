@@ -248,8 +248,7 @@ def get_transaction(user):
 		capath=None,
 		cainfo='/etc/myemsl/keys/server/local.crt',
 		sslcert='/etc/myemsl/keys/server/local.pem',
-		sslcerttype='PEM',
-		insecure=config.get('webservice', 'ssl_verify_peer') != 'False'
+		sslcerttype='PEM'
 	)
 	dom = xml.dom.minidom.parseString(transxml)
 	transaction = -1

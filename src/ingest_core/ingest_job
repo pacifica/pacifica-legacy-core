@@ -196,8 +196,7 @@ try:
 		capath=None,
 		cainfo='/etc/myemsl/keys/server/local.crt',
 		sslcert='/etc/myemsl/keys/server/local.pem',
-		sslcerttype='PEM',
-		insecure=config.get('webservice', 'ssl_verify_peer') != 'False'
+		sslcerttype='PEM'
 	)
 	if data != 'OK':
 		raise Exception(data)

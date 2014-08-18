@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import sys
-import pycurl
+from myemsl.callcurl import call_curl, CurlException
 import simplejson as json
 
 from StringIO import StringIO
@@ -13,32 +13,22 @@ def get_alias(index='simple_items', alias=None, server=None, config=config):
 		alias = "%s_%s" %(config.get('elasticsearch', "alias"), index)
 	if server == None:
 		server = config.get('elasticsearch', 'server')
-	curl = pycurl.Curl()
-	curl.setopt(pycurl.FOLLOWLOCATION, 1)
-	curl.setopt(pycurl.MAXREDIRS, 5)
-	curl.setopt(pycurl.SSL_VERIFYPEER, config.get('webservice', 'ssl_verify_peer') != 'False')
-	curl.setopt(pycurl.SSL_VERIFYHOST, config.get('webservice', 'ssl_verify_host') != 'False')
-	writebody = StringIO()
-	url = server
 	if url[-1:] != '/':
 		url += '/'
 #FIXME This grabs all aliases. should find an api that maps only the single one we need.
 	url += alias + '/_aliases'
-	curl.setopt(curl.URL, url)
-	curl.setopt(curl.WRITEFUNCTION, writebody.write)
-	curl.perform()
-	code = curl.getinfo(pycurl.HTTP_CODE)
-	curl.close()
-	if code != 200:
-		return None, code
-	writebody.seek(0)
-	j = json.load(writebody)
+	writebody = ""
+	try:
+		writebody = call_curl(url)
+	except CurlException, ex:
+		return None, ex.http_code
+	j = json.loads(writebody)
 	keys = j.keys()
 	if len(keys) < 1:
 		code = 404
 		return None, code
 	retval = keys[0]
-	return retval, code
+	return retval, 200
 
 if __name__ == "__main__":
 	retval, code = get_alias(sys.argv[1])

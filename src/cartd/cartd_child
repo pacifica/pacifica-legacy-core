@@ -15,7 +15,6 @@ import subprocess
 import servicepoke
 import myemsl.cart
 import myemsl.token
-import myemsl.callcurl
 import simplejson as json
 from myemsl.getconfig import getconfig
 from myemsl.dbconnect import myemsldb_connect

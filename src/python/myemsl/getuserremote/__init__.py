@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import sys
-import pycurl
+from myemsl.callcurl import call_curl, CurlException
 import urllib
 import StringIO
 import xml.dom.minidom
@@ -18,22 +18,10 @@ def get_user_remote(username, map='web_map'):
 	newuser = None
 	try:
 		foo = StringIO.StringIO()
-		data = []
-		c = pycurl.Curl()
-		c.setopt(pycurl.URL, "%s%s/%s" %(config.get('getuser', 'prefix'), config.get('getuser', map), urllib.quote(username)))
-		c.setopt(pycurl.WRITEFUNCTION, foo.write)
-		c.setopt(pycurl.FOLLOWLOCATION, 1)
-		c.setopt(pycurl.MAXREDIRS, 5)
-		c.unsetopt(pycurl.CAPATH)
-		c.setopt(pycurl.CAINFO, '/etc/pki/tls/certs/ca-bundle.crt')
-		c.setopt(pycurl.SSL_VERIFYPEER, config.get('webservice', 'ssl_verify_peer') != 'False')
-		c.setopt(pycurl.SSL_VERIFYHOST, config.get('webservice', 'ssl_verify_host') != 'False')
-
-		c.perform()
-		foo.seek(0)
-		returned_data = foo.read()
-		logger.info(returned_data)
-		dom = xml.dom.minidom.parseString(returned_data)
+		url = "%s%s/%s" %(config.get('getuser', 'prefix'), config.get('getuser', map), urllib.quote(username))
+		writebody = call_curl(url, cainfo='/etc/pki/tls/certs/ca-bundle.crt')
+		logger.info(writebody)
+		dom = xml.dom.minidom.parseString(writebody)
 		found = False
 		for x in dom.firstChild.childNodes:
 			if x.nodeType == x.ELEMENT_NODE and (x.nodeName == 'user'):
