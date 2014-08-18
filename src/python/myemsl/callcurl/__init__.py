@@ -34,13 +34,16 @@ def call_curl(url, **kwargs):
 	username/password - only valid together
 	auth - one of negotiate, bearer, or anything else for basic
 	filename - If method=DOWNLOAD, this specifies what file to download to.
-	bytesrecieved - If method=DOWNLOAD, this specifies a callback getting the value of how many bytes have been downloaded.
+	bytesrecieved - If method=DOWNLOAD, this specifies a callback getting
+              the value of how many bytes have been downloaded.
 	token - If auth=bearer, this is the token to use.
 	headers - A function or dict that receives the response headers.
 	getread - A function that gets called as data arives.
 
-	insecure_peer - if defined it will use that value for SSL_VERIFYPEER. If not defined, it uses the settings from general.ini
-	insecure_host - if defined it will use that value for SSL_VERIFYHOST. If not defined, it uses the settings from general.ini
+	insecure_peer - if defined it will use that value for SSL_VERIFYPEER. If
+	      not defined, it uses the settings from general.ini
+	insecure_host - if defined it will use that value for SSL_VERIFYHOST. If
+	      not defined, it uses the settings from general.ini
 	capath - if None unset otherwise set it
 	cainfo - if None unset otherwise set it
 	sslcert - if None unset otherwise set it
@@ -75,21 +78,27 @@ def call_curl(url, **kwargs):
 	for opt in map:
 		if opt in kwargs:
 			if kwargs[opt] == None:
-				c.unsetopt( map[opt] )
+				c.unsetopt(map[opt])
 			else:
-				c.setopt( map[opt], kwargs[opt] )
+				c.setopt(map[opt], kwargs[opt])
 
 	if 'insecure_host' in kwargs:
-		c.setopt( pycurl.SSL_VERIFYHOST, kwargs['insecure_host'] )
+		c.setopt(pycurl.SSL_VERIFYHOST, kwargs['insecure_host'])
 	else:
-		c.setopt( pycurl.SSL_VERIFYHOST, 1 if config.getboolean('webservice', 'ssl_verify_host') else 0 )
+		if config.getboolean('webservice', 'ssl_verify_host'):
+			c.setopt(pycurl.SSL_VERIFYHOST, 2)
+		else:
+			c.setopt(pycurl.SSL_VERIFYHOST, 0)
 	if 'insecure_peer' in kwargs:
-		c.setopt( pycurl.SSL_VERIFYPEER, kwargs['insecure_peer'] )
+		c.setopt(pycurl.SSL_VERIFYPEER, kwargs['insecure_peer'])
 	else:
-		c.setopt( pycurl.SSL_VERIFYPEER, 1 if config.getboolean('webservice', 'ssl_verify_peer') else 0 )
+		if config.getboolean('webservice', 'ssl_verify_peer'):
+			c.setopt(pycurl.SSL_VERIFYPEER, 1)
+		else:
+			c.setopt(pycurl.SSL_VERIFYPEER, 0)
 
 	if 'postfields' in kwargs:
-		c.setopt( pycurl.POSTFIELDS, kwargs['postfields'])
+		c.setopt(pycurl.POSTFIELDS, kwargs['postfields'])
 
 	if 'headers' in kwargs and kwargs['headers'] != None:
 		h = kwargs['headers']
@@ -121,56 +130,56 @@ def call_curl(url, **kwargs):
 							process_line(h, line)
 					return retval
 				return tmpfunc
-			c.setopt( pycurl.HEADERFUNCTION, wrapperfunc(h))
+			c.setopt(pycurl.HEADERFUNCTION, wrapperfunc(h))
 		except AttributeError, e:
-			c.setopt( pycurl.HEADERFUNCTION, h )
+			c.setopt(pycurl.HEADERFUNCTION, h)
 
 	if 'username' in kwargs and 'password' in kwargs:
-		c.setopt( pycurl.USERPWD, '%s:%s'%(kwargs['username'], kwargs['password']) )
+		c.setopt(pycurl.USERPWD, '%s:%s'%(kwargs['username'], kwargs['password']))
 
 	if 'auth' in kwargs:
 		if kwargs['auth'] == 'negotiate':
-			c.setopt( pycurl.HTTPAUTH, pycurl.HTTPAUTH_GSSNEGOTIATE )
+			c.setopt(pycurl.HTTPAUTH, pycurl.HTTPAUTH_GSSNEGOTIATE)
 		elif kwargs['auth'] == 'bearer':
-			c.setopt( pycurl.HTTPHEADER, ["Authorization: Bearer %s" %(kwargs['token'])])
+			c.setopt(pycurl.HTTPHEADER, ["Authorization: Bearer %s" %(kwargs['token'])])
 		else:
-			c.setopt( pycurl.HTTPAUTH, pycurl.HTTPAUTH_ANY )
+			c.setopt(pycurl.HTTPAUTH, pycurl.HTTPAUTH_ANY)
 
 	idata = None
 	fp = None
 	if 'method' in kwargs:
 		if str(kwargs['method']) == 'POST':
-			c.setopt( pycurl.POST, 1 )
+			c.setopt(pycurl.POST, 1)
 			if 'idata' in kwargs:
-				c.setopt( pycurl.POSTFIELDS, str(kwargs['idata']) )
+				c.setopt(pycurl.POSTFIELDS, str(kwargs['idata']))
 			else:
-				c.setopt( pycurl.POSTFIELDS, "" )				
+				c.setopt(pycurl.POSTFIELDS, "")
 		elif str(kwargs['method']) == 'PUT':
-			c.setopt( pycurl.PUT, 1 )
+			c.setopt(pycurl.PUT, 1)
 			tmp = None
 			if 'idata' in kwargs:
 				tmp = str(kwargs['idata'])
 			else:
 				tmp = ""
-			c.setopt( pycurl.UPLOAD, 1 )
+			c.setopt(pycurl.UPLOAD, 1)
 			idata = StringIO.StringIO(tmp)
-			c.setopt( pycurl.READFUNCTION, idata.read )
-			c.setopt( pycurl.INFILESIZE_LARGE, len(tmp) )
+			c.setopt(pycurl.READFUNCTION, idata.read)
+			c.setopt(pycurl.INFILESIZE_LARGE, len(tmp))
 		elif str(kwargs['method']) == 'DELETE':
-			c.setopt( pycurl.CUSTOMREQUEST, 'DELETE' )
+			c.setopt(pycurl.CUSTOMREQUEST, 'DELETE')
 		elif str(kwargs['method']) == 'HEAD':
-			c.setopt( pycurl.NOBODY, 1 )
+			c.setopt(pycurl.NOBODY, 1)
 		elif str(kwargs['method']) == 'DOWNLOAD':
-			fp = open( kwargs['filename'], "wb" )
+			fp = open(kwargs['filename'], "wb")
 			wcb = fp.write
 			if 'bytesrecieved' in kwargs:
 				brc = _BytesRecievedCounter(fp.write, kwargs['bytesrecieved'])
 				wcb = brc.write
-			c.setopt( pycurl.WRITEFUNCTION, wcb )
+			c.setopt(pycurl.WRITEFUNCTION, wcb)
 		else: # assume GET
-			c.setopt( pycurl.HTTPGET, 1 )
+			c.setopt(pycurl.HTTPGET, 1)
 	else: # assume GET
-		c.setopt( pycurl.HTTPGET, 1 )
+		c.setopt(pycurl.HTTPGET, 1)
 
 	header = []
 	if 'content_type' in kwargs:
@@ -179,7 +188,7 @@ def call_curl(url, **kwargs):
 		header.append('Accept: '+str(kwargs['accept']))
 	c.setopt(pycurl.HTTPHEADER, header)
 	c.perform()
-	http_code = c.getinfo( pycurl.HTTP_CODE )
+	http_code = c.getinfo(pycurl.HTTP_CODE)
 	if http_code / 100 != 2:
 		raise CurlException(http_code)
 	if not 'method' in kwargs or kwargs['method'] != 'DOWNLOAD':
