@@ -79,11 +79,14 @@ def call_curl(url, **kwargs):
 			else:
 				c.setopt( map[opt], kwargs[opt] )
 
-	for ssltype in ['peer', 'host']:
-		if 'insecure_'+ssltype in kwargs:
-			c.setopt( eval "pycurl.SSL_VERIFY"+ssltype.upper(), kwargs['insecure_'+ssltype )
-		else:
-			c.setopt( eval "pycurl.SSL_VERIFY"+ssltype.upper(), 2 if config.getboolean('webservice', 'ssl_verify_'+ssltype) else 0 )
+	if 'insecure_host' in kwargs:
+		c.setopt( pycurl.SSL_VERIFYHOST, kwargs['insecure_host'] )
+	else:
+		c.setopt( pycurl.SSL_VERIFYHOST, 1 if config.getboolean('webservice', 'ssl_verify_host') else 0 )
+	if 'insecure_peer' in kwargs:
+		c.setopt( pycurl.SSL_VERIFYPEER, kwargs['insecure_peer'] )
+	else:
+		c.setopt( pycurl.SSL_VERIFYPEER, 1 if config.getboolean('webservice', 'ssl_verify_peer') else 0 )
 
 	if 'postfields' in kwargs:
 		c.setopt( pycurl.POSTFIELDS, kwargs['postfields'])
