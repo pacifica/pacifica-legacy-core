@@ -20,7 +20,7 @@ def bulk_action(index, actions, server=None, config=config):
 		url += '/'
 	url += index + "/_bulk"
 	try:
-		writebody = call_curl(url, method="POST", postfields=alias_cmd)
+		writebody = call_curl(url, method="POST", idata=alias_cmd)
 	except CurlException, ex:
 		return ex.http_code
 	return code

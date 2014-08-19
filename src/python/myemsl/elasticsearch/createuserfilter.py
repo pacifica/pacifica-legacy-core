@@ -35,7 +35,7 @@ def create_user_filter(index, user_id, server=None, prefix="myemsl_user", config
 		url += '/'
 	url += "_aliases"
 	try:
-		writebody = call_curl(url, method="POST", postfields=filter)
+		writebody = call_curl(url, method="POST", idata=filter)
 	except CurlException, ex:
 		return ex.http_code
 	return code

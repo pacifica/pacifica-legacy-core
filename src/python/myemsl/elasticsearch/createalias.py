@@ -28,7 +28,7 @@ def create_alias(index, alias, server=None, config=config):
 		url += '/'
 	url += "_aliases"
 	try:
-		writebody = call_curl(url, method="POST", postfields=alias_cmd)
+		writebody = call_curl(url, method="POST", idata=alias_cmd)
 	except CurlException, ex:
 		return ex.http_code
 	return code

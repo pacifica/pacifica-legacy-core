@@ -65,7 +65,6 @@ def call_curl(url, **kwargs):
 	cainfo - if None unset otherwise set it
 	sslcert - if None unset otherwise set it
 	sslcerttype - if None unset otherwise set it
-        postfields - String passed to postfields if set
 
 	This is a simple interface to curl basically you give it a string
 	for input to a url and then you recieve the output string.
@@ -113,9 +112,6 @@ def call_curl(url, **kwargs):
 			c.setopt(pycurl.SSL_VERIFYPEER, 1)
 		else:
 			c.setopt(pycurl.SSL_VERIFYPEER, 0)
-
-	if 'postfields' in kwargs:
-		c.setopt(pycurl.POSTFIELDS, kwargs['postfields'])
 
 	if 'headers' in kwargs and kwargs['headers'] != None:
 		h = kwargs['headers']

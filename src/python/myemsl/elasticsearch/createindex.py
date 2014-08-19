@@ -23,7 +23,7 @@ def create_index(index_name, server=None, config=config, desc=None):
 		writebody = call_curl(url, method="PUT", idata=desc)
 	except CurlException, ex:
 		return ex.http_code
-	return code
+	return 200
 
 if __name__ == "__main__":
 	code = create_index(sys.argv[1], sys.argv[2])
