@@ -13,6 +13,7 @@ def get_alias(index='simple_items', alias=None, server=None, config=config):
 		alias = "%s_%s" %(config.get('elasticsearch', "alias"), index)
 	if server == None:
 		server = config.get('elasticsearch', 'server')
+	url = server
 	if url[-1:] != '/':
 		url += '/'
 #FIXME This grabs all aliases. should find an api that maps only the single one we need.
