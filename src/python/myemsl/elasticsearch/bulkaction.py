@@ -23,7 +23,7 @@ def bulk_action(index, actions, server=None, config=config):
 		writebody = call_curl(url, method="POST", idata=alias_cmd)
 	except CurlException, ex:
 		return ex.http_code
-	return code
+	return 200
 
 if __name__ == "__main__":
 	code = bulk_action(sys.argv[1], json.loads('\n'.join(sys.stdin.readlines())))

@@ -31,7 +31,7 @@ def create_alias(index, alias, server=None, config=config):
 		writebody = call_curl(url, method="POST", idata=alias_cmd)
 	except CurlException, ex:
 		return ex.http_code
-	return code
+	return 200
 
 if __name__ == "__main__":
 	code = create_alias(sys.argv[1], sys.argv[2])

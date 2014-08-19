@@ -38,7 +38,7 @@ def create_user_filter(index, user_id, server=None, prefix="myemsl_user", config
 		writebody = call_curl(url, method="POST", idata=filter)
 	except CurlException, ex:
 		return ex.http_code
-	return code
+	return 200
 
 if __name__ == "__main__":
 	code = create_user_filter(sys.argv[1], int(sys.argv[2]))

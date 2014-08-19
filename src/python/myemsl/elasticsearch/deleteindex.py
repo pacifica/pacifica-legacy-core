@@ -19,7 +19,7 @@ def delete_index(index_name, server=None, config=config):
 		writebody = call_curl(url, method="DELETE")
 	except CurlException, ex:
 		return ex.http_code
-	return code
+	return 200
 
 if __name__ == "__main__":
 	code = delete_index(sys.argv[1], sys.argv[2])
