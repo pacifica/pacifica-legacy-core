@@ -25,7 +25,7 @@ def eus_user_remove(username):
 	try:
 		writebody = ""
 		url = "%s/%s" %(config.get('metadata', 'eus_auth'), urllib.quote(username))
-		writebody = call_curl(url, method="DELETE", cainfo='/etc/pki/tls/certs/ca-bundle.crt')
+		writebody = call_curl(url, method="DELETE", capath='/etc/pki/tls/certs/ca-bundle.crt')
 		logger.info("%s", writebody)
 		dom = xml.dom.minidom.parseString(writebody)
 		found = False
@@ -49,7 +49,7 @@ def eus_user_add(username, results):
 		pw = m.hexdigest()
 		pdata = "%s" %(pw)
 		writebody = ""
-		writebody = call_curl(url, method="PUT", idata=pdata, cainfo='/etc/pki/tls/certs/ca-bundle.crt')
+		writebody = call_curl(url, method="PUT", idata=pdata, capath='/etc/pki/tls/certs/ca-bundle.crt')
 		logger.info("%s", writebody)
 		dom = xml.dom.minidom.parseString(writebody)
 		found = False

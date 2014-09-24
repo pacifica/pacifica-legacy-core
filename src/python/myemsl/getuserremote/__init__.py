@@ -17,9 +17,8 @@ def get_user_remote(username, map='web_map'):
 	"""This handles authorization"""
 	newuser = None
 	try:
-		foo = StringIO.StringIO()
 		url = "%s%s/%s" %(config.get('getuser', 'prefix'), config.get('getuser', map), urllib.quote(username))
-		writebody = call_curl(url, cainfo='/etc/pki/tls/certs/ca-bundle.crt')
+		writebody = call_curl(url, capath='/etc/pki/tls/certs/ca-bundle.crt')
 		logger.info(writebody)
 		dom = xml.dom.minidom.parseString(writebody)
 		found = False
