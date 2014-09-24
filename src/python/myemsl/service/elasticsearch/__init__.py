@@ -45,11 +45,11 @@ def elasticsearchquery(user, index, type, req, retries=1, auth_add=False, search
 			if search_type:
 				url += '?search_type=scan&scroll=10m&size=50'
 		writebody = ""
-		skipit = True
+		skipit = 1
 		try:
 			writebody = call_curl(url, method="POST", postfields=req_data)
 		except CurlException, ex:
-			skipit = False
+			skipit = 0
 		if skipit:
 			if auth_add:
 				auth_items = []
@@ -61,10 +61,10 @@ def elasticsearchquery(user, index, type, req, retries=1, auth_add=False, search
 					logger.debug("Requested auth. %s" %(auth_items))
 					j['myemsl_auth_token'] = token
 				req.write(json.dumps(j))
-				return code
+				return 200
 			else:
 				req.write(writebody)
-				return code
+				return 200
 		retval = ""
 		alias_tries = 3
 		while alias_tries > 0:
