@@ -5,7 +5,7 @@ from myemsl.service import elasticsearch
 
 def handler(req):
 	bits = req.path_info.split('/', 3)
-	type = bits[2]
+	type = bits[1]
 	req.content_type = "application/json; charset=UTF-8"
 	req.add_common_vars()
 	getvars = req.subprocess_env['QUERY_STRING'].split('&')

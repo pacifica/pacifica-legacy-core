@@ -45,7 +45,7 @@ def elasticsearchquery(user, index, type, req, retries=1, auth_add=False, search
 			if search_type:
 				url += '?search_type=scan&scroll=10m&size=50'
 		writebody = ""
-		skipit = true
+		skipit = True
 		try:
 			writebody = call_curl(url, method="POST", postfields=req_data)
 		except CurlException, ex:
