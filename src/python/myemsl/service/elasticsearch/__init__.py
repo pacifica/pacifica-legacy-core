@@ -4,7 +4,6 @@ import os
 import sys
 import errno
 import urllib
-import pycurl
 import time
 import myemsl.elasticsearch
 import myemsl.token
@@ -14,6 +13,7 @@ from myemsl.getconfig import getconfig
 config = getconfig()
 from myemsl.dbconnect import myemsldb_connect
 from myemsl.brand import brand
+from myemsl.callcurl import call_curl, CurlException
 
 from myemsl.logging import getLogger
 
