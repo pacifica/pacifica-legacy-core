@@ -49,7 +49,7 @@ def elasticsearchquery(user, index, type, req, retries=1, auth_add=False, search
 		try:
 			writebody = call_curl(url, method="POST", postfields=req_data)
 		except CurlException, ex:
-			skipit = false
+			skipit = False
 		if skipit:
 			if auth_add:
 				auth_items = []
