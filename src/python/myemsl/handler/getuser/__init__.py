@@ -5,7 +5,7 @@ from myemsl.service import getuser
 def handler(req):
 	req.content_type = "text/xml"
 	try:
-		url = req.path_info.split('/', 2)[2]
+		url = req.path_info[1:]
 	except:
 		url = ''
 	getuser.get_user_base(url, req)
