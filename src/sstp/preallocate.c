@@ -8,7 +8,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#define SUBDIRROOT "../myemsl/staging"
+#define SUBDIRROOT "myemsl/staging"
 #define SUBDIR "myemsl/staging"
 
 //FIXME umask
