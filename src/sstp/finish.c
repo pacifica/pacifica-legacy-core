@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
 	}
 //FIXME MADS WORKAROUND
 //	bundle = g_strdup_printf("%s%s", document_root, path_info);
-	bundle = g_strdup_printf("%s/../%s", document_root, path_info);
+	bundle = g_strdup_printf("%s/%s", document_root, path_info);
 	if(!bundle)
 	{
 		printf("Error: Failed to allocate string\n");
