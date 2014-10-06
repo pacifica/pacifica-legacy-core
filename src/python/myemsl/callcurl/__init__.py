@@ -87,8 +87,8 @@ def call_curl(url, **kwargs):
 
 	map = {}
 	map['capath'] = pycurl.CAPATH
-	map['cainfo'] = pycurl.CAINFO,
-	map['sslcert'] = pycurl.SSLCERT,
+	map['cainfo'] = pycurl.CAINFO
+	map['sslcert'] = pycurl.SSLCERT
 	map['sslcerttype'] = pycurl.SSLCERTTYPE
 
 	for opt in map:
