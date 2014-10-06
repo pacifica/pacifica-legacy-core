@@ -126,7 +126,7 @@ WHERE
 			del pending_trans[transaction]
 	for transaction in pending_trans.keys():
 		(job_id, host) = trans2job[transaction]
-		myemsl.ingest.update_state(job_id, STEP_VAR+1, 'SUCCESS', 'completed')
+		myemsl.ingest.update_state(job_id, STEP_VAR+1, 'SUCCESS', 'completed', host)
 
 if __name__ == "__main__":
 	main()
