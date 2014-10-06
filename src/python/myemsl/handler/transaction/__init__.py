@@ -4,6 +4,6 @@ from myemsl.service import transaction
 
 def handler(req):
 	req.content_type = "text/xml"
-	user = req.path_info.split('/', 2)[2]
+	user = req.path_info[1:]
 	transaction.transaction(user, req)
 	return apache.OK
