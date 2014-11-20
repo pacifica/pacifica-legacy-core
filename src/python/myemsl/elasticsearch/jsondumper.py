@@ -338,7 +338,42 @@ select instrument_id, name_short from eus.instruments;
 	count = 0
 	print time.time()
 	sql = """
-	select name, submitter, first_name, last_name, stime, subdir, size, q.item_id, aged, group_set_id, hashsum as sha1, transaction from (select name, submitter, eus.users.first_name, eus.users.last_name, EXTRACT(EPOCH FROM stime) as stime, subdir, size, myemsl.files.item_id, aged, group_set_id, myemsl.transactions.transaction from myemsl.files, myemsl.transactions, eus.users, temp_item_to_group_set where myemsl.transactions.transaction = myemsl.files.transaction and eus.users.person_id = myemsl.transactions.submitter and temp_item_to_group_set.item_id = myemsl.files.item_id and (name != 'metadata.txt' or subdir != '')) as q left outer join myemsl.hashsums as h on (q.item_id = h.item_id);
+SELECT
+  name, submitter, 
+  first_name, last_name,
+  stime, subdir, size, 
+  q.item_id,
+  aged,
+  group_set_id,
+  hashsum as sha1,
+  transaction
+FROM (
+  SELECT
+    name, submitter,
+    eus.users.first_name,
+    eus.users.last_name,
+    EXTRACT(EPOCH FROM stime) as stime,
+    subdir, size,
+    myemsl.files.item_id,
+    aged,
+    group_set_id,
+    myemsl.transactions.transaction 
+  FROM
+    myemsl.files,
+    myemsl.transactions,
+    eus.users,
+    temp_item_to_group_set
+  WHERE
+    myemsl.transactions.transaction = myemsl.files.transaction and
+    eus.users.person_id = myemsl.transactions.submitter and
+    temp_item_to_group_set.item_id = myemsl.files.item_id and (
+      name != 'metadata.txt' or
+      subdir != ''
+    )
+  ) AS q
+  LEFT OUTER JOIN
+  myemsl.hashsums AS h
+  ON (q.item_id = h.item_id);
 	"""
 	cursor.execute(sql)
 	for row in cursoriter(cursor):
