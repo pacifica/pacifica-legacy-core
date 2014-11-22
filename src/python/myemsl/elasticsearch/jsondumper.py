@@ -364,6 +364,7 @@ FROM (
     eus.users,
     temp_item_to_group_set
   WHERE
+    myemsl.transactions.stime > NOW() - '2 days'::interval and
     myemsl.transactions.transaction = myemsl.files.transaction and
     eus.users.person_id = myemsl.transactions.submitter and
     temp_item_to_group_set.item_id = myemsl.files.item_id and (
