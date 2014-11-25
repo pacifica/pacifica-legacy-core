@@ -59,7 +59,7 @@ SELECT
   email_address,
   last_change_date
 FROM
-  myemsl.users
+  eus.users
 WHERE
   person_id=%(person_id)d
     """
@@ -82,7 +82,7 @@ WHERE
     }
     sql = """
 SELECT
-  proposal_id,
+  eus.proposals.proposal_id,
   title,
   group_id,
   accepted_date,
@@ -93,7 +93,7 @@ FROM
   eus.proposals,
   eus.proposal_members
 WHERE
-  proposal_members.proposal_id = proposals.proposal_id,
+  proposal_members.proposal_id = proposals.proposal_id AND
   proposal_members.person_id = %(person_id)d
     """
     cursor = cnx.cursor()
@@ -125,7 +125,7 @@ SELECT
 FROM
   eus.proposal_instruments
 WHERE
-  proposal_instruments.proposal_id = %(proposal_id)d
+  proposal_instruments.proposal_id = %(proposal_id)s
         """
         cursor = cnx.cursor()
         cursor.execute(sql, {'proposal_id':proposal_id})
@@ -144,7 +144,7 @@ SELECT
 FROM
   eus.instruments
 WHERE
-  eus.instrument_id = %(instrument_id)d
+  eus.instruments.instrument_id = %(instrument_id)d
         """
         cursor = cnx.cursor()
         cursor.execute(sql, {'instrument_id':instrument_id})
