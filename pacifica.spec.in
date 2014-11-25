@@ -467,6 +467,32 @@ Requires: %{name}-web-common, %{name}-server-common, amalgam >= 0.0.6
 %description    web-cart-common
 Common Cart code for MyEMSL
 
+%package        web-userinfo
+Summary:        User Info programs
+Group:          System Environment/Base
+Requires: %{name}-web-userinfo-common %{name}-web
+#BuildArch: noarch
+
+%description    web-userinfo
+User Info for MyEMSL
+
+%package        web-userinfo-ssl
+Summary:        User Info SSL programs
+Group:          System Environment/Base
+Requires: %{name}-web-userinfo-common %{name}-web-ssl
+#BuildArch: noarch
+
+%description    web-userinfo-ssl
+User Info SSL for MyEMSL
+
+%package        web-userinfo-common
+Summary:        Common Query code
+Group:          System Environment/Base
+Requires: %{name}-web-common
+
+%description    web-userinfo-common
+Common User Info code for MyEMSL
+
 %package        web-iteminfo
 Summary:        Item Info programs
 Group:          System Environment/Base
