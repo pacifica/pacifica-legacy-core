@@ -1029,17 +1029,17 @@ rm -rf %{buildroot}
 
 %files web-userinfo
 %defattr(0644,root,root)
-%{_prefix}/lib/myemsl/apache/myemsl.d/iteminfo.conf
+%{_prefix}/lib/myemsl/apache/myemsl.d/userinfo.conf
 
 %files web-userinfo-ssl
 %defattr(0644,root,root)
-%{_prefix}/lib/myemsl/apache/myemsl-ssl.d/iteminfo.conf
+%{_prefix}/lib/myemsl/apache/myemsl-ssl.d/userinfo.conf
 
 %files web-userinfo-common
 %{_defaultdocdir}/myemsl/userinfo
 %defattr(0755,root,root)
 /%{python_sitelib}/myemsl/service/userinfo*
-/%{python_sitelib}/myemsl/handler/iteminfo*
+/%{python_sitelib}/myemsl/handler/userinfo*
 %defattr(0755,root,root)
 
 %files web-iteminfo
