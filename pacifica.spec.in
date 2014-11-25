@@ -738,7 +738,7 @@ Common components for MyEMSL
 make install DESTDIR=%{buildroot}
 rm -rf %{buildroot}/usr/lib/python2.[67]/site-packages/myemsl-@VERSION@-py2.[67].egg-info || true
 dir=%{buildroot}/%{_defaultdocdir}/myemsl
-for package in ingestor-core ingestor query database-schema database cart iteminfo personinfo common sumcheck eushandoffhandler notify
+for package in ingestor-core ingestor query database-schema database cart iteminfo userinfo personinfo common sumcheck eushandoffhandler notify
 do
 	mkdir -p $dir/$package
 	./svnver.sh . > $dir/$package/svnver.txt
@@ -1025,6 +1025,21 @@ rm -rf %{buildroot}
 /%{python_sitelib}/myemsl/handler/cart*
 %{_localstatedir}/www/myemsl/admin/cart
 %config(noreplace) %{_sysconfdir}/myemsl/cart-proxy.conf
+%defattr(0755,root,root)
+
+%files web-userinfo
+%defattr(0644,root,root)
+%{_prefix}/lib/myemsl/apache/myemsl.d/iteminfo.conf
+
+%files web-userinfo-ssl
+%defattr(0644,root,root)
+%{_prefix}/lib/myemsl/apache/myemsl-ssl.d/iteminfo.conf
+
+%files web-userinfo-common
+%{_defaultdocdir}/myemsl/userinfo
+%defattr(0755,root,root)
+/%{python_sitelib}/myemsl/service/userinfo*
+/%{python_sitelib}/myemsl/handler/iteminfo*
 %defattr(0755,root,root)
 
 %files web-iteminfo
