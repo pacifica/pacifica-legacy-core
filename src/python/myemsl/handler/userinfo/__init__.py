@@ -17,6 +17,6 @@ def handler(req):
         req.content_type = type
     else:
         req.content_type = "application/json"
-    userinfo.userinfo(req.user, dtype, req)
+    userinfo.userinfo(int(req.user), dtype, req)
     return apache.OK
 

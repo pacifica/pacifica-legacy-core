@@ -131,6 +131,7 @@ WHERE
         cursor.execute(sql, {'proposal_id':proposal_id})
         data["proposals"][str(proposal_id)]["instruments"] = cursor.fetchall()
         for i in data["proposals"][str(proposal_id)]["instruments"]:
+            i = i[0]
             global_instruments[i] = 1
     for instrument_id in global_instruments.keys():
         sql = """
