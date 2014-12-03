@@ -1,6 +1,6 @@
 ACLOCAL_AMFLAGS = -I m4
 
-SUBDIRS = src conf test docs
+SUBDIRS = src conf test docs man
 
 dist-hook:
 	$(top_srcdir)/svnver.sh $(top_srcdir) > $(distdir)/svnver.txt

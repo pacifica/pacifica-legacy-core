@@ -203,6 +203,9 @@ AC_OUTPUT([
 		docs/plugins/Makefile
 		docs/protocols/Makefile
 		docs/webapi/Makefile
+		man/Makefile
+		man/man1/Makefile
+		man/man3/Makefile
 		test/Makefile
 		conf/Makefile
 		pacifica.spec

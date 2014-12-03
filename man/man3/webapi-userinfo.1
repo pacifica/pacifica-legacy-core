@@ -1,0 +1,652 @@
+.TH WEBAPI-USERINFO "3" "December 2014" "userinfo 2.1" "Pacifica Web Services"
+
+.SH "NAME"
+userinfo \- pulls information about users from EUS tables.
+
+.SH "SYNOPSIS"
+.B curl 
+--cookie=cookie.txt
+--cookie-jar=cookie.txt 
+--header "Accept:\ application/json"
+https://my.emsl.pnl.gov/myemsl/userinfo
+
+.SH "DESCRIPTION"
+.PP
+Provides user information about proposals and instruments the user is on. No arguments
+are needed on the path and nothing need to be posted. The returned data format is 
+whatever the client sends it in the \f3Accept\fP header. 
+
+Example json output is as follows:
+
+{
+    "email_address": "david.brown@pnnl.gov",
+    "first_name": "David",
+    "instruments": {
+        "1002": {
+            "active_sw": "Y",
+            "eus_display_name": "NMR Spectrometer: 300-MHz (7.05 Tesla) WB Varian NMR System (Solids) - (Mazama)",
+            "instrument_id": 1002,
+            "instrument_name": "NMR Spectrometer: 300-MHz (7.05 Tesla) WB Varian NMR System (Solids) - (Mazama)",
+            "last_change_date": "2014-11-12 10:05:00-05",
+            "name_short": "NMR 300 WB Varian - (Mazama)"
+        },
+        "1003": {
+            "active_sw": "Y",
+            "eus_display_name": "NMR Spectrometer: 750-MHz (17.6 Tesla) NB Varian - (Rainier)",
+            "instrument_id": 1003,
+            "instrument_name": "NMR Spectrometer: 750-MHz (17.6 Tesla) NB Varian NMR System - (Rainier)",
+            "last_change_date": "2013-10-30 08:23:11-04",
+            "name_short": "NMR 750 NB Varian - (Rainier)"
+        },
+        "1004": {
+            "active_sw": "Y",
+            "eus_display_name": "NMR Spectrometer: 600-MHz NB Varian Inova - Cryoprobe (Liquids) - (Baker)",
+            "instrument_id": 1004,
+            "instrument_name": "NMR Spectrometer: 600-MHz NB Varian NMR System - Cryoprobe (Liquids) - (Baker)",
+            "last_change_date": "2013-10-30 08:23:11-04",
+            "name_short": "NMR 600 NB Varian (Cryoprobe) - (Baker)"
+        },
+        "1005": {
+            "active_sw": "N",
+            "eus_display_name": "NMR Spectrometer: 600-MHz NB Varian Inova (Liquids) - (Glacier)",
+            "instrument_id": 1005,
+            "instrument_name": "NMR Spectrometer: 600-MHz NB Varian Inova (Liquids) - (Glacier)",
+            "last_change_date": "2013-11-01 10:45:31-04",
+            "name_short": "NMR 600 NB Inova - (Glacier)"
+        },
+        "1045": {
+            "active_sw": "Y",
+            "eus_display_name": "FTIR Microscope",
+            "instrument_id": 1045,
+            "instrument_name": "Spectrometer: FTIR 1 (66s)",
+            "last_change_date": "2014-11-17 10:28:36-05",
+            "name_short": "1544-FTIR 66s-Microscope"
+        },
+        "1160": {
+            "active_sw": "N",
+            "eus_display_name": "Computing: SGI 16-processor Graphics Server (nwvisus)",
+            "instrument_id": 1160,
+            "instrument_name": "Computing: SGI 16-processor Graphics Server (NWVisus)",
+            "last_change_date": "2013-11-01 10:45:31-04",
+            "name_short": "GVL nwvisus"
+        },
+        "1176": {
+            "active_sw": "Y",
+            "eus_display_name": "NMR Spectrometer: 500-MHz WB Bruker (Imaging) - (Bastiat)",
+            "instrument_id": 1176,
+            "instrument_name": "NMR Spectrometer: 500-MHz WB Bruker Avance III (Imaging) - (Bastiat)",
+            "last_change_date": "2013-10-30 08:23:11-04",
+            "name_short": "NMR 500 WB Bruker III - (Bastiat)"
+        },
+        "1180": {
+            "active_sw": "N",
+            "eus_display_name": "Computing: MPP2 (HP 1960-Processor Linux Cluster)",
+            "instrument_id": 1180,
+            "instrument_name": "Computing: MPP2 (HP 1960-Processor Linux Cluster)",
+            "last_change_date": "2013-11-01 10:45:31-04",
+            "name_short": "Mpp2"
+        },
+        "33200": {
+            "active_sw": "Y",
+            "eus_display_name": "Mass Spectrometer: Fourier-Transform Ion Cyclotron Resonance",
+            "instrument_id": 33200,
+            "instrument_name": "Mass Spectrometer: 9.4-Tesla, 160mm Bore FTICR",
+            "last_change_date": "2013-10-30 08:23:11-04",
+            "name_short": "9T FTICR MS"
+        },
+        "34011": {
+            "active_sw": "Y",
+            "eus_display_name": "Mass Spectrometer: Fourier-Transform Ion Cyclotron Resonance",
+            "instrument_id": 34011,
+            "instrument_name": "Mass Spectrometer: 12T FTICR",
+            "last_change_date": "2013-12-13 10:25:50-05",
+            "name_short": "12T_FTICR"
+        },
+        "34035": {
+            "active_sw": "Y",
+            "eus_display_name": "Mass Spectrometer: Orbitrap",
+            "instrument_id": 34035,
+            "instrument_name": "Mass Spectrometer: LTQ_Orb 1",
+            "last_change_date": "2013-12-13 10:37:27-05",
+            "name_short": "LTQ_Orb_1"
+        },
+        "34058": {
+            "active_sw": "N",
+            "eus_display_name": "Computing: Spokane Cluster",
+            "instrument_id": 34058,
+            "instrument_name": "Computing: Spokane Cluster",
+            "last_change_date": "2013-12-13 09:55:34-05",
+            "name_short": "Spokane Cluster"
+        },
+        "34068": {
+            "active_sw": "Y",
+            "eus_display_name": "Mass Spectrometer: Linear Ion Trap Quadrupole (LTQ) Orbitrap MS - for environmental research (nanoDESI)",
+            "instrument_id": 34068,
+            "instrument_name": "Mass Spectrometer: Linear Ion Trap Quadrupole (LTQ) Orbitrap - environmental research",
+            "last_change_date": "2014-07-15 12:01:37-04",
+            "name_short": "LTQ Orbitrap MS - environmental (w nanoDESI)"
+        },
+        "34075": {
+            "active_sw": "Y",
+            "eus_display_name": "NMR Spectrometer: 600-MHz NB Varian NMR System - metabolomics cryoprobe (Liquids) - (Hood)",
+            "instrument_id": 34075,
+            "instrument_name": "NMR Spectrometer: 600-MHz NB Varian NMR System - metabolomics cryoprobe (Liquids) - (Hood)",
+            "last_change_date": "2014-01-06 13:06:40-05",
+            "name_short": "NMR 600 NMR - (Hood)"
+        },
+        "34076": {
+            "active_sw": "Y",
+            "eus_display_name": "Computing: Chinook (HP 2310-Node Linux Cluster)",
+            "instrument_id": 34076,
+            "instrument_name": "Computing: Chinook (HP 2310-Node Linux Cluster)",
+            "last_change_date": "2013-12-13 10:15:11-05",
+            "name_short": "Chinook"
+        },
+        "34078": {
+            "active_sw": "Y",
+            "eus_display_name": "Mass Spectrometer: Time of Flight Secondary Ion (ToF SIMS) - 2007",
+            "instrument_id": 34078,
+            "instrument_name": "Mass Spectrometer: Time of Flight Secondary Ion (ToF SIMS) - 2007",
+            "last_change_date": "2013-10-30 08:23:11-04",
+            "name_short": "ToF SIMS - 2007"
+        },
+        "34080": {
+            "active_sw": "Y",
+            "eus_display_name": "Mass Spectrometer: Linear Ion trap (LTQ)",
+            "instrument_id": 34080,
+            "instrument_name": "Mass Spectrometer: ETD_LTQ1",
+            "last_change_date": "2013-12-13 10:38:20-05",
+            "name_short": "LTQ_ETD_1"
+        },
+        "34085": {
+            "active_sw": "N",
+            "eus_display_name": "Computing: NW-ICE",
+            "instrument_id": 34085,
+            "instrument_name": "Computing: NW-ICE",
+            "last_change_date": "2013-11-01 10:45:31-04",
+            "name_short": "NWICE"
+        },
+        "34114": {
+            "active_sw": "Y",
+            "eus_display_name": "Mass Spectrometer: Orbitrap",
+            "instrument_id": 34114,
+            "instrument_name": "Mass Spectrometer: LTQ_Orb_Velos 1",
+            "last_change_date": "2014-04-14 14:40:29-04",
+            "name_short": "VOrbiETD01"
+        },
+        "34124": {
+            "active_sw": "Y",
+            "eus_display_name": "5500XL SOLiD Sequencers",
+            "instrument_id": 34124,
+            "instrument_name": "5500XL SOLiD Sequencer A",
+            "last_change_date": "2014-11-24 11:09:54-05",
+            "name_short": "Sequencer A"
+        },
+        "34127": {
+            "active_sw": "Y",
+            "eus_display_name": "Mass Spectrometer: Orbitrap",
+            "instrument_id": 34127,
+            "instrument_name": "Mass Spectrometer: LTQ_Orb_Velos 4",
+            "last_change_date": "2013-10-30 08:23:11-04",
+            "name_short": "VOrbiETD04"
+        },
+        "34135": {
+            "active_sw": "Y",
+            "eus_display_name": "NMR Spectrometer: 750 MHz (17.6 Tesla) WB Bruker (Liquids, Solids, Imaging) - (Bokan)",
+            "instrument_id": 34135,
+            "instrument_name": "NMR Spectrometer: 750 MHz (17.6 Tesla) WB Bruker (Liquids, Solids, Imaging) - (Bokan)",
+            "last_change_date": "2014-08-14 12:15:56-04",
+            "name_short": "NMR 750 MHz WB Bruker (Liquids, Solids, Imaging) - (Bokan)"
+        },
+        "34139": {
+            "active_sw": "Y",
+            "eus_display_name": "Mass Spectrometer: Fourier-Transform Ion Cyclotron Resonance",
+            "instrument_id": 34139,
+            "instrument_name": "Mass Spectrometer: 15T FTICR",
+            "last_change_date": "2013-10-30 08:23:11-04",
+            "name_short": "15T_FTICR"
+        },
+        "34145": {
+            "active_sw": "Y",
+            "eus_display_name": "Mass Spectrometer: MALDI-TOF",
+            "instrument_id": 34145,
+            "instrument_name": "Mass Spectrometer: Maxis_01",
+            "last_change_date": "2013-12-13 10:39:10-05",
+            "name_short": "Maxis_01"
+        },
+        "34151": {
+            "active_sw": "Y",
+            "eus_display_name": "Computing: Data File Storage (Aurora) (GB)",
+            "instrument_id": 34151,
+            "instrument_name": "Computing: Data File Storage (Aurora)",
+            "last_change_date": "2013-10-30 08:23:11-04",
+            "name_short": "Aurora"
+        },
+        "34158": {
+            "active_sw": "Y",
+            "eus_display_name": "Mass Spectrometer: Inductively Coupled Plasma (ICP-MS), High Resolution (Element XR)",
+            "instrument_id": 34158,
+            "instrument_name": "Mass Spectrometer: Inductively Coupled Plasma (ICP-MS), High Resolution (Element XR)",
+            "last_change_date": "2014-03-21 12:21:20-04",
+            "name_short": "HR ICP-MS"
+        },
+        "34182": {
+            "active_sw": "Y",
+            "eus_display_name": "Spectrometer: High Spatial Resolution Secondary Ion Mass Spectrometry (NanoSIMS)",
+            "instrument_id": 34182,
+            "instrument_name": "Spectrometer: High Spatial Resolution Secondary Ion Mass Spectrometry (NanoSIMS)",
+            "last_change_date": "2013-10-30 08:23:11-04",
+            "name_short": "NanoSIMS"
+        },
+        "34218": {
+            "active_sw": "Y",
+            "eus_display_name": "Computing: Cascade (Atipa 1440 Intel Xeon-Phi Node FDR-Infiniband Linux Cluster)",
+            "instrument_id": 34218,
+            "instrument_name": "Computing: Cascade (Atipa 1440 Intel Xeon-Phi Node FDR-Infiniband Linux Cluster)",
+            "last_change_date": "2014-08-08 09:41:18-04",
+            "name_short": "Cascade"
+        }
+    },
+    "last_change_date": "2014-10-15 09:55:56-04",
+    "last_name": "Brown",
+    "network_id": "dmlb2000",
+    "person_id": 34002,
+    "proposals": {
+        "20909a": {
+            "accepted_date": "2007-04-23",
+            "actual_end_date": "2009-04-23",
+            "actual_start_date": "2007-04-23",
+            "closed_date": "2008-12-21",
+            "group_id": 1569,
+            "instruments": [
+                [
+                    1180
+                ]
+            ],
+            "title": "Lustre Scalability Research"
+        },
+        "24101": {
+            "accepted_date": "2007-02-06",
+            "actual_end_date": "2007-02-11",
+            "actual_start_date": "2007-02-09",
+            "closed_date": "2007-03-12",
+            "group_id": 2002,
+            "instruments": [],
+            "title": "Petascale Institute Virtualized Lustre Scalability Research"
+        },
+        "32591": {
+            "accepted_date": "2008-11-04",
+            "actual_end_date": "2011-11-03",
+            "actual_start_date": "2008-11-04",
+            "closed_date": "2011-06-05",
+            "group_id": 2952,
+            "instruments": [
+                [
+                    34076
+                ],
+                [
+                    34076
+                ]
+            ],
+            "title": "Understanding I/O behavior of Scientific Applications"
+        },
+        "33220": {
+            "accepted_date": "2009-01-26",
+            "actual_end_date": "2009-09-15",
+            "actual_start_date": "2009-01-26",
+            "closed_date": "2010-01-31",
+            "group_id": 3025,
+            "instruments": [],
+            "title": "Lustre Scalability Research"
+        },
+        "35595": {
+            "accepted_date": "2009-09-24",
+            "actual_end_date": "2012-09-30",
+            "actual_start_date": "2009-10-01",
+            "closed_date": "2012-09-30",
+            "group_id": 3349,
+            "instruments": [
+                [
+                    34076
+                ],
+                [
+                    34085
+                ],
+                [
+                    34151
+                ],
+                [
+                    34076
+                ],
+                [
+                    34076
+                ],
+                [
+                    34151
+                ]
+            ],
+            "title": "High-throughput sequence analysis for communities and environmental sample metagenomics"
+        },
+        "36395": {
+            "accepted_date": "2009-06-24",
+            "actual_end_date": "2010-06-19",
+            "actual_start_date": "2009-06-24",
+            "closed_date": "2010-06-27",
+            "group_id": 3430,
+            "instruments": [
+                [
+                    34076
+                ]
+            ],
+            "title": "PLFS Testing on Chinook"
+        },
+        "36998": {
+            "accepted_date": "2009-09-11",
+            "actual_end_date": "2009-12-17",
+            "actual_start_date": "2009-09-14",
+            "closed_date": "2010-09-19",
+            "group_id": 3508,
+            "instruments": [
+                [
+                    34076
+                ]
+            ],
+            "title": "Introducing Parallel Computing to Undergraduate Students"
+        },
+        "40022": {
+            "accepted_date": "2010-08-26",
+            "actual_end_date": "2013-09-30",
+            "actual_start_date": "2010-10-01",
+            "closed_date": "2013-09-30",
+            "group_id": 3893,
+            "instruments": [
+                [
+                    1003
+                ],
+                [
+                    34124
+                ],
+                [
+                    34011
+                ],
+                [
+                    34114
+                ],
+                [
+                    34135
+                ],
+                [
+                    1045
+                ],
+                [
+                    1176
+                ],
+                [
+                    1004
+                ],
+                [
+                    34035
+                ],
+                [
+                    34035
+                ],
+                [
+                    34135
+                ],
+                [
+                    34075
+                ],
+                [
+                    34075
+                ],
+                [
+                    1004
+                ],
+                [
+                    34076
+                ],
+                [
+                    34124
+                ]
+            ],
+            "title": "Understanding Biomass Conversion within Thermophilic Communities and Isolates"
+        },
+        "40089": {
+            "accepted_date": "2010-08-25",
+            "actual_end_date": "2013-09-30",
+            "actual_start_date": "2010-10-01",
+            "closed_date": "2013-09-30",
+            "group_id": 3953,
+            "instruments": [
+                [
+                    34124
+                ],
+                [
+                    34076
+                ],
+                [
+                    34035
+                ],
+                [
+                    34114
+                ],
+                [
+                    34035
+                ],
+                [
+                    34076
+                ],
+                [
+                    34124
+                ],
+                [
+                    34076
+                ]
+            ],
+            "title": "Reverse Methanogenesis: Validating the Hypothesis with Lineage-Resolved Environmental Proteomics"
+        },
+        "40892": {
+            "accepted_date": "2010-06-16",
+            "actual_end_date": "2013-08-31",
+            "actual_start_date": "2010-09-01",
+            "closed_date": "2013-09-30",
+            "group_id": 4011,
+            "instruments": [
+                [
+                    34145
+                ],
+                [
+                    34139
+                ],
+                [
+                    33200
+                ],
+                [
+                    34011
+                ],
+                [
+                    34078
+                ],
+                [
+                    33200
+                ],
+                [
+                    34139
+                ],
+                [
+                    33200
+                ],
+                [
+                    34145
+                ],
+                [
+                    34127
+                ],
+                [
+                    34182
+                ],
+                [
+                    34076
+                ],
+                [
+                    34011
+                ]
+            ],
+            "title": "Innovative Molecular Imaging Using Spatially Controlled Ionization Combined with High Performance FT-ICR Mass Spectrometry"
+        },
+        "42291": {
+            "accepted_date": "2011-02-10",
+            "actual_end_date": "2014-12-31",
+            "actual_start_date": "2011-02-10",
+            "closed_date": null,
+            "group_id": 4070,
+            "instruments": [
+                [
+                    34218
+                ],
+                [
+                    34076
+                ],
+                [
+                    34151
+                ],
+                [
+                    34076
+                ],
+                [
+                    34151
+                ],
+                [
+                    1160
+                ],
+                [
+                    34058
+                ],
+                [
+                    34151
+                ]
+            ],
+            "title": "Development of the Integrated MetaPROteomics Viewer (IMPROV) Software Toolkit"
+        },
+        "44703": {
+            "accepted_date": "2011-09-01",
+            "actual_end_date": "2014-09-30",
+            "actual_start_date": "2011-10-01",
+            "closed_date": "2014-09-30",
+            "group_id": 4351,
+            "instruments": [
+                [
+                    34124
+                ],
+                [
+                    34011
+                ],
+                [
+                    34035
+                ],
+                [
+                    34124
+                ],
+                [
+                    34011
+                ],
+                [
+                    34035
+                ],
+                [
+                    34124
+                ],
+                [
+                    34011
+                ],
+                [
+                    34114
+                ],
+                [
+                    34068
+                ],
+                [
+                    34158
+                ],
+                [
+                    34139
+                ]
+            ],
+            "title": "Soybean Proteomics"
+        },
+        "45796": {
+            "accepted_date": null,
+            "actual_end_date": null,
+            "actual_start_date": null,
+            "closed_date": null,
+            "group_id": 4469,
+            "instruments": [],
+            "title": "MyEMSL 2.0"
+        },
+        "47483": {
+            "accepted_date": "2012-08-29",
+            "actual_end_date": "2014-09-30",
+            "actual_start_date": "2012-10-01",
+            "closed_date": "2014-09-30",
+            "group_id": 4715,
+            "instruments": [
+                [
+                    34218
+                ],
+                [
+                    34075
+                ],
+                [
+                    34151
+                ],
+                [
+                    34011
+                ],
+                [
+                    34139
+                ],
+                [
+                    34035
+                ],
+                [
+                    1004
+                ],
+                [
+                    34058
+                ],
+                [
+                    1002
+                ],
+                [
+                    1005
+                ],
+                [
+                    1004
+                ],
+                [
+                    34080
+                ],
+                [
+                    34035
+                ],
+                [
+                    34076
+                ],
+                [
+                    34151
+                ]
+            ],
+            "title": "Comparative metaproteomics and metametabolomics of the biomass-degrading microbial community that inhabits the cow rumen"
+        },
+        "48653": {
+            "accepted_date": null,
+            "actual_end_date": "2015-12-31",
+            "actual_start_date": "2015-01-01",
+            "closed_date": "2014-11-10",
+            "group_id": 6268,
+            "instruments": [],
+            "title": "Development of the Integrated MetaPROteomics Viewer (IMPROV) Software Toolkit"
+        }
+    }
+}
+
