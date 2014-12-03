@@ -11,7 +11,6 @@ def handler(req):
     This is the mod python handler to split the url and call service method.
     """
     if 'Accept' in req.headers_in:
-        req.log_error(req.headers_in['Accept'])
         accept_types = req.headers_in['Accept'].split(',')
         accept_types = [ a.split(';')[0] for a in accept_types ]
         if '*/*' in accept_types:
