@@ -10,13 +10,10 @@ def handler(req):
     """
     This is the mod python handler to split the url and call service method.
     """
-    bits = req.path_info.split('/', 3)
-    dtype = None
-    if len(bits) > 2:
-        dtype = bits[2]
-        req.content_type = type
+    if 'Accept' in req.headers_in:
+        dtype = req.headers_in['Accept']
     else:
-        req.content_type = "application/json"
+        dtype = "application/json"
     userinfo.userinfo(int(req.user), dtype, req)
     return apache.OK
 
