@@ -1,4 +1,4 @@
 man3_MANS = \
-  webapi-userinfo.1
+  webapi-userinfo.3
 
 EXTRA_DIST = $(man3_MANS)
