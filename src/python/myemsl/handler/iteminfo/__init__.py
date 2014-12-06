@@ -3,11 +3,11 @@ from mod_python import apache
 from myemsl.service import iteminfo
 
 def handler(req):
-	bits = req.path_info.split('/', 3)
-	item_id = bits[2]
+	bits = req.path_info.split('/', 2)
+	item_id = bits[1]
 	type = None
-	if len(bits) > 3:
-		type = bits[3]
+	if len(bits) > 2:
+		type = bits[2]
 		req.content_type = "text/xml"
 	else:
 		req.content_type = "text/html"
