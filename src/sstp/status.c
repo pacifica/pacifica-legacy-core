@@ -20,8 +20,6 @@ int main(int argc, char *argv[])
 	char hostname[128];
 	gchar **dirs;
 	pid_t pid;
-	printf("Content-Type: text/xml; charset=us-ascii\n\n");
-	fflush(stdout);
 	document_root = getenv("DOCUMENT_ROOT");
 	remote_user = getenv("REMOTE_USER");
 	path_info = getenv("PATH_INFO");
@@ -61,6 +59,8 @@ int main(int argc, char *argv[])
 		at = dirs[2];
 	else
 		at = "html";
+	printf("Content-Type: text/%s; charset=us-ascii\n\n", at);
+	fflush(stdout);
 	
 	sprintf(buf, "/tmp/state.%s", dirs[1]);	
 	if(access(buf, R_OK) == 0)
