@@ -6,8 +6,8 @@ def schema_get(schema):
 {
 	"settings": {
 		"index": {
-			"number_of_shards": 10,
-			"number_of_replicas": 0
+			"number_of_shards": 16,
+			"number_of_replicas": 1
 		},
 		"analysis": {
 			"analyzer": {
@@ -246,8 +246,8 @@ def schema_get(schema):
 {
 	"settings": {
 		"index": {
-			"number_of_shards": 5,
-			"number_of_replicas": 0
+			"number_of_shards": 8,
+			"number_of_replicas": 1
 		},
 		"analysis": {
 			"analyzer": {
@@ -315,8 +315,8 @@ def schema_get(schema):
 {
 	"settings": {
 		"index": {
-			"number_of_shards": 5,
-			"number_of_replicas": 0
+			"number_of_shards": 8,
+			"number_of_replicas": 1
 		},
 		"analysis": {
 			"analyzer": {
@@ -406,8 +406,8 @@ def schema_get(schema):
 {
 	"settings": {
 		"index": {
-			"number_of_shards": 5,
-			"number_of_replicas": 0
+			"number_of_shards": 8,
+			"number_of_replicas": 1
 		},
 		"analysis": {
 			"analyzer": {
