@@ -101,7 +101,7 @@ WHERE
     cursor = cnx.cursor()
     cursor.execute(sql, {'person_id':person_id})
     for instrument_id in cursor.fetchall():
-        global_instruments[instrument_id] = 1
+        global_instruments[instrument_id[0]] = 1
         sql = """
 SELECT
   proposal_id
@@ -113,7 +113,7 @@ WHERE
         cursor = cnx.cursor()
         cursor.execute(sql, {'instrument_id':instrument_id})
         for proposal_id in cursor.fetchall():
-            global_proposals[proposal_id] = 1
+            global_proposals[proposal_id[0]] = 1
     ##
     # Get the proposals the user is on
     ##
@@ -145,10 +145,10 @@ SELECT
 FROM
   eus.proposals
 WHERE
-  proposal_id = %(proposal_id)d
+  proposal_id = %(proposal_id)s
         """
         cursor = cnx.cursor()
-        cursor.execute(sql, {'person_id':user})
+        cursor.execute(sql, {'proposal_id':proposal_id})
         for row in cursor.fetchall():
             (
                 proposal_id,
