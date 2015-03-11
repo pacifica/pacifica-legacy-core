@@ -178,10 +178,11 @@ WHERE
             """
             cursor = cnx.cursor()
             cursor.execute(sql, {'proposal_id':proposal_id})
-            data["proposals"][str(proposal_id)]["instruments"] = cursor.fetchall()
-            for i in data["proposals"][str(proposal_id)]["instruments"]:
+            data["proposals"][str(proposal_id)]["instruments"] = []
+            for i in cursor.fetchall():
                 i = i[0]
                 global_instruments[i] = 1
+                data["proposals"][str(proposal_id)]["instruments"].append(i)
     for instrument_id in global_instruments.keys():
         sql = """
 SELECT
