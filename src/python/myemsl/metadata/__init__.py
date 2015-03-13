@@ -207,3 +207,176 @@ WHERE
 """
 	rows = do_sql_select(sql, True, myemsl_schema_versions=['1.0'], params={'name':str(grp_name), 'type':str(grp_type)})
 	return rows[0][0]
+
+def get_user_info(userid):
+    ##
+    # get user information from EUS
+    ##
+    sql = """
+SELECT
+  person_id,
+  network_id,
+  first_name,
+  last_name,
+  email_address,
+  last_change_date
+FROM
+  eus.users
+WHERE
+  person_id=%(person_id)d
+    """
+    cnx = myemsldb_connect(myemsl_schema_versions=['1.8'])
+    cursor = cnx.cursor()
+    cursor.execute(sql, {'person_id':userid})
+    rows = cursor.fetchall()
+    if len(rows) != 1:
+        error(dtype, "multiple users with (%s)"%(userid), writer)
+    (person_id, network_id, first_name, last_name, email_address, last_change_date) = rows[0]
+    data = {
+        "person_id": person_id,
+        "network_id": network_id,
+        "first_name": first_name,
+        "last_name": last_name,
+        "email_address": email_address,
+        "last_change_date": last_change_date,
+        "proposals": {},
+        "instruments": {}
+    }
+    return data
+
+def get_custodian_instruments(userid):
+    ##
+    # This pulls the instruments from custodians and gets
+    # the associated proposals
+    ##
+    sql = """
+SELECT
+  instrument_id
+FROM
+  eus.emsl_staff_inst
+WHERE
+  person_id = %(person_id)s
+    """
+    cursor = cnx.cursor()
+    cursor.execute(sql, {'person_id':userid})
+    return [ i[0] for i in cursor.fetchall() ]
+
+def get_proposals_from_instrument(instid):
+    sql = """
+SELECT
+  proposal_id
+FROM
+  eus.proposal_instruments
+WHERE
+  proposal_instruments.instrument_id = %(instrument_id)s
+    """
+    cursor = cnx.cursor()
+    cursor.execute(sql, {'instrument_id':instid})
+    return [ i[0] for i in cursor.fetchall() ]
+
+def get_proposals_from_user(userid):
+    ##
+    # Get the proposals the user is on
+    ##
+    sql = """
+SELECT
+  proposal_id
+FROM
+  eus.proposal_members
+WHERE
+  person_id = %(person_id)s
+    """
+    cursor = cnx.cursor()
+    cursor.execute(sql, {'person_id':userid})
+    return [ i[0] for i in cursor.fetchall() ]
+
+def get_proposal_info(proposal_id):
+    sql = """
+SELECT
+  proposal_id,
+  title,
+  group_id,
+  accepted_date,
+  actual_end_date,
+  actual_start_date,
+  closed_date
+FROM
+  eus.proposals
+WHERE
+  proposal_id = %(proposal_id)s
+    """
+    cursor = cnx.cursor()
+    cursor.execute(sql, {'proposal_id':proposal_id})
+    data = {}
+    rows = cursor.fetchall()
+    if len(rows) == 1:
+        (   
+            proposal_id,
+            title,
+            group_id,
+            accepted_date,
+            actual_end_date,
+            actual_start_date,
+            closed_date
+        ) = rows[0]
+        data[str(proposal_id)] = {
+            "title": title,
+            "group_id": group_id,
+            "accepted_date": accepted_date,
+            "actual_end_date": actual_end_date,
+            "actual_start_date": actual_start_date,
+            "closed_date": closed_date,
+            "instruments": []
+        }
+    return data
+
+def get_instruments_from_proposal(proposal_id):
+    sql = """
+SELECT
+  instrument_id
+FROM
+  eus.proposal_instruments
+WHERE
+  proposal_instruments.proposal_id = %(proposal_id)s
+    """
+    cursor = cnx.cursor()
+    cursor.execute(sql, {'proposal_id':proposal_id})
+    return [ i[0] for i in cursor.fetchall() ]
+
+def get_instrument_info(instrument_id):
+    sql = """
+SELECT
+  instrument_id,
+  instrument_name,
+  last_change_date,
+  name_short,
+  eus_display_name,
+  active_sw
+FROM
+  eus.instruments
+WHERE
+  eus.instruments.instrument_id = %(instrument_id)d
+    """
+    cursor = cnx.cursor()
+    cursor.execute(sql, {'instrument_id':instrument_id})
+    rows = cursor.fetchall()
+    data = {}
+    if len(rows) == 1:
+        (   
+            instrument_id,
+            instrument_name,
+            last_change_date,
+            name_short,
+            eus_display_name,
+            active_sw
+        ) = rows[0]
+        data["instruments"][str(instrument_id)] = {
+            "instrument_id": instrument_id,
+            "instrument_name": instrument_name,
+            "last_change_date": last_change_date,
+            "name_short": name_short,
+            "eus_display_name": eus_display_name,
+            "active_sw": active_sw
+        }
+    return data
+

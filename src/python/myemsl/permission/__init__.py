@@ -157,3 +157,5 @@ def create_permission(gid, cls, psid):
 		raise
 	return
 
+def get_permission_ingest(metadata, userid):
+	return true

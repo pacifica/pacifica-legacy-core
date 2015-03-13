@@ -182,6 +182,7 @@ for i,size in f:
 
 #FIXME this should just commit. Need to be putting in objects as extracting above.
 try:
+	myemsl.permission.get_permission_ingest(metadata, options.username)
 	myemsl.ingest.ingest_metadata(metadata, f, options.username, transaction, itemlogfilename)
 except Exception, e:
 	myemsl.ingest.update_state(options.jobid, options.step, 'ERROR', str(e))

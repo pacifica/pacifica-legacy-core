@@ -6,7 +6,7 @@ import os
 import sys
 import errno
 import urllib
-import myemsl.elasticsearch
+import myemsl.metadata
 from myemsl.dbconnect import myemsldb_connect
 from myemsl.brand import brand
 
@@ -47,177 +47,43 @@ def userinfo(user, dtype, writer):
     This does the bulk of the SQL to gather the appropriate data to send back to the user.
     Currently it consists of the:
      * EUS user information
-     * EUS proposals for the user
      * EUS custodian table for instruments
+     * EUS proposals for the user
      * EUS instruments for those proposals
     """
     ##
     # get user information from EUS
     ##
-    sql = """
-SELECT
-  person_id,
-  network_id,
-  first_name,
-  last_name,
-  email_address,
-  last_change_date
-FROM
-  eus.users
-WHERE
-  person_id=%(person_id)d
-    """
-    cnx = myemsldb_connect(myemsl_schema_versions=['1.8'])
-    cursor = cnx.cursor()
-    cursor.execute(sql, {'person_id':user})
-    rows = cursor.fetchall()
-    if len(rows) != 1:
-        error(dtype, "multiple users with (%s)"%(user), writer)
-    (person_id, network_id, first_name, last_name, email_address, last_change_date) = rows[0]
-    data = {
-        "person_id": person_id,
-        "network_id": network_id,
-        "first_name": first_name,
-        "last_name": last_name,
-        "email_address": email_address,
-        "last_change_date": last_change_date,
-        "proposals": {},
-        "instruments": {}
-    }
+    data = myemsl.metadata.get_user_info(user)
     global_instruments = {}
     global_proposals = {}
     ##
-    # This pulls the instruments from custodians and gets
-    # the associated proposals
+    # apply all proposals attached to instruments that the user is a
+    # custodian on.
     ##
-    sql = """
-SELECT
-  instrument_id
-FROM
-  eus.emsl_staff_inst
-WHERE
-  person_id = %(person_id)s
-    """
-    cursor = cnx.cursor()
-    cursor.execute(sql, {'person_id':person_id})
-    for instrument_id in cursor.fetchall():
-        global_instruments[instrument_id[0]] = 1
-        sql = """
-SELECT
-  proposal_id
-FROM
-  eus.proposal_instruments
-WHERE
-  proposal_instruments.instrument_id = %(instrument_id)s
-        """
-        cursor = cnx.cursor()
-        cursor.execute(sql, {'instrument_id':instrument_id})
-        for proposal_id in cursor.fetchall():
-            global_proposals[proposal_id[0]] = 1
+    for instrument_id in myemsl.metadata.get_custodian_instruments(user):
+        global_instruments[instrument_id] = 1
+        for proposal_id in myemsl.metadata.get_proposals_from_instrument(instrument_id):
+            global_proposals[proposal_id] = 1
     ##
     # Get the proposals the user is on
     ##
-    sql = """
-SELECT
-  proposal_id
-FROM
-  eus.proposal_members
-WHERE
-  person_id = %(person_id)s
-    """
-    cursor = cnx.cursor()
-    cursor.execute(sql, {'person_id':person_id})
-    for proposal_id in cursor.fetchall():
+    for proposal_id in myemsl.metadata.get_proposal_from_user(user):
         global_proposals[proposal_id] = 1
     ##
-    # get proposal information from EUS for all proposals
+    # get proposal information from EUS for proposals
     ##
     for proposal_id in global_proposals.keys():
-        sql = """
-SELECT
-  proposal_id,
-  title,
-  group_id,
-  accepted_date,
-  actual_end_date,
-  actual_start_date,
-  closed_date
-FROM
-  eus.proposals
-WHERE
-  proposal_id = %(proposal_id)s
-        """
-        cursor = cnx.cursor()
-        cursor.execute(sql, {'proposal_id':proposal_id})
-        for row in cursor.fetchall():
-            (
-                proposal_id,
-                title,
-                group_id,
-                accepted_date,
-                actual_end_date,
-                actual_start_date,
-                closed_date
-            ) = row
-            data["proposals"][str(proposal_id)] = {
-                "title": title,
-                "group_id": group_id,
-                "accepted_date": accepted_date,
-                "actual_end_date": actual_end_date,
-                "actual_start_date": actual_start_date,
-                "closed_date": closed_date,
-                "instruments": []
-            }
-            sql = """
-SELECT
-  instrument_id
-FROM
-  eus.proposal_instruments
-WHERE
-  proposal_instruments.proposal_id = %(proposal_id)s
-            """
-            cursor = cnx.cursor()
-            cursor.execute(sql, {'proposal_id':proposal_id})
-            data["proposals"][str(proposal_id)]["instruments"] = []
-            for i in cursor.fetchall():
-                i = i[0]
-                global_instruments[i] = 1
-                data["proposals"][str(proposal_id)]["instruments"].append(i)
+        data["proposals"][str(proposal_id)] = myemsl.metadata.get_proposal_info(proposal_id)
+        inst_list = myemsl.metadata.get_instruments_from_proposal(proposal_id)
+        data["proposals"][str(proposal_id)]["instruments"] = inst_list
+        for instrument_id in inst_list:
+            global_instruments[instrument_id] = 1
+    ##
+    # get instrument information from EUS for instruments
+    ##
     for instrument_id in global_instruments.keys():
-        sql = """
-SELECT
-  instrument_id,
-  instrument_name,
-  last_change_date,
-  name_short,
-  eus_display_name,
-  active_sw
-FROM
-  eus.instruments
-WHERE
-  eus.instruments.instrument_id = %(instrument_id)d
-        """
-        cursor = cnx.cursor()
-        cursor.execute(sql, {'instrument_id':instrument_id})
-        rows = cursor.fetchall()
-        if len(rows) != 1:
-            error(dtype, "multiple instruments with id (%s)"%(str(instrument_id)), writer)
-        (
-            instrument_id,
-            instrument_name,
-            last_change_date,
-            name_short,
-            eus_display_name,
-            active_sw
-        ) = rows[0]
-        data["instruments"][str(instrument_id)] = {
-            "instrument_id": instrument_id,
-            "instrument_name": instrument_name,
-            "last_change_date": last_change_date,
-            "name_short": name_short,
-            "eus_display_name": eus_display_name,
-            "active_sw": active_sw
-        }
+        data["instruments"][str(instrument_id)] = myemsl.metadata.get_instrument_info(instrument_id)
     formatdata(dtype, data, writer)
     return 0
 
