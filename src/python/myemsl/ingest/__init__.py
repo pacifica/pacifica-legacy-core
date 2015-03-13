@@ -143,13 +143,6 @@ def ingest_metadata(metadata, files, username, transaction, itemlogfilename):
 	if proposal:
 		proposals.append(proposal)
 
-	for prop in proposals:
-		perm = myemsl.getpermission.get_permission_bool(int(username), 'proposal', 'p', config)
-		if not perm:
-			perm = myemsl.getpermission.get_permission_upload(int(username), prop, config)
-		if not perm:
-			raise Exception('You(%s) do not have upload permissions to proposal %s.\n'%(str(username), prop))
-
 
 	def validate_group(group):
 		if not ('name' in group and group['name'] != None):
@@ -161,21 +154,13 @@ def ingest_metadata(metadata, files, username, transaction, itemlogfilename):
 		if not group:
 			continue
 		validate_group(group)
-		p_perm = myemsl.getpermission.get_permission_bool(int(username), group['type'], 'p', config=config)
-		if p_perm:
-			insert_group(group['name'], group['type'])
-		else:
-			raise Exception('You(%s) do not have permissions to add a group of type %s.\n'%(str(username), group['type']))
+		insert_group(group['name'], group['type'])
 
 	for subgroup in subgroups + file_subgroups:
 		pgrp = subgroup[0]
 		cgrp = subgroup[1]
 		validate_group(pgrp)
 		validate_group(cgrp)
-		p_perm = myemsl.getpermission.get_permission_bool(int(username), pgrp['type'], 'p', config=config)
-		c_perm = myemsl.getpermission.get_permission_bool(int(username), cgrp['type'], 'p', config=config)
-		if not p_perm or not c_perm:
-			raise Exception('You(%s) do not have permissions to subgroup %s to %s.'%(str(username),cgrp['type'], pgrp['type']))
 		if pgrp['type'] == 'proposal':
 			pgid = get_proposal_gid(pgrp['name'])
 		else:
