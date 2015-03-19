@@ -158,4 +158,67 @@ def create_permission(gid, cls, psid):
 	return
 
 def get_permission_ingest(metadata, userid):
-	return true
+	"""
+	pseudo code to manage ingest permissions
+
+	if user is memeber of proposal
+	  return true
+	elif user is custodian of the instrument and the proposal has instrument 
+	  return true
+	fi
+	return false
+
+	This has to be made generic for multiple formats of metadata.
+	So to be more specific...
+
+	get list of proposals user is a member of
+	get list of proposals in the metadata
+	for all proposals in metadata
+	  if proposal is not in proposals for user
+	    questionable_proposals += proposal
+	
+	if questionable_proposals is empty
+	  return true
+
+	get list of instruments user is custodian on
+	if custodian instrument list is empty and questionable_proposals is not empty
+	  return false
+	else
+	  get list of proposals from custodian instrument list
+	  for all proposals in questionable_proposals
+	    if proposal in questionable_proposals
+	      remove proposal from questionable_proposals
+	if questionable_proposals is empty
+	  return true
+	return false
+	"""
+	my_proposals = get_proposals_from_user(userid)
+	requested_proposals = {}
+	if 'eusInfo' in metadata:
+		if 'proposalID' in metadata['eusInfo']:
+			requested_proposals[metadata['eusInfo']['proposalID']] = 1
+	if 'file' in metadata:
+		for file in metadata['file']:
+			if 'groups' in file and file['groups']:
+				for group in file['groups']:
+					if group['type'] == 'proposal':
+						requested_proposals[group['name']] = 1
+	questionable_proposals = []
+	for prop in requested_proposals.keys():
+		if not prop in my_proposals:
+			questionable_proposals.append(prop)
+
+	if len(questionable_proposals) == 0:
+		return true
+
+	instrument_proposals = {}
+	for instrument in get_custodian_instruments(userid):
+		for prop in get_proposals_from_instrument(instrument):
+			instrument_proposals[prop] = 1
+
+	for prop in instrument_proposals.keys():
+		questionable_proposals.remove(prop)
+
+	if len(questionable_proposals) == 0:
+		return true
+	return false
