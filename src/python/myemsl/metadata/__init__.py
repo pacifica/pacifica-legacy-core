@@ -257,6 +257,7 @@ FROM
 WHERE
   person_id = %(person_id)s
     """
+    cnx = myemsldb_connect(myemsl_schema_versions=['1.8'])
     cursor = cnx.cursor()
     cursor.execute(sql, {'person_id':userid})
     return [ i[0] for i in cursor.fetchall() ]
@@ -270,6 +271,7 @@ FROM
 WHERE
   proposal_instruments.instrument_id = %(instrument_id)s
     """
+    cnx = myemsldb_connect(myemsl_schema_versions=['1.8'])
     cursor = cnx.cursor()
     cursor.execute(sql, {'instrument_id':instid})
     return [ i[0] for i in cursor.fetchall() ]
@@ -286,6 +288,7 @@ FROM
 WHERE
   person_id = %(person_id)s
     """
+    cnx = myemsldb_connect(myemsl_schema_versions=['1.8'])
     cursor = cnx.cursor()
     cursor.execute(sql, {'person_id':userid})
     return [ i[0] for i in cursor.fetchall() ]
@@ -305,6 +308,7 @@ FROM
 WHERE
   proposal_id = %(proposal_id)s
     """
+    cnx = myemsldb_connect(myemsl_schema_versions=['1.8'])
     cursor = cnx.cursor()
     cursor.execute(sql, {'proposal_id':proposal_id})
     data = {}
@@ -339,6 +343,7 @@ FROM
 WHERE
   proposal_instruments.proposal_id = %(proposal_id)s
     """
+    cnx = myemsldb_connect(myemsl_schema_versions=['1.8'])
     cursor = cnx.cursor()
     cursor.execute(sql, {'proposal_id':proposal_id})
     return [ i[0] for i in cursor.fetchall() ]
@@ -357,6 +362,7 @@ FROM
 WHERE
   eus.instruments.instrument_id = %(instrument_id)d
     """
+    cnx = myemsldb_connect(myemsl_schema_versions=['1.8'])
     cursor = cnx.cursor()
     cursor.execute(sql, {'instrument_id':instrument_id})
     rows = cursor.fetchall()
