@@ -376,7 +376,7 @@ WHERE
             eus_display_name,
             active_sw
         ) = rows[0]
-        data["instruments"][str(instrument_id)] = {
+        data[str(instrument_id)] = {
             "instrument_id": instrument_id,
             "instrument_name": instrument_name,
             "last_change_date": last_change_date,
