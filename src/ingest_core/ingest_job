@@ -180,7 +180,7 @@ for i,size in f:
 #	os.chmod(i, stat.S_IRUSR)
 	os.chmod(i, stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH)
 
-if ! myemsl.permission.get_permission_ingest(metadata, options.username):
+if not myemsl.permission.get_permission_ingest(metadata, options.username):
 	myemsl.ingest.update_state(options.jobid, options.step, 'ERROR', 'Invalid Permissions')
 	sys.exit(-1)
 try:
