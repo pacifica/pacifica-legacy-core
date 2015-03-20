@@ -28,6 +28,7 @@ from myemsl.logging import getLogger
 import myemsl.util
 import myemsl.ingest
 import myemsl.archive
+import myemsl.permission
 
 logger = getLogger('myemsl.ingest_core.ingest_job')
 
