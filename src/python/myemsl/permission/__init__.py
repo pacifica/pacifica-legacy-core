@@ -218,7 +218,8 @@ def get_permission_ingest(metadata, userid):
 			instrument_proposals[prop] = 1
 
 	for prop in instrument_proposals.keys():
-		questionable_proposals.remove(prop)
+		if prop in questionable_proposals:
+			questionable_proposals.remove(prop)
 
 	if len(questionable_proposals) == 0:
 		return true
