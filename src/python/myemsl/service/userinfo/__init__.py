@@ -68,7 +68,7 @@ def userinfo(user, dtype, writer):
     ##
     # Get the proposals the user is on
     ##
-    for proposal_id in myemsl.metadata.get_proposal_from_user(user):
+    for proposal_id in myemsl.metadata.get_proposals_from_user(user):
         global_proposals[proposal_id] = 1
     ##
     # get proposal information from EUS for proposals
