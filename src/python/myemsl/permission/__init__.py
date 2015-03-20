@@ -163,11 +163,11 @@ def get_permission_ingest(metadata, userid):
 	pseudo code to manage ingest permissions
 
 	if user is memeber of proposal
-	  return true
+	  return True
 	elif user is custodian of the instrument and the proposal has instrument 
-	  return true
+	  return True
 	fi
-	return false
+	return False
 
 	This has to be made generic for multiple formats of metadata.
 	So to be more specific...
@@ -179,19 +179,19 @@ def get_permission_ingest(metadata, userid):
 	    questionable_proposals += proposal
 	
 	if questionable_proposals is empty
-	  return true
+	  return True
 
 	get list of instruments user is custodian on
 	if custodian instrument list is empty and questionable_proposals is not empty
-	  return false
+	  return False
 	else
 	  get list of proposals from custodian instrument list
 	  for all proposals in questionable_proposals
 	    if proposal in questionable_proposals
 	      remove proposal from questionable_proposals
 	if questionable_proposals is empty
-	  return true
-	return false
+	  return True
+	return False
 	"""
 	my_proposals = get_proposals_from_user(userid)
 	requested_proposals = {}
@@ -210,7 +210,7 @@ def get_permission_ingest(metadata, userid):
 			questionable_proposals.append(prop)
 
 	if len(questionable_proposals) == 0:
-		return true
+		return True
 
 	instrument_proposals = {}
 	for instrument in get_custodian_instruments(userid):
@@ -222,5 +222,5 @@ def get_permission_ingest(metadata, userid):
 			questionable_proposals.remove(prop)
 
 	if len(questionable_proposals) == 0:
-		return true
-	return false
+		return True
+	return False
