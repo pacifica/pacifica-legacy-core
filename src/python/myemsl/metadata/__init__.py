@@ -323,7 +323,7 @@ WHERE
             actual_start_date,
             closed_date
         ) = rows[0]
-        data[str(proposal_id)] = {
+        data = {
             "title": title,
             "group_id": group_id,
             "accepted_date": accepted_date,
@@ -376,7 +376,7 @@ WHERE
             eus_display_name,
             active_sw
         ) = rows[0]
-        data[str(instrument_id)] = {
+        data = {
             "instrument_id": instrument_id,
             "instrument_name": instrument_name,
             "last_change_date": last_change_date,
