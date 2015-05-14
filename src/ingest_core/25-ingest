@@ -30,6 +30,6 @@ else
 	umask 077
 	mkdir -p "$MPT"
 	chown "$MYEMSL_UNIX_USER"."$MYEMSL_UNIX_USER" "$MPT"
-	buhfs -o subdir="$MYEMSL_ARCHIVE_SUBDIR",no_trash,switch_user="$MYEMSL_UNIX_USER",user="$MYEMSL_ARCHIVE_USER",keytab=/var/hpss/etc/$MYEMSL_UNIX_USER.keytab,no_multiuser,max_write=1048576,rw_buffer_size=33554432 "$MPT"
+	buhfs -o subdir="$MYEMSL_ARCHIVE_SUBDIR",no_trash,switch_user="$MYEMSL_UNIX_USER",user="$MYEMSL_ARCHIVE_USER",keytab=/var/hpss/etc/$MYEMSL_ARCHIVE_USER.keytab,no_multiuser,max_write=1048576,rw_buffer_size=33554432 "$MPT"
 	exit $?
 fi
