@@ -35,7 +35,7 @@ def process_item(entry, services):
 	return_entry({'log': "Starting processing: %s %s %s %s %s" %(cart_id, item_id, fullfile, url, token)})
 	try:
 #FIXME make this configurable somehow.
-		myemsl.callcurl.call_curl(url, method="DOWNLOAD", auth="bearer", token=token, filename=fullfile, bytesrecieved=_ReportFirstGoodRead().bytescb, insecure_host=True, insecure_peer=True)
+		myemsl.callcurl.call_curl(url, method="DOWNLOAD", auth="bearer", token=token, filename=fullfile, bytesrecieved=_ReportFirstGoodRead().bytescb, insecure_host=2, insecure_peer=1)
 		return_entry({'done':True})
 	except myemsl.callcurl.CurlException, e:
 		try:
