@@ -334,6 +334,21 @@ WHERE
         }
     return data
 
+def get_users_from_proposal(proposal_id):
+    sql = """
+SELECT
+  person_id
+FROM
+  eus.proposal_members
+WHERE
+  proposal_members.proposal_id = %(proposal_id)s
+    """
+    cnx = myemsldb_connect(myemsl_schema_versions=['1.8'])
+    cursor = cnx.cursor()
+    cursor.execute(sql, {'proposal_id':proposal_id})
+    return [ i[0] for i in cursor.fetchall() ]
+     
+
 def get_instruments_from_proposal(proposal_id):
     sql = """
 SELECT
