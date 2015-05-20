@@ -1030,18 +1030,24 @@ rm -rf %{buildroot}
 %files web-userinfo
 %defattr(0644,root,root)
 %{_prefix}/lib/myemsl/apache/myemsl.d/userinfo.conf
+%{_prefix}/lib/myemsl/apache/myemsl.d/proposalinfo.conf
 
 %files web-userinfo-ssl
 %defattr(0644,root,root)
 %{_prefix}/lib/myemsl/apache/myemsl-ssl.d/userinfo.conf
+%{_prefix}/lib/myemsl/apache/myemsl-ssl.d/proposalinfo.conf
 
 %files web-userinfo-common
 %{_defaultdocdir}/myemsl/userinfo
+%{_defaultdocdir}/myemsl/proposalinfo
 %defattr(0644,root,root)
 %{_mandir}/man3/webapi-userinfo.3*
+%{_mandir}/man3/webapi-proposalinfo.3*
 %defattr(0755,root,root)
 /%{python_sitelib}/myemsl/service/userinfo*
 /%{python_sitelib}/myemsl/handler/userinfo*
+/%{python_sitelib}/myemsl/service/proposalinfo*
+/%{python_sitelib}/myemsl/handler/proposalinfo*
 %defattr(0755,root,root)
 
 %files web-iteminfo
