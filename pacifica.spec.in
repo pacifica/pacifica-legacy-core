@@ -1039,10 +1039,8 @@ rm -rf %{buildroot}
 
 %files web-userinfo-common
 %{_defaultdocdir}/myemsl/userinfo
-%{_defaultdocdir}/myemsl/proposalinfo
 %defattr(0644,root,root)
 %{_mandir}/man3/webapi-userinfo.3*
-%{_mandir}/man3/webapi-proposalinfo.3*
 %defattr(0755,root,root)
 /%{python_sitelib}/myemsl/service/userinfo*
 /%{python_sitelib}/myemsl/handler/userinfo*
