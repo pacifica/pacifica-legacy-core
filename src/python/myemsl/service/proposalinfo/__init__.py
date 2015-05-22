@@ -60,7 +60,7 @@ def proposalinfo(proposal_id, dtype, writer):
     data["members"] = {}
     user_list = myemsl.metadata.get_users_from_proposal(proposal_id)
     for person_id in user_list:
-        data["members"][str(person_id)] = myemsl.metadata.get_person_info(person_id)
+        data["members"][str(person_id)] = myemsl.metadata.get_user_info(person_id)
     ##
     # get instrument information from EUS for instruments
     ##
