@@ -259,7 +259,8 @@ WHERE cart_id IN (
 			cart_id = crow[3]
 			if subdir != '' and subdir != None:
 				subdir = '/' + subdir
-			process.stdin.write("%s%s/%s\0" %(item_id, subdir, name))
+			#process.stdin.write("%s%s/%s\0" %(item_id, subdir, name))
+			process.stdin.write("%s/%s\0" %(subdir, name))
 			process.stdin.write("%s-%s\0" %(cart_id, item_id))
 		process.stdin.close()
 		res = process.wait()
