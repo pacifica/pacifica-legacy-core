@@ -47,6 +47,7 @@ def process(item, filename, req):
 			return apache.HTTP_SERVICE_UNAVAILABLE
 	logger.debug("Returning: %s" %(filename))
 	req.headers_out['X-SENDFILE'] = filename
+	req.headers_out['Content-Type'] = 'application/octet-stream'
 	req.headers_out['Content-Disposition'] = 'attachment'
 	if req.method == "GET":
 		logentry = {
