@@ -1,0 +1,89 @@
+/* PNNL Intranet Print Stylesheet
+   Author: Geoff Elliott
+   Updated: June 2008
+*/
+
+body {
+  background-color: #fff;
+  color: #000;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+#skipNav, #siteNav, #leftNav, #rightCol, #subBanner #weather, #siteSearch {display: none;}
+
+#pnnlLogo {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  display: block;
+  background-image: url("https://www.pnnl.gov/images/pnnl_logo.png");
+  background-repeat: no-repeat;
+  width: 280px;
+  height: 119px;
+  text-indent: -1000px;
+}
+
+#topBanner #doeLink {
+  display: block;
+  position: absolute;
+  top: 40px;
+  right: 0px;
+  background-image: url("https://www.pnnl.gov/images/doe_seal_plus_name.png");
+  background-repeat: no-repeat;
+  width: 167px;
+  height: 48px;
+  text-indent: -2000px;
+}
+
+#page {width: 95%;}
+#topBanner {
+  padding-top: 30px;
+  position: relative;
+  height: 69px;
+}
+
+#subBanner {
+  padding: 0;
+  background-color: #fff;
+}
+#subBanner img {width: 100%; height: auto;}
+#container {float: none;}
+#main {width: auto; margin: 0; padding: 0 8pt 0 0;}
+
+#main p, #main ul, #main ol {
+    font-size: 10pt;
+}
+
+#main h1 {font-size: 16pt; line-height: 112%; margin-top: 1em;}
+#main h2{font-size: 13pt; margin: 0 0 6px 0;}
+body.home #main h2 {font-size: 13pt;}
+#main h2 a {text-decoration: none;}
+#main h3{font-size: 11pt; margin: 0 0 6pt 0;}
+#main #imageBlock, #main .imageRight {float: right; margin: 0 0 12pt 12pt; font-size: 8pt;}
+
+#main .shareLinks {display: none;}
+
+#footer {
+  clear: both;
+  background-color: transparent;
+  color: black;
+  margin: 0;
+  font-size: 7pt;
+  padding: 0;
+}
+#footer p {margin: 0 0 .2em 0; padding-top: 26px;}
+#footer #bottomNav {
+  margin: 0;
+  padding: 0;
+}
+#footer #bottomNav li {
+  list-style: none;
+  margin-bottom: 0.3em;
+}
+#footer #bottomNav a {color: white;}
+
+.floatRight {float: right; margin: 0 0 8pt 8pt; font-size: 7pt; line-height: 120%;}
+.floatLeft {float: left; margin: 0 8pt 8pt 0; font-size: 7pt; line-height: 120%;}
+.floatRight img, .floatLeft img {margin-bottom:5pt;}
+
+.imageRight2 {float: right; margin: 0 0 8pt 8pt;}

@@ -1,0 +1,358 @@
+/*  PNNL Basic Stylesheet
+    Author: Geoff Elliott
+    Last Updated: December 2008
+*/
+
+/*  Reset Stylesheet
+    Based on Eric Meyer's
+*/
+
+  html, body, div, span,
+  applet, object, iframe,
+  h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+  a, abbr, acronym, address, big, cite, code,
+  del, dfn, em, font, img, ins, kbd, q, s, samp,
+  small, strike, strong, sub, sup, tt, var,
+  dd, dl, dt, li, ol, ul,
+  fieldset, form, label, legend,
+  table, caption, tbody, tfoot, thead, tr, th, td {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-weight: inherit;
+    font-style: inherit;
+    font-family: inherit;
+    /*text-align: inherit;*/
+    vertical-align: baseline;
+    font-size: 100%;
+    /*line-height: 1;*/
+  }
+
+  a img, :link img, :visited img {
+    border: 0;
+  }
+
+  table {
+    border-collapse: collapse;
+    border-spacing: 0;
+  }
+
+  ul {
+    list-style: none;
+  }
+
+  q:before, q:after,
+  blockquote:before, blockquote:after {
+    content: "";
+  }
+
+/******** Begin PNNL Style ********/
+
+  body {
+    background: url("/resources/images/intranet_bg@2x.png") repeat-y;
+    background-size: auto 470px;
+    background-color: #b2b3b5 !important;
+    background-position: center top;
+    color: black;
+    font-family: "Avenir STD", "Avenir LT STD", Avenir, Arial, "Helvetica Neue", Helvetica, sans-serif;
+    font-size: 13px;
+    line-height: 150%;
+  }
+
+  * html body {
+    background: url("/resources/images/intranet_bg.gif") repeat-y;
+    background-color: #b2b3b5;
+    background-position: center top;
+  }
+
+  a:link {
+    color: #0077a4;
+    text-decoration: none;
+  }
+
+  a:visited {
+    color: #6b2f81;
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: #0077a4;
+    text-decoration: underline;
+  }
+
+  em, cite {
+    font-style: italic;
+  }
+
+  strong {
+    font-weight: bold;
+  }
+
+  sup {
+    vertical-align: top;
+    font-size: 75%;
+  }
+
+  sub {
+    vertical-align: bottom;
+    font-size: 75%;
+  }
+
+  #page {
+    width: 940px;
+    padding: 10px 10px 0;
+    background-color: white;
+  }
+
+  #main p, #main ul, #main .vcard {
+    margin: 0 0 1em 0;
+  }
+
+  #main h1, #main h2 {
+    color: #d57500;
+  }
+
+  #main h3, #main h4 {
+    color: #cf6200;
+  }
+
+  #main h1 {
+    font-size: 20px;
+    margin-bottom: 12px;
+  }
+
+  #main h2 {
+    font-size: 16px;
+    margin-bottom: 12px;
+  }
+
+  #main h3 {
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+
+  #main th {
+    text-align: left;
+  }
+
+  #main dt {
+    color: #cf6200;
+    font-size: 14px;
+  }
+
+  #main dd {
+    margin-bottom: 1.5em;
+  }
+
+  #main li {
+    margin-left: 18px;
+    margin-bottom: 8px;
+  }
+
+  #main ul, #rightCol ul {
+    list-style-image: url("https://www.pnnl.gov/images/bullet_square.png");
+  }
+
+  * html #main ul, * html #rightCol ul {
+      list-style-image: url("https://www.pnnl.gov/images/bullet_square.gif");
+  }
+
+  #main ul ul, #rightCol ul ul {
+    list-style-image: url("https://www.pnnl.gov/images/bullet_circle.png");
+    margin-top: 8px;
+  }
+
+  * html #main ul ul, * html #rightCol ul ul {
+      list-style-image: url("https://www.pnnl.gov/images/bullet_circle.gif");
+  }
+
+  * html #main ul ul ul, * html #rightCol ul ul ul {
+    list-style-image: url("https://www.pnnl.gov/images/bullet_diamond.gif");
+  }
+
+  #main ul ul ul, #rightCol ul ul ul {
+      list-style-image: url("https://www.pnnl.gov/images/bullet_diamond.png");
+  }
+
+	#main ol, #rightCol ol {
+		list-style-type: decimal;
+	}
+	
+	#main ol ol, #rightCol ol ol {
+		list-style-type: lower-alpha;
+	}
+	
+	#main ol ol ol, #rightCol ol ol ol {
+		list-style-type: lower-roman;
+	}
+
+  #main blockquote {
+    padding-left: 40px;
+    font-style: italic;
+    background-image: url("https://www.pnnl.gov/images/blockquote_bg.gif");
+    background-repeat: no-repeat;
+    background-position: top left;
+    line-height: 180%;
+    margin: 1.5em 1em 1.5em .5em;
+  }
+
+  hr {
+    border: none;
+    border-top: 1px solid #b2b3b5;
+    height: 1px;
+    margin: 1em 0;
+    padding: 0;
+  }
+
+  a.more {
+    white-space: nowrap;
+  }
+
+  button.copper {
+    background-color: #d57500;
+    background-image: url("https://www.pnnl.gov/images/button_bg.png");
+    background-repeat: repeat-x;
+    background-position: left bottom;
+    color: white;
+    font-size: 11px;
+    padding: 3px 6px;
+    font-weight: bold;
+    border: none;
+    border-radius: 4px;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+  }
+
+  button.copper:active {
+    position: relative;
+    top: 1px;
+    left: 1px;
+  }
+
+  *+html button.copper {
+    padding: 0px;
+  }
+
+  *+html button.copper.inline {
+    position: relative;
+    top: 2px;
+  }
+
+  .caption {
+    color: #707276;
+  }
+
+  .clear {
+    clear: both !important;
+    float: none !important;
+  }
+
+
+/******** Footer ********/
+
+#footer {
+  clear: both;
+  padding-top: 60px;
+  padding-bottom: 30px;
+  font-size: 10px;
+  color: #6f6f6f;
+}
+
+* html #footer {
+  width: 940px; /* I don't understand why IE6 requires this to force proper width*/
+}
+
+#footerBar {
+  background-color: #707276;
+  color: white;
+  margin-bottom: 10px;
+  position: relative;
+  height: 30px;
+}
+
+#footerBar a:link, #footerBar a:visited {
+  color: white;
+}
+
+#tagline {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 220px;
+  height: 30px;
+  background-image: url("https://www.pnnl.gov/images/footer_tagline.png");
+  background-repeat: no-repeat;
+  text-indent: -1000px;
+  border-right: 2px solid white;
+  overflow: hidden;
+}
+
+#officeOfScience {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  width: 220px;
+  height: 30px;
+  background-image: url("https://www.pnnl.gov/images/footer_right_corner.png");
+  background-repeat: no-repeat;
+  text-indent: -1000px;
+  overflow: hidden;
+}
+
+.updatedDate {
+  font-weight: bold;
+}
+
+#footerLinks {
+  float: right;
+}
+
+#footerLinks a:link {
+  color: #cf6200;
+}
+
+
+/******** Table styles ********/
+#main table, #main td, #main th {
+  border: 1px solid #b2b3b5;
+  border-collapse: collapse;
+}
+#main th, #main td {
+  padding: 0.5em 1em;
+}
+#main th {
+  color: #cf6200;
+}
+#main td {
+  vertical-align: top;
+}
+#main thead th {
+  border-bottom: 2px solid #707276;
+  text-align: center;
+}
+
+/* Turn off table styles with the "borderless" class */
+#main table.borderless, #main table.borderless th, #main table.borderless td {border: 0;}
+#main table.borderless th {font-weight: 600; position:relative; color: #444;}
+#main table.borderless th span {position:absolute; top: 6px; right: 3px;}
+
+
+/*  hCard Style ********************************************/
+
+.vcard .fn {
+  font-weight: bold;
+}
+
+.vcard .fn, .vcard .title, .vcard .tel {
+  display: block;
+}
+
+
+/*  Full-Width Styles **************************************/
+
+body.fullWidth #page, body.col2Full #page, body.col1Full #page {
+  width: 100%; /* Not auto, that causes problems in IE7 */
+  min-width: 940px;
+  padding: 0px;
+  padding-top: 10px;
+}

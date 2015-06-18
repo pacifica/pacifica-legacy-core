@@ -1,0 +1,108 @@
+<?php
+  $carts = isset($carts) && !empty($carts) ? $carts : array();
+  $classes = array('available','building','expired');
+?>
+
+<div id="cart_item_container">
+  <?php foreach($classes as $classification): ?>
+    <?php if(!array_key_exists($classification,$carts)): ?>
+      <?php continue; ?>
+    <?php endif; ?>
+    <?php $cart_list = $carts[$classification] ?>
+    <div id="<?= $classification ?>_cart_container" class="cart_tree form_container">
+      <h2><?= ucwords($classification) ?></h2>
+      <table style="width:100%;">
+        <thead>
+          <tr>
+            <th>&nbsp;</th>
+            <th>Cart Description<br />[Proposal/Instrument/Upload Time]</th>
+            <th>Created</th>
+            <th>Completed</th>
+            <th>Size</th>
+            <th>Upload ID</th>
+            <th>&nbsp;</th>
+          </tr>
+        </thead>
+        <tbody>
+        <?php foreach($cart_list as $cart_id => $info): ?>
+        <?php $md = $info['metadata']; ?>
+          <tr id="cart_line_<?= $cart_id ?>" class="cart_line">
+            <td>
+              <?php if($classification == 'available'): ?>
+              <a href="<?= $info['download_url'] ?>">Download</a>
+              <?php else: ?>
+              &mdash;&mdash;&mdash;
+              <?php endif; ?>
+            </td>
+            <td>
+              <span><?= $md['proposal_id'] ?></span> / 
+              <span title="<?= $md['instrument_description'] ?>"><?= $md['instrument_id'] ?></span> /
+              <span><?= $info['times']['formatted_upload_time'] ?></span>
+            </td>
+            <td>
+              <?php if(!empty($info['times']['submit'])): ?>
+              <?= $info['times']['formatted_submit'] ?>
+              <?php else: ?> 
+              N/A
+              <?php endif; ?>
+            </td>
+            <td>
+              <?php if(!empty($info['times']['email'])): ?>
+              <time title='<?= $info["times"]["email_time_obj"]->format("d M Y g:ia") ?>' datetime='<?= $info["times"]["email_time_obj"]->format("c") ?>'><?= $info['times']['generation_time'] ?></time>
+              <?php else: ?> 
+              &mdash;&mdash;&mdash;
+              <?php endif; ?>
+            </td>
+            <td><?= $info['display_item_count'] ?> [<?= $info['display_size'] ?>]</td>
+            <td><?= $info['transaction_id'] ?></td>
+            <td>
+              <div class="buttons">
+                <input 
+                  type="button" 
+                  id="delete_button_<?= $cart_id ?>" 
+                  name="delete_button_<?= $cart_id ?>" 
+                  <?php if($classification != 'available'): ?>                    
+                  class="cart_delete_button disabled_button"
+                  disabled="disabled"
+                  title="Delete functionality not enabled until download moves to 'available' state"
+                  <?php else: ?>
+                  class="cart_delete_button"
+                  title="Delete this queued download" 
+                  <?php endif; ?>
+                  value="X" 
+                />
+              </div>
+            </td>
+          </tr>
+      <?php endforeach; ?>
+        </tbody>
+      </table>
+    </div>
+  <?php endforeach; ?>
+</div>
+<script type="application/javascript">
+  $(function(){
+    var del_buttons = $('.cart_delete_button');
+    del_buttons.each(function(el){
+      el = $(this);
+      el.unbind('click');
+      el.click(function(){
+        var cart_id = parseInt(el.prop('id').replace('delete_button_',''),10);
+        var dialog_message = $('<div><p>Really delete this cart?</p></div>');
+        dialog_message.dialog({
+          modal:true,
+          buttons: {
+            Delete: function(){
+              cart_delete(cart_id);
+              $(this).dialog("close");
+            },
+            Cancel: function(){
+              $(this).dialog("close");
+              return false;
+            }
+          }
+        });
+      });
+    });
+  });
+</script>

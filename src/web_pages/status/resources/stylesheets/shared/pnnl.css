@@ -1,0 +1,747 @@
+/*  PNNL Internal Stylesheet
+    Author: Geoff Elliott, Cameron Bates
+    Using Silk Icons from Mark James (http://www.famfamfam.com/lab/icons/silk/)
+    Last Updated: December 2008
+*/
+
+label.over-apply {
+  position: absolute;
+  top: 8px;
+  left: 10px;
+}
+
+/* IE6 & 7 Fixes */
+* html label.over-apply  {
+  top: 7px;
+  z-index: 100;
+}
+*+html label.over-apply {
+  top: 7px;
+  z-index: 100;
+}
+
+
+/******** Banner ********/
+
+#intranetBanner {
+  display: none;
+}
+
+#topBanner {
+  position: relative;
+  height: 105px;
+	z-index: 1000;
+}
+
+/*#pnnlLogo {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  display: block;
+  background-image: url("https://www.pnnl.gov/images/pnnl_logo_battelle.png");
+  background-repeat: no-repeat;
+  width: 280px;
+  height: 123px;
+  text-indent: -1000px;
+	z-index: 10;
+}*/
+
+#pnnlLogo {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  display: block;
+  background: url("/resources/images/pnnl_logo_battelle@2x.png");
+  background-repeat: no-repeat;
+  background-size: auto 123px;
+  width: 280px;
+  height: 123px;
+  text-indent: -1000px;
+  z-index: 10; /* Needed for LabWeb with position: relative banner */
+}
+
+
+#skipNav {
+  position: absolute;
+  top: -500px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+#topBanner #doeLink {
+  display: block;
+  position: absolute;
+  top: 15px;
+  right: 0px;
+  background-image: url("/resources/images/doe_seal_plus_name@2x.png");
+  background-size: auto 40px;
+  background-repeat: no-repeat;
+  width: 167px;
+  height: 48px;
+  text-indent: -2000px;
+}
+
+#siteNav {
+  padding-top: 69px;
+  margin-left: 255px;
+  text-align: right;
+}
+
+#pnnlNav {
+  line-height: 36px;
+  background-position: left 2px;
+  padding-left: 93px;
+}
+
+#pnnlNav, #pnnlNav li{
+  display: inline;
+}
+
+#pnnlNav li a:link, #pnnlNav li a:visited {
+  color: #707276;
+  padding: 0 4px 0 8px;
+  font-weight: bold;
+  border-left: 1px solid #b2b3b5;
+}
+
+#pnnlNav a#home, #pnnlNav a#home {
+  border-left: none;
+}
+
+#pnnlSearch {
+  float: right;
+  position: relative;
+  text-align: left;
+  padding: 0 0 0 5px;
+  white-space: nowrap;
+  font-size: 11px;
+}
+
+#pnnlSearch label {
+  color: #cf6200;
+  padding: 0px;
+  text-align: left;
+  cursor: text;
+}
+
+#q {
+  width: 150px;
+}
+
+/* IE6 & 7 Fixes */
+* html #pnnlSearch #q {
+  position: relative;
+  top: 2px;
+}
+*+html #pnnlSearch #q {
+  position: relative;
+  top: 2px;
+}
+
+#searchSubmit, #siteSearchSubmit {
+  position: relative;
+  top: 6px;
+}
+
+
+
+/******** Page ********/
+
+#page {
+  margin: 0 auto;
+  background-image: none !important;
+}
+
+#subBanner {
+	margin-top: 10px;
+	z-index: 1;
+}
+
+#subBanner img {
+  width: 940px !important;
+}
+
+#container {
+  float: left;
+  width: 100%;
+}
+
+#leftNav {
+  width: 220px;
+  margin: 20px 0 0 -940px;
+  float: left;
+  background-color: #e8e8e9;
+  font-size: 12px;
+	-webkit-border-top-left-radius: 4px;
+	-webkit-border-bottom-left-radius: 4px;
+  -moz-border-radius: 4px 0 0 4px;
+}
+
+#leftNav h2 {
+  color: white;
+  font-size: 13px;
+  font-weight: bold;
+  background-color: #606060;
+  padding: 6px 4px 6px 11px;
+  background-image: url("https://www.pnnl.gov/images/subnav_header_bg.png");
+  background-repeat: repeat-x;
+  background-position: left bottom;
+}
+
+#leftNav h2:first-child, #leftNav h2.first {
+	-webkit-border-top-left-radius: 4px;
+  -moz-border-radius: 4px 0 0 0;
+}
+
+#leftNav ul {
+  margin: 8px 0 8px 8px;
+}
+#leftNav li {
+  list-style-type: none !important;
+}
+* html #leftNav li {
+  margin: 0;
+  border: 1px solid #e8e8e9;
+  border-right: none;
+}
+#leftNav li strong {
+  font-weight: normal;
+}
+#leftNav a {
+  display: block;
+  padding: 5px 4px 5px 8px;
+  color: #606060;
+  background-image: none !important;
+}
+#leftNav a:hover {
+}
+#leftNav a img.icon {
+  border: 0;
+  padding-left: 3px;
+  vertical-align: middle;
+}
+#leftNav a[title^=Offsite] img.icon {
+  vertical-align: baseline;
+}
+
+/******** Site-Specific Search ********/
+
+#siteSearch {
+  width: 160px;
+  float: left;
+  margin: 18px 0 0 -160px;
+  font-size: 12px;
+}
+#siteSearch .tab {
+  background: url("https://www.pnnl.gov/images/site_search_bar.png") no-repeat;
+  background-position: left 4px;
+  padding: 0 11px;
+  float: left;
+  width: 138px;
+}
+#siteSearch .tab label, #siteSearch .tab label span {
+    display: block;
+    padding: 0 12px;
+}
+#siteSearch .tab label {
+  background: url("https://www.pnnl.gov/images/site_search_tab.png") no-repeat;
+  background-position: 100% -150px;
+  margin: 0;
+  padding-left: 0;
+  line-height: 1.2;
+  text-align: center;
+  white-space: nowrap; /* required in IE 6 */
+  position: relative; /* position: relative makes opacity fail for disabled tab in IE */
+  top: 2px;
+  z-index: 2;
+  color: #6f6f6f;
+  font-weight: bold;
+  text-decoration: none;
+  float: left;
+}
+#siteSearch .tab label span {
+  background: url("https://www.pnnl.gov/images/site_search_tab.png") no-repeat;
+  background-position: 0 -50px;
+  width: 64px; /* IE 6 treats width as min-width */
+  min-width: 64px;
+  height: 20px; /* IE 6 treats height as min-height */
+  min-height: 20px;
+  padding-top: 10px;
+  padding-right: 0;
+  padding-bottom: 2px;
+}
+*>#siteSearch .tab label span { /* hide from IE 6 */
+    width: auto;
+    height: auto;
+}
+#siteSearch .input {
+  border: 1px solid #848587;
+  border-top: none;
+  background-image: url("https://www.pnnl.gov/images/site_search_bg.png");
+  background-repeat: no-repeat;
+  padding: 6px 8px 8px;
+  clear: left;
+}
+*+html #siteSearch .input {
+  padding-top: 4px;
+}
+input#siteSearchQ {
+  width: 109px;
+}
+/* IE6 & 7 Fixes */
+* html #siteSearchQ {
+  position: relative;
+  top: 2px;
+}
+*+html #siteSearchQ {
+  position: relative;
+  top: 2px;
+}
+
+/******** Related content ********/
+
+#siteSearch + #rightCol {
+  margin-top: 10.5em;
+  -moz-border-radius: 0 0 4px 0;
+	-webkit-border-bottom-right-radius: 4px;
+}
+
+.postSearchCol {
+  margin-top: 10.5em !important;
+}
+
+#rightCol {
+  width: 158px;
+  float: left;
+  margin: 20px 0 0 -160px;
+  font-size: 11px;
+  line-height: 150%;
+  border: 1px solid #d57500;
+  -moz-border-radius: 0 4px 4px 0;
+	-webkit-border-top-right-radius: 4px;
+	-webkit-border-bottom-right-radius: 4px;
+  background-image: url("https://www.pnnl.gov/images/related_bg.png");
+  background-repeat: repeat-x;
+  background-position: left 28px;
+  padding-bottom: 1em;
+}
+
+* html #rightCol {
+  padding: 0 0 1em 0;
+}
+#rightCol h2 {
+  padding: 6px 4px 6px 11px;
+  background-image: url("https://www.pnnl.gov/images/related_header_bg.png");
+  background-repeat: repeat-x;
+  background-position: left bottom;
+  background-color: #d57500;
+  color: white;
+  font-weight: bold;
+  font-size: 12px;
+  border-bottom: 2px solid white;
+}
+
+* html #rightCol h2 {
+  width: 143px; /* I don't understand why IE6 requires this to force proper width*/
+}
+
+#rightCol h3, #rightCol h4, #rightCol ul, #rightCol p, #rightCol hr, #rightCol .vcard {
+  padding: 0 11px;
+  margin: 10px 0 12px;
+}
+#rightCol h3 {
+  color: #242424;
+  font-weight: bold;
+  font-size: 12px;
+  margin-bottom: 0px;
+}
+#rightCol li {
+  margin-left: 13px;
+  margin-bottom: 7px;
+  line-height: 15px;
+}
+#rightCol a img {border: 0;}
+#rightCol a img.border {
+  border: 1px solid #d57500;
+  max-width: 134px;
+}
+
+#rightCol input, #rightCol select {
+  max-width: 134px;
+}
+
+#rightCol .vcard .tel, #rightCol .vcard .email, #rightCol .vcard .title, #rightCol .vcard .org {
+  display: block;
+}
+
+#main {
+  margin: 20px 180px 0 240px;
+  font-size: 100%;
+  line-height: 150%;
+  padding-top: 2px;
+}
+#container>#main {height: auto;}
+body.home #main {min-height: 0; background-image: none; height: auto;}
+body.col2 #main {width: auto; margin-right: 1.5em;}
+body.col1 #main {width: auto; margin: 14px 1.5em 15px;}
+#main p.emphasis {line-height: 180%; font-style: italic;}
+
+/* .highlightList is to take care of FCSD highlights */
+#main .floatPhoto, #main img.highlightList {
+  width: 94px;
+  border: 1px solid #d57500;
+  padding: 2px;
+  margin-right: 20px;
+}
+
+#main img {max-width: 520px;}
+body.col2 #main img {max-width: 700px;}
+body.col1 #main img {max-width: 940px;}
+
+
+/******** Misc ********/
+
+.calloutBox {
+  padding: 1em 1em 0 1em;
+  border: 1px solid #707276;
+  background-color: #e8e8e9;
+  margin: 1em 0;
+/*  background-image: url("/images/callout.gif"); */
+  background-position: top left;
+  background-repeat: repeat-x;
+  clear: right;
+}
+
+.floatRight, .floatLeft, .floatCenter {
+  font-size: 11px;
+  line-height: 16px;
+}
+
+.floatRight {
+  float: right;
+  margin: 0 0 10px 20px;
+}
+.floatLeft {
+  float: left;
+  margin: 0 20px 10px 0;
+}
+.floatCenter {
+  float:none;
+  margin: 0 auto 10px;
+}
+.rss {
+  border: 0;
+  vertical-align: middle;
+}
+.border, .imageBlock img {
+  border: 1px solid #d57500;
+  padding: 2px;
+}
+
+.imageBlock img {
+  margin-bottom: 5px;
+}
+.borderless {border: 0;}
+.smaller {font-size: 90%;}
+.spacer {clear: both;}
+.alignRight {text-align: right;}
+.centered {text-align: center;}
+.videoTourBox {
+  padding: 60px 0 0 150px;
+  border: 0;
+  background-color: #e8e8e9;
+  background-image: url(/images/videotourbg.jpg);
+  margin-bottom: 2em;
+  height: 106px;
+  width: 376px;
+  text-align: center;
+  font-size: 1.1em;
+  line-height: 1.5em;
+  font-weight: bold;
+}
+.noIframes {display: none;}
+a.email {padding: 0 0 0 20px; background-image: url(/images/icons/email.png); background-position: left top; background-repeat: no-repeat;}
+a.feed {padding: 0 0 0 20px; background-image: url(/images/icons/feed.png); background-position: left top; background-repeat: no-repeat;}
+a.delicious {padding: 0 0 0 20px; background-image: url(/images/delicious_icon.gif); background-position: bottom left; background-repeat: no-repeat; padding-top: 8px;}
+a.digg {padding: 0 0 0 20px; background-image: url(/images/digg_icon.gif); background-position: bottom left; background-repeat: no-repeat; padding-top: 8px;}
+
+/* top nav hover and active styles */
+body.home #pnnlNav a#home, body.topicindex #pnnlNav a#topicindex, body.pnnlOverview #pnnlNav a#about, body.research #pnnlNav a#research, body.publications #pnnlNav a#publications, body.jobs #pnnlNav a#jobs, body.news #pnnlNav a#news, body.contacts #pnnlNav a#contacts {
+  color: #cf6200;
+}
+
+
+/******** Nav styles to show state ********/
+/* About PNNL */
+body.pnnlOverview #leftNav #pnnlOverview, body.history #leftNav #history, body.directorsMsg #leftNav a#directorsMsg, body.facilities #leftNav #facilities, body.achievements #leftNav #achievements, body.people #leftNav #people, body.partnerCollab #leftNav #partnerCollab,
+
+/* Doing Business */
+body.busOverview #leftNav a#busOverview, body.techTransfer #leftNav a#techTransfer, body.contractResearch #leftNav a#contractResearch, body.edo #leftNav a#edo, body.procurement #leftNav a#procurement,
+
+/*Community Outreach*/
+body.outOverview #leftNav a#outOverview, body.cstSeminar #leftNav a#cstSeminar, body.speakersBureau #leftNav a#speakersBureau,
+
+/*Education*/
+body.educationOverview #leftNav a#educationOverview, body.studentOps #leftNav a#studentOps, body.teacherFac #leftNav a#teacherFac,
+
+/* Research */
+body.researchHome #leftNav a#researchHome, body.microbial #leftNav a#microbial, body.environmental #leftNav a#environmental, body.chemical #leftNav a#chemical, body.radiological #leftNav a#radiological, body.computational #leftNav a#computational, body.sensing #leftNav a#sensing,
+
+/* Publications */
+body.searchPub #leftNav a#searchPub,
+
+/*Jobs*/
+body.jobsHome #leftNav a#jobsHome, body.pledge #leftNav a#pledge, body.compensation #leftNav a#compensation, body.videoTour #leftNav a#videoTour, body.jobFairs #leftNav a#jobFairs, body.diversity #leftNav a#diversity, body.jobsHelp #leftNav a#jobsHelp,
+
+/*Newsroom*/
+body.newsHome #leftNav a#newsHome, body.newsReleases #leftNav a#newsReleases, body.inTheNews #leftNav a#inTheNews, body.newsSubscribe #leftNav a#newsSubscribe, body.newsContact #leftNav a#newsContact, body.newsSearch #leftNav a#newsSearch, body.newsAbout #leftNav a#newsAbout, body.newsExperts #leftNav a#newsExperts, body.newsOtherLinks #leftNav a#newsOtherLinks,
+
+/* Contacts */
+body.contactsHome #leftNav a#contactsHome, body.phoneAddress #leftNav a#phoneAddress, body.staffDirectory #leftNav a#staffDirectory, body.addresses #leftNav a#addresses, body.feedback #leftNav a#feedback, body.visitors #leftNav a#visitors
+{
+  color: #cf6200;
+  font-weight: bold;
+  background-color: white;
+  -moz-border-radius: 4px 0 0 4px;
+	-webkit-border-top-left-radius: 4px;
+	-webkit-border-bottom-left-radius: 4px;
+}
+
+
+/******** Publications Styles ********/
+
+#pubCriteria {position: relative;}
+
+#searchShade {
+  visibility: hidden;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: #000;
+  filter:alpha(opacity=20);
+  -moz-opacity:.2;
+  opacity:.2;
+}
+
+#searchMsg {
+  display: block;
+  visibility: hidden;
+  position: absolute;
+  background-color: #fff;
+  border: 1px solid #707276;
+  width: 150px;
+  height: 40px;
+  padding-top: 20px;
+  font-size: 16px;
+  text-align: center;
+  z-index: 2;
+}
+
+#pubCriteria table {
+  width: 100%;
+  border: 1px solid #707276;
+  background-color: #e8e8e9;
+  border-collapse: separate;
+  padding: 1em;
+  margin-bottom: 12px;
+  position: relative;
+}
+
+#pubCriteria th, #pubCriteria td {
+  vertical-align: middle;
+  height: 3em;
+  border: none;
+  border-bottom: solid #707276 1px;
+  text-align: left;
+}
+
+.note, .docType {
+  color: #707276;
+  font-size: .9em;
+  font-weight: normal;
+}
+
+.warning {
+  color: red;
+}
+
+.searchSummary {
+  border: 1px solid #707276;
+  background-color: #e8e8e9;
+  padding: 4px;
+  margin-bottom: 1em;
+}
+
+.searchSummary ul {
+  margin-top: 0px;
+}
+
+.searchSummary h2 {
+  margin-bottom: 0px;
+}
+
+#rightCol #refineSearch p {
+  vertical-align: top;
+  padding-bottom: 1em;
+  margin: 0;
+}
+
+#rightCol #refineSearch p.searchInput input, #rightCol #refineSearch p.searchInput select {
+  font-size: 11px;
+}
+
+#rightCol #refineSearch input#submit {
+  height: auto;
+}
+
+#rightCol #refineSearch {
+  padding-bottom: 1em;
+}
+
+#rightCol #refineSearch label {
+  text-transform: uppercase;
+  font-size: 10px;
+  color: #707276;
+}
+
+.docItem {
+  margin: 1em 0px;
+}
+
+.docAbstract {
+  display: none;
+  margin: 0px;
+  margin-top: .5em;
+  padding: 1em;
+  background-color: #e8e8e9;
+  border-left: 4px double #b2b3b5;
+  line-height: 1.4em;
+}
+
+.abstractLink {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.sendColleague {
+  margin: 1em 0px !important;
+  text-align: right;
+}
+
+h2.docTitle {
+  font-size: 1.3em !important;
+  margin-bottom: 1em !important;
+}
+
+.fileInfo {
+  font-size: .9em;
+}
+
+/*  File type icons *********************/
+
+.icon {
+  margin-left: 3px;
+  vertical-align: middle;
+}
+
+.docType {
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+span.docType {
+  padding-left: 1em;
+}
+
+.ericaLogo {
+  text-align: right;
+}
+
+.ericaGreenLogo {
+  float: right;
+}
+
+/* Help Styles */
+
+#help h2 {
+  margin-bottom: 0px;
+}
+
+#help div {
+  text-align: left;
+  background-color: #fffad5;
+  border-bottom: 1px solid #29736E;
+  border-top: solid #fffad5 1px;
+}
+
+.helpLink {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.closeHelp {
+  text-align: right;
+  cursor: pointer;
+}
+
+
+
+/*  Full-Width Styles **************************************/
+
+body.fullWidth, body.col1Full, body.col2Full {
+  background-image: none;
+  padding: 0 10px;
+}
+
+body.col2Full #main {width: auto; margin-right: 15px; margin-left: 250px;}
+body.col1Full #main {width: auto; margin: 14px 15px 15px;}
+
+
+body.fullWidth #searchBox, body.col1Full #searchBox, body.col2Full #searchBox {
+  padding-top: 14px;
+}
+
+body.fullWidth #topBanner, body.col1Full #topBanner, body.col2Full #topBanner,
+body.fullWidth #subBanner, body.col1Full #subBanner, body.col2Full #subBanner,
+body.fullWidth #footer, body.col1Full #footer, body.col2Full #footer,
+body.col1Full #topBanner {
+  margin: 0 10px;
+}
+
+* html body.fullWidth #footer, * html body.col1Full #footer, * html body.col2Full #footer {
+  width: auto;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+body.fullWidth #leftNav, body.col1Full #leftNav, body.col2Full #leftNav {
+  position: relative;
+  left: 10px;
+  margin: 20px 0 0 -100%;
+}
+
+body.fullWidth #rightCol, body.col1Full #rightCol, body.col2Full #rightCol {
+  position: relative;
+  right: 10px;
+}
+
+body.fullWidth #page, body.col1Full #page, body.col2Full #page {
+  background-color: white;
+  background-repeat: repeat-y;
+}
+
+body.col1Full #page {
+  background-image: none;
+}
+
+/* Should be in the site-specific stylesheet with custom image */
+body.fullWidth #subBanner, body.col2Full #subBanner, body.col1Full #subBanner {
+  background-repeat: repeat-x;
+	margin-top: 10px;
+}
+
+/* PictureThis is poorly built. */
+body.ptHome #main table, body.ptHome #main th, body.ptHome #main td {
+  border: none;
+}

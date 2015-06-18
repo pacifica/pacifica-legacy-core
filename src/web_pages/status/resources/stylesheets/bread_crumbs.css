@@ -1,0 +1,21 @@
+#bread_crumbs {
+	font-size: 0.9em;
+	font-weight: bold;
+	color: #777777;
+	margin-bottom:10px;
+}
+
+#bread_crumbs a.bc_link {
+	text-decoration: none;
+	color: #333333
+}
+
+#bread_crumbs a.bc_link:hover {
+	text-decoration: underline;
+	color: #333333
+}
+
+#bread_crumbs .bc_divider {
+	color: #D57500;
+	font-weight:bold;
+}

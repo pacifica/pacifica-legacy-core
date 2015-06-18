@@ -1,0 +1,53 @@
+/* CSS for PNNL External website */
+/* Handheld and PDA CSS */
+/* Created by Cameron Bates July 2006 */
+/* Last Updated 7/12/2006 */
+
+/*  General rules */
+
+/* Shrink images to fit within viewport; some phones
+   can't scroll horizontally. */
+img	{
+max-width: 100%;
+}
+
+/*  Establish general layout parameters */
+
+body, body.home	{
+	border-top: none;
+	font-family: sans-serif;
+	padding-bottom: 5px;
+	background-image: none;
+	background-color: #ffffff;
+}
+
+#page, body.home #page	{
+margin: 3px auto;
+width: auto;
+max-width: 597px;
+background-image: none;
+border: 0;
+}
+
+#skipNav {display:none;}
+#searchBox {position: static; width: auto; margin: 0 0 1em 0; padding: 0; background-image: none;}
+#topBanner {background-image: none; position: static;}
+#logo, #tagline {margin:0;}
+#topNav {position: static; background-image: none; margin: 0 0 2em 0; padding: 1em 0; border: 1px solid #000; border-width: 1px 0;}
+#topNav ul {float: none; margin: 0 0 0 2em;}
+#topNav li {display: list-item; list-style-type: disc;}
+#topNav a {display: inline; float: none; background-image: none; text-transform: none; text-decoration: underline; padding: 0; font-size: 1.2em;}
+#subBanner {padding:0;}
+#container {float: none;}
+
+#leftNav, #rightCol {width: auto; margin: 0 0 1em 0; padding: 0; float: none;}
+#leftNav ul {padding-left:2em;}
+#main {width: auto; margin: 0; padding: 0; height: auto; line-height: 100%;}
+#main #topStory h1 {background-image: none; margin: 0 0 .2em 0; padding: 0; font-size: 1.5em;}
+#boxes {margin:0 0 1em 0;}
+#boxes .bottomBox {float: none; margin: 0; width: auto;}
+#main #spotlight #pause {display:none;}
+#footer {margin:0;}
+.floatRight, .floatLeft {float: none; margin: 0 0 .2em 0;}
+.floatRight img, .floatLeft img {margin: 0;}
+
