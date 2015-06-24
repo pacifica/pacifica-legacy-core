@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
 	int res;
 	int status;
 	char *newargv[16];
-	char buf[64];
+	char buf[128];
 	char hostname[128];
 	gchar **dirs;
 	pid_t pid;
