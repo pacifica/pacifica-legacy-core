@@ -8,7 +8,7 @@ Group: System Environment/Base
 License: UNKNOWN
 Source: %{name}-%{version}.tar.gz
 Requires: glib2, httpd, mod_python
-BuildRequires: glib2-devel, swig, libarchive-devel, python-devel, pacifica-builddeps >= 023, fuse-libs, fuse, fuse-devel
+BuildRequires: glib2-devel, swig, libarchive-devel, python-devel, pacifica-builddeps >= 023, fuse-libs, fuse, fuse-devel, rsync
 BuildRoot: %{_tmppath}/@PACKAGE_NAME@-%{version}-%{release}
 
 %if 0%{?rhel} && 0%{?rhel} <= 5
