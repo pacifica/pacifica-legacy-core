@@ -134,7 +134,6 @@ application/views/welcome_message.php \
 index.php \
 prototype.js \
 refresh.js \
-resources/fonts/opensans/Apache License Version 2.txt \
 resources/fonts/opensans/demo.html \
 resources/fonts/opensans/open-sans-fontfacekit.zip \
 resources/fonts/opensans/OpenSans-Bold-webfont.eot \
@@ -170,7 +169,6 @@ resources/fonts/opensans/OpenSans-SemiboldItalic-webfont.woff \
 resources/fonts/opensans/opensans.css \
 resources/fonts/opensans/stylesheet.css \
 resources/fonts/oxygen/demo.html \
-resources/fonts/oxygen/Oxygen SIL OFL Font License 1.1.txt \
 resources/fonts/oxygen/Oxygen-Bold-webfont.eot \
 resources/fonts/oxygen/Oxygen-Bold-webfont.svg \
 resources/fonts/oxygen/Oxygen-Bold-webfont.ttf \
@@ -190,7 +188,6 @@ resources/fonts/oxygen/Oxygen-webfont.woff \
 resources/fonts/oxygen/oxygen.css \
 resources/fonts/oxygen/stylesheet.css \
 resources/fonts/sourcesanspro/demo.html \
-resources/fonts/sourcesanspro/SIL OFL Font License - Source Sans Pro.txt \
 resources/fonts/sourcesanspro/SourceSansPro-Black-webfont.eot \
 resources/fonts/sourcesanspro/SourceSansPro-Black-webfont.svg \
 resources/fonts/sourcesanspro/SourceSansPro-Black-webfont.ttf \
@@ -628,5 +625,5 @@ system/libraries/Xmlrpcs.php \
 system/libraries/Zip.php
 
 install-am:
-        rsync -r application index.php prototype.js refresh.js resources status_block_wide.png status_style.css system $(DESTDIR)/${pkgmyemslstatusdir}/
+	rsync -r application index.php prototype.js refresh.js resources status_block_wide.png status_style.css system $(DESTDIR)/${pkgmyemslstatusdir}/
 
