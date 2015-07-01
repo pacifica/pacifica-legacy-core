@@ -25,15 +25,15 @@ class Status extends Baseline_controller {
     $this->page_data['page_header'] = "Upload Report";
     $this->page_data['title'] = "Upload Report";
     $this->page_data['css_uris'] = array(
-      base_url()."resources/scripts/fancytree/skin-lion/ui.fancytree.css",
-      base_url()."resources/stylesheets/status.css",
-      base_url()."resources/stylesheets/status_style.css",
-      base_url()."resources/stylesheets/file_directory_styling.css"
+      "/resources/scripts/fancytree/skin-lion/ui.fancytree.css",
+      "/resources/stylesheets/status.css",
+      "/resources/stylesheets/status_style.css",
+      "/resources/stylesheets/file_directory_styling.css"
     );
     $this->page_data['script_uris'] = array(
-      base_url()."resources/scripts/fancytree/jquery.fancytree-all.js",
-      base_url()."resources/scripts/status_common.js",
-      base_url()."resources/scripts/single_item_view.js"
+      "/resources/scripts/fancytree/jquery.fancytree-all.js",
+      "/resources/scripts/status_common.js",
+      "/resources/scripts/single_item_view.js"
     );
     $this->page_data['load_prototype'] = false;
     $this->page_data['load_jquery'] = true;  
@@ -76,20 +76,20 @@ class Status extends Baseline_controller {
       $this->page_data['title'] = "Overview";
       $this->page_data['informational_message'] = "";
       $this->page_data['css_uris'] = array(
-        base_url()."resources/scripts/fancytree/skin-lion/ui.fancytree.css",
-        base_url()."resources/stylesheets/status.css",
-        base_url()."resources/stylesheets/status_style.css",
-        base_url()."resources/scripts/select2/select2.css",
-        base_url()."resources/stylesheets/file_directory_styling.css"
+        "/resources/scripts/fancytree/skin-lion/ui.fancytree.css",
+        "/resources/stylesheets/status.css",
+        "/resources/stylesheets/status_style.css",
+        "/resources/scripts/select2/select2.css",
+        "/resources/stylesheets/file_directory_styling.css"
       );
       $this->page_data['script_uris'] = array(
-        base_url()."resources/scripts/spinner/spin.min.js",
-        base_url()."resources/scripts/fancytree/jquery.fancytree-all.js",
-        base_url()."resources/scripts/myemsl_file_download.js",
-        base_url()."resources/scripts/status_common.js",
-        base_url()."resources/scripts/emsl_mgmt_view.js",
-        base_url()."resources/scripts/select2/select2.js",
-        base_url()."resources/scripts/moment.min.js"
+        "/resources/scripts/spinner/spin.min.js",
+        "/resources/scripts/fancytree/jquery.fancytree-all.js",
+        "/resources/scripts/myemsl_file_download.js",
+        "/resources/scripts/status_common.js",
+        "/resources/scripts/emsl_mgmt_view.js",
+        "/resources/scripts/select2/select2.js",
+        "/resources/scripts/moment.min.js"
       );
       $full_user_info = $this->myemsl->get_user_info();
       $proposal_list = array();
