@@ -31,19 +31,26 @@ class Status extends Baseline_controller {
       "/resources/stylesheets/file_directory_styling.css"
     );
     $this->page_data['script_uris'] = array(
+      "/resources/scripts/spinner/spin.min.js",
       "/resources/scripts/fancytree/jquery.fancytree-all.js",
+      "/resources/scripts/myemsl_file_download.js",
       "/resources/scripts/status_common.js",
-      "/resources/scripts/single_item_view.js"
+      "/resources/scripts/moment.min.js",
+      "/resources/scripts/single_item_view.js"    
     );
     $this->page_data['load_prototype'] = false;
     $this->page_data['load_jquery'] = true;  
     
     if($lookup_type == 'j' || $lookup_type == 'job'){
       //lookup transaction_id from job
-      $lookup_type = 't';
       $id = $this->status->get_transaction_id($id);
+      if($id > 0){
+        redirect(base_url()."index.php/status/view/t/{$id}");
+      }else{
+        
+      }
     }
-    $inst_id = $this->status->get_instrument_for_id('t',$id);
+    $inst_id = $lookup_type == 't' ? $this->status->get_instrument_for_id('t',$id) : -1;
     $lookup_type_description = $lookup_type = 't' ? 'transaction' : 'job';
     $transaction_list = array();
     $transaction_list[] = $id;
@@ -229,7 +236,7 @@ var initial_instrument_list = [];";
       $lookup_type = 'j';
       $item_list = $this->input->post('job_list');
     }elseif($id > 0){
-      $item_list = array($id);
+      $item_list = array($id => $id);
     }
 
     $item_keys = array_keys($item_list);

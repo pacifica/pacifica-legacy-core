@@ -341,7 +341,9 @@ class Status_model extends CI_Model {
   }
   
 
+  function get_formatted_object_for_job($job_id){
 
+  }
 
 
   function get_formatted_object_for_transactions($transaction_list){
@@ -449,7 +451,7 @@ class Status_model extends CI_Model {
     $DB_myemsl->trans_complete();
     $transaction_id = -1;
     if($query && $query->num_rows()>0){
-      $transaction_id = $query->row()->transaction_id;
+      $transaction_id = !empty($query->row()->transaction_id) ? $query->row()->transaction_id : -1; 
     }
     return $transaction_id;
   }
