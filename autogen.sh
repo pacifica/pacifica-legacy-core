@@ -1,6 +1,6 @@
 #!/bin/sh
 libtoolize &&
 aclocal -I m4 &&
-automake --add-missing --copy --dist-ustar &&
+automake --add-missing --copy --gnu &&
 autoconf --force &&
 ./configure $*
