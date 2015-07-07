@@ -4,7 +4,7 @@ for($i=0;$i<=6;$i++){
   $classname = $i <= $latest_step ? 'green_bar_end' : 'orange_bar_end';
   $relname = $i <= $latest_step ? 'Completed' : 'Unknown';
 ?>
-<span id="tx_id_<?= $transaction_id ?>_block_<?= $i ?>" class="<?= $classname ?>" rel="<?= $relname ?>"><?= $status_list[$i] ?></span>
+<span id="tx_id_<?= $transaction_id ?>_block_<?= $i ?>" class="<?= $classname ?> status_item_bar" rel="<?= $relname ?>"><?= $status_list[$i] ?></span>
 <?php
 }
 ?>
