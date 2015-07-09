@@ -872,6 +872,7 @@ rm -rf %{buildroot}
 /%{python_sitelib}/myemsl/service/sstp/*
 /%{python_sitelib}/myemsl/handler/sstp/*
 %{_localstatedir}/www/myemsl/status/*
+%{_localstatedir}/resources/*
 %attr(4111,root,root) %{_bindir}/myemsl_mkstagedir
 %defattr(-,root,root)
 %dir %{_localstatedir}/www/myemsl
