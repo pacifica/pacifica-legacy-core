@@ -626,4 +626,4 @@ system/libraries/Zip.php
 
 install-am:
 	rsync -r application index.php prototype.js refresh.js status_block_wide.png status_style.css system $(DESTDIR)/${pkgmyemslstatusdir}/
-	rsync -r resources $(DESTDIR)/${pkgmyemslstatusdir}/
+	rsync -r resources $(DESTDIR)/${pkgmyemslresourcesdir}/

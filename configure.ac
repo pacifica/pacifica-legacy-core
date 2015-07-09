@@ -127,6 +127,8 @@ pkgmyemslnopersoniddir=${pkgmyemslwebrootdir}/error/nopersonid
 AC_SUBST(pkgmyemslnopersoniddir)
 pkgmyemslsampleingestdir=${pkgmyemslwebrootdir}/sample-ingest
 AC_SUBST(pkgmyemslsampleingestdir)
+pkgmyemslresourcesdir=${localstatedir}/www/resources
+AC_SUBST(pkgmyemslresourcesdir)
 pkgmyemslstatusdir=${pkgmyemslwebrootdir}/status
 AC_SUBST(pkgmyemslstatusdir)
 pkgmyemslcgidir=${pkgmyemslwebrootdir}/cgi-bin
