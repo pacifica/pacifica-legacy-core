@@ -1,5 +1,6 @@
 EXTRA_DIST = \
 README.md \
+php_myemsl.ini \
 application/.htaccess \
 application/config/autoload.php \
 application/config/config.php \
@@ -628,3 +629,5 @@ system/libraries/Zip.php
 install-am:
 	rsync -r application index.php prototype.js refresh.js status_block_wide.png status_style.css system $(DESTDIR)/${pkgmyemslstatusdir}/
 	rsync -r resources $(DESTDIR)/${pkgmyemslresourcesdir}/
+	mkdir -p $(DESTDIR)/${sysconfdir}/php.d
+	cp php_myemsl.ini $(DESTDIR)/${sysconfdir}/php.d/
