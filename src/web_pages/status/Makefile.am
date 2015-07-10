@@ -349,6 +349,7 @@ resources/scripts/jquery/jquery-1.11.2.js \
 resources/scripts/jquery/jquery-1.11.2.min.js \
 resources/scripts/jquery/jquery-1.11.2.min.map \
 resources/scripts/jquery/jquery-1.9.1.js \
+resources/scripts/jquery/jquery-1.9.1.min.js \
 resources/scripts/jquery-cookie/jquery.cookie.js \
 resources/scripts/jquery-crypt/jquery.crypt.js \
 resources/scripts/jquery-dateFormat/.gitignore \
