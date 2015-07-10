@@ -1,5 +1,5 @@
 <!--
-<form id="siteSearch" method="get" action="http://search.pnl.gov/search">
+<form id="siteSearch" method="get" action="https://search.pnl.gov/search">
 
   <div class="tab">
     <label for="siteSearchQ"><span>Search Site</span></label>

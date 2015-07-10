@@ -26,7 +26,7 @@
                       <?php $trunc_prop_title = truncate_text($prop_title, 110); ?>
                     <option value="<?= $prop_id ?>"<?= $selected_state ?> title="<?= $prop_title ?>">Proposal <?= $prop_id ?>: <?= $trunc_prop_title ?></option>
                     <?php endforeach; ?><br />
-                    <?php $prop_list_object = "var initial_proposal_list = [".implode(',',array_keys($proposal_list))."];"; ?>
+                    <?php $prop_list_object = "var initial_proposal_list = ['".implode("','",array_keys($proposal_list))."'];"; ?>
                     <?php $js .= "\n".$prop_list_object; ?>
                   </select>
                 </div>

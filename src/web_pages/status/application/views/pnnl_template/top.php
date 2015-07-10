@@ -10,7 +10,7 @@
   <a id="doeLink" href="http://www.energy.gov/">U.S. Department of Energy</a>
   
   <div id="siteNav">
-    <form method="get" action="http://search.pnl.gov/search" name="pnnlSearch" id="pnnlSearch">    
+    <form method="get" action="https://search.pnl.gov/search" name="pnnlSearch" id="pnnlSearch">    
           <input type="hidden" name="as_sitesearch" value="" />
           <input type="hidden" name="access" value="a" />
           <input type="hidden" name="output" value="xml_no_dtd" />
