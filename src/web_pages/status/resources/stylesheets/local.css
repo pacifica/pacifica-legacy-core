@@ -26,7 +26,7 @@ body {
 
 .spinner {
   width:16px;
-  background-image: url(/myemsl/status/resources/images/spinner-16x16_green.gif);
+  background-image: url(/resources/images/spinner-16x16_green.gif);
   background-repeat:no-repeat;
   background-position-y: 4px;
   height:16px;
