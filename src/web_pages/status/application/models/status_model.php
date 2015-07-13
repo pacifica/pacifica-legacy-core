@@ -9,7 +9,11 @@ class Status_model extends CI_Model {
   function __construct(){
     parent::__construct();
     $this->local_timezone = "US/Pacific";
-    $this->load->model('eus_model','eus');    
+    $this->load->model('eus_model','eus');  
+    $this->status_list = array(
+      0 => 'Submitted', 1 => 'Received', 2 => 'Processing',
+      3 => 'Verified', 4 => 'Stored', 5 => 'Available', 6 => 'Archived'
+    );
   }
   
   
@@ -35,10 +39,11 @@ class Status_model extends CI_Model {
   
   
   
-  function get_job_status($job_id_list,$status_lookup){
+  function get_job_status($job_id_list, $status_list = false){
+    $status_list = !empty($status_list) ? $status_list : $this->status_list;
     $DB_myemsl = $this->load->database('default',TRUE);
     $select_array = array(
-      'jobid', 'min(trans_id) as trans_id', 'max(step) as step'
+      'jobid', 'min(trans_id) as trans_id', 'max(step) as step', 'max(person_id) as person_id'
     );
     $DB_myemsl->select($select_array)->where_in('jobid',$job_id_list)->group_by('jobid');
     $query = $DB_myemsl->get('ingest_state');
@@ -46,8 +51,9 @@ class Status_model extends CI_Model {
     if($query && $query->num_rows() > 0){
       foreach($query->result() as $row){
         $item = array(
-          'state_name' => $status_lookup[$row->step],
-          'state' => $row->step
+          'state_name' => $status_list[$row->step],
+          'state' => $row->step,
+          'person_id' => $row->person_id
         );
         $results[$row->jobid] = $item;
       }
@@ -342,9 +348,74 @@ class Status_model extends CI_Model {
   
 
   function get_formatted_object_for_job($job_id){
-
+    $status = $this->get_job_status(array($job_id), $this->status_list);
+    if(array_key_exists($job_id, $status)){
+      $status = $status[$job_id];
+    }else{
+      return array();
+    }
+    $time_now = new DateTime();
+    $time_string = $time_now->format('Y-m-d H:i:s');
+    $job_id = strval($job_id);
+    $results = array(
+      'transactions' => array(
+        $job_id => array(
+          'status' => array(
+            $job_id => array(
+              $status['state'] => array(
+                'jobid' => $job_id,
+                'trans_id' => false,
+                'person_id' => $status['person_id'],
+                'step' => $status['state'],
+                'message' => $this->status_list[$status['state']],
+                'status' => "SUCCESS"
+              )
+            )
+          )
+        )
+      ), 
+      'times' => array(
+        $time_string => $job_id
+      )
+    );
+    return $results;
   }
 
+/*
+array(2) {
+  ["transactions"]=>
+  array(1) {
+    [1387]=>
+    array(1) {
+      ["status"]=>
+      array(1) {
+        [1387]=>
+        array(1) {
+          [5]=>
+          array(6) {
+            ["jobid"]=>
+            string(7) "2001387"
+            ["trans_id"]=>
+            string(4) "1387"
+            ["person_id"]=>
+            string(5) "37612"
+            ["step"]=>
+            string(1) "5"
+            ["message"]=>
+            string(9) "completed"
+            ["status"]=>
+            string(7) "SUCCESS"
+          }
+        }
+      }
+    }
+  }
+  ["times"]=>
+  array(1) {
+    ["2015-06-25 10:09:24"]=>
+    string(4) "1387"
+  }
+}*/
 
   function get_formatted_object_for_transactions($transaction_list){
     $results = array('transactions' => array(),'times' => array());

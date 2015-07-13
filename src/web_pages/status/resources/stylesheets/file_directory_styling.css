@@ -34,7 +34,7 @@ span.download_status {
 }
 
 .fancytree-selected .item_link:visited, .fancytree-selected .item_link:link {
-  color: #white;
+  color: white;
   text-decoration: none;
 }
 

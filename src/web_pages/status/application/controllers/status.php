@@ -40,36 +40,41 @@ class Status extends Baseline_controller {
     );
     $this->page_data['load_prototype'] = false;
     $this->page_data['load_jquery'] = true;  
+    $lookup_type_description = $lookup_type == 't' ? 'transaction' : 'job';
+    $this->page_data['status_list'] = $this->status_list;
+    $inst_id = -1;
     
     if($lookup_type == 'j' || $lookup_type == 'job'){
       //lookup transaction_id from job
-      $id = $this->status->get_transaction_id($id);
-      if($id > 0){
-        redirect(base_url()."index.php/status/view/t/{$id}");
+      $tx_id = $this->status->get_transaction_id($id);
+      if($tx_id > 0){
+        redirect(base_url()."index.php/status/view/t/{$tx_id}");
       }else{
-        
+        $job_status_info = $this->status->get_formatted_object_for_job($id);
+        if(empty($job_status_info)){
+          $this->page_data['message'] = "No {$lookup_type_description} with an identifier of {$id} was found";
+          $this->page_data['script_uris'] = array();
+        }
+        $this->page_data['transaction_data'] = $job_status_info;
       }
+    }else{
+      $inst_id = $this->status->get_instrument_for_id('t',$id);
+      $transaction_list = array();
+      $transaction_list[] = $id;
+      
+      $transaction_info = $this->status->get_formatted_object_for_transactions($transaction_list);
+      if(empty($transaction_info)){
+        $this->page_data['message'] = "No {$lookup_type_description} with an identifier of {$id} was found";
+        $this->page_data['script_uris'] = array();
+      }
+      $this->page_data['transaction_data'] = $transaction_info;
     }
-    $inst_id = $lookup_type == 't' ? $this->status->get_instrument_for_id('t',$id) : -1;
-    $lookup_type_description = $lookup_type = 't' ? 'transaction' : 'job';
-    $transaction_list = array();
-    $transaction_list[] = $id;
-    
-    $transaction_info = $this->status->get_formatted_object_for_transactions($transaction_list);
-    $this->page_data['status_list'] = $this->status_list;
-    if(empty($transaction_info)){
-      $this->page_data['message'] = "No {$lookup_type_description} with an identifier of {$id} was found";
-      $this->page_data['script_uris'] = array();
-    }
-    $this->page_data['transaction_data'] = $transaction_info;
-    $this->page_data['js'] = "var initial_inst_id = {$inst_id};";
-        // var_dump($transaction_info);
+    $this->page_data['request_type'] = $lookup_type;
+    $this->page_data['js'] = "var initial_inst_id = '{$inst_id}';
+var lookup_type = '{$lookup_type}'";
     $this->page_data['show_instrument_data'] = true;
     $this->load->view('single_item_view',$this->page_data);
-    
-    
-    
-    
+
 }
 
   
@@ -186,7 +191,9 @@ var initial_instrument_list = [];";
     $this->page_data['cart_data'] = array('carts' => $this->cart->get_active_carts($this->user_id, false));
     $this->page_data['status_list'] = $this->status_list;
     $this->page_data['transaction_data'] = $results['transaction_list'];
-    $this->page_data['informational_message'] = $results['message'];    
+    $this->page_data['informational_message'] = $results['message'];
+    $this->page_data['request_type'] = 't';
+     
     $this->load->view($view_name,$this->page_data);
   }
   
@@ -229,12 +236,8 @@ var initial_instrument_list = [];";
   public function get_status($lookup_type, $id = 0){
     //lookup by (j)ob or (t)ransaction
     //check for list of transactions in post
-    if($this->input->post('transaction_list')){
-      $lookup_type = 't';
-      $item_list = $this->input->post('transaction_list');
-    }elseif($this->input->post('job_list')){
-      $lookup_type = 'j';
-      $item_list = $this->input->post('job_list');
+    if($this->input->post('item_list')){
+      $item_list = $this->input->post('item_list');
     }elseif($id > 0){
       $item_list = array($id => $id);
     }
@@ -255,11 +258,12 @@ var initial_instrument_list = [];";
         $status_info_temp = array(
           'latest_step' => $latest_step,
           'status_list' => $this->status_list,
-          'transaction_id' => $item_id
+          'transaction_id' => $item_info[$latest_step]['trans_id']
         );
         $item_text = trim($this->load->view('status_breadcrumb_insert_view.html',$status_info_temp, true));
         if($item_list[$item_id] != sha1($item_text)){
-          $status_info[$item_id] = $item_text;
+          $status_info[$item_id]['bar_text'] = $item_text;
+          $status_info[$item_id]['transaction_id'] = $status_info_temp['transaction_id'];
         }
       }
       krsort($status_info);

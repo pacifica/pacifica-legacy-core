@@ -26,7 +26,11 @@ var spinner_opts = {
 
 
 $(function(){
-  inst_id = $('#instrument_selector').length > 0 ? $('#instrument_selector').val() : initial_inst_id;
+  if($('#instrument_selector')){
+    inst_id = $('#instrument_selector').length > 0 ? $('#instrument_selector').val() : initial_inst_id;
+  }else{
+    inst_id = -1;
+  }
 });
 
 var update_breadcrumbs = function(){
@@ -42,12 +46,12 @@ var update_breadcrumbs = function(){
     }
   });
   var data_obj = {
-    'transaction_list' : trans_id_list,
+    'item_list' : trans_id_list,
     'instrument_id' : inst_id
   };
   if(inst_id && Object.keys(trans_id_list).length > 0){
     var ts = moment().format('YYYYMMDDHHmmss');
-    var url = base_url + 'index.php/status/get_status/t/bc_' + ts;
+    var url = base_url + 'index.php/status/get_status/' + lookup_type + '/bc_' + ts;
     $.ajax({
       type: "POST",
       url: url,
@@ -56,10 +60,15 @@ var update_breadcrumbs = function(){
         if(data != 0){
           $.each(data, function(index,trans_entry){
             var new_item = $('#bar_holder_' + index);
-            new_item.html(trans_entry);
+            new_item.html(trans_entry.bar_text);
+            var new_tx_id = trans_entry.transaction_id;
+            if(lookup_type == 'j' && new_tx_id != null){
+              window.location = base_url + "index.php/status/view/t/" + new_tx_id;
+            }
             var hash = new_item.crypt({method:"sha1"});
             trans_id_list[index] = hash;
           });
+          setup_hover_info();
         }
       },
       dataType: 'json'
@@ -110,6 +119,7 @@ var update_content = function(event){
             $('#item_info_container').fadeIn('slow',function(){
               setup_tree_data();
               setup_metadata_disclosure();
+              setup_hover_info();
             });
           });
         }
@@ -237,6 +247,57 @@ var setup_tree_data = function(){
     }
   });
 };
+
+var setup_hover_info = function(){
+  $('.status_item_bar').each(function(index,item){
+    var el = $(item);
+    var block_type = 'status_block_' + el.prop('id').slice(-1);
+    var status = el.hasClass('red_bar_end') ? 'success' : 'failure';
+    var info = item_info_obj[block_type][status];
+    el.attr('title',item_info_obj[block_type]['title']);
+  });
+  $('.status_item_bar').tooltip({show:true,position: { my: "right top+10", at: "right center" }});
+
+};
+
+var item_info_obj = {
+  'status_block_0' : {
+    'title' : 'Data Submitted',
+    'success' : 'Your data has been sent to MyEMSL and is being examined',
+    'failure' : 'Fail Whale!'
+  },
+  'status_block_1' : {
+    'title':'Data Received', 
+    'success':'Your data has been received by the MyEMSL servers and is being processed',
+    'failure':'Fail Whale!'
+  },
+  'status_block_2' : {
+    'title':'Data Being Processed',
+    'success': 'Your data has been accepted by the MyEMSL system and is being verified for consistency',
+    'failure':'Fail Whale!'
+  },
+  'status_block_3' : {
+    'title':'Data Verified',
+    'success': 'Your data has been verified and is being moved to working storage',
+    'failure':'Fail Whale!'
+  },
+  'status_block_4' : {
+    'title':'Data Stored', 
+    'success':'Your data has been moved to working storage and is being readied for access',
+    'failure':'Fail Whale!'
+  },
+  'status_block_5' : {
+    'title':'Data Available', 
+    'success':'Your data has been fully processed by the MyEMSL system and is available for use (Note: Until the data archiving step has completed, only one copy of your data exists on our servers)',
+    'failure':'Fail Whale!'
+  },
+  'status_block_6' : {
+     'title':'Data Archived',
+     'success':'Your data has been successfully copied to the EMSL archive system for safekeeping',
+     'failure':'Fail Whale!'
+  }
+};
+
 
 var get_tree_data = function(event, data){
   var id_matcher = /.+_(\d+)/i;

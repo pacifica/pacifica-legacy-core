@@ -44,6 +44,7 @@
         <?php endif; ?>
         </ul>
       </div>
+      <?php if($request_type == 't'): ?>
       <div class="full_width_block" style="width:95%;">
         <h2>File List</h2>
         <div class="disclosure_block">
@@ -63,6 +64,7 @@
           </div>
         </div>
       </div>
+      <?php endif; ?>
       <div class="full_width_block" id="error_msg_container_<?= $transaction_id ?>" style="display:none;">
         <span class="error" id="error_msg_<?= $transaction_id ?>"></span>
       </div>

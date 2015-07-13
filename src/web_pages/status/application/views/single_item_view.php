@@ -1,5 +1,4 @@
 <?php
-  $table_object = !empty($table_object) ? $table_object : "";
   $this->load->view('pnnl_template/view_header'); 
   $js = isset($js) ? 
 "<script type='text/javascript'>
