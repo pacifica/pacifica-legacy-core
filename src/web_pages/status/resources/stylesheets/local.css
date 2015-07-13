@@ -566,7 +566,7 @@ div.content_block p {
   padding-right:16px;
   margin-left:6px;
   vertical-align:middle;
-  background-image:url(/myemsl/status/resources/images/disclosure_sprite.png);
+  background-image:url(/resources/images/disclosure_sprite.png);
   background-repeat: no-repeat;
   background-size: 64px 16px; 
 }
@@ -584,7 +584,7 @@ div.content_block p {
        only screen and (-webkit-min-device-pixel-ratio: 1.25),
        only screen and (min-device-pixel-ratio: 1.25),
        only screen and (min-resolution: 1.25dppx) {
-    .disclosure_button {background-image:url(/myemsl/status/resources/images/disclosure_sprite@2x.png);}
+    .disclosure_button {background-image:url(/resources/images/disclosure_sprite@2x.png);}
 }
 
 /* @3x Images (Pixel Ratio of 2.25+) */
@@ -592,7 +592,7 @@ div.content_block p {
        only screen and (-webkit-min-device-pixel-ratio: 2.25),
        only screen and (min-device-pixel-ratio: 2.25),
        only screen and (min-resolution: 2.25dppx) {
-    .disclosure_button {background-image:url(/myemsl/status/resources/images/disclosure_sprite@3x.png);}
+    .disclosure_button {background-image:url(/resources/images/disclosure_sprite@3x.png);}
 }
 
 
@@ -690,7 +690,7 @@ div.edit_block p {
   left: 0px;
   width: 220px;
   height: 30px;
-  background-image: url("../images/footer_tagline.png");
+  background-image: url("/resources/images/footer_tagline.png");
   background-repeat: no-repeat;
   text-indent: -1000px;
   border-right: 2px solid white;
