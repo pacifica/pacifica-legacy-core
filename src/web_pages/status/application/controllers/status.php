@@ -46,8 +46,9 @@ class Status extends Baseline_controller {
     
     if($lookup_type == 'j' || $lookup_type == 'job'){
       //lookup transaction_id from job
-      $tx_id = $this->status->get_transaction_id($id);
-      if($tx_id > 0){
+      $tx_info = $this->status->get_transaction_info($id);
+      $tx_id = $tx_info['transaction_id'];
+      if($tx_info['transaction_id'] > 0 && $tx_info['current_step'] >= 5){
         redirect(base_url()."index.php/status/view/t/{$tx_id}");
       }else{
         $job_status_info = $this->status->get_formatted_object_for_job($id);
@@ -262,8 +263,11 @@ var initial_instrument_list = [];";
         );
         $item_text = trim($this->load->view('status_breadcrumb_insert_view.html',$status_info_temp, true));
         if($item_list[$item_id] != sha1($item_text)){
-          $status_info[$item_id]['bar_text'] = $item_text;
-          $status_info[$item_id]['transaction_id'] = $status_info_temp['transaction_id'];
+          $status_info[$item_id] = array(
+            'bar_text' => $item_text,
+            'transaction_id' => $status_info_temp['transaction_id'],
+            'current_step' => $status_info_temp['latest_step']
+          );
         }
       }
       krsort($status_info);
@@ -325,8 +329,10 @@ var initial_instrument_list = [];";
   }
   
   public function test_get_groups_for_transaction($transaction_id){
-    $this->status->get_groups_for_transaction($transaction_id);
-    
+    $results = $this->status->get_groups_for_transaction($transaction_id);
+    echo "<pre>";
+    var_dump($results);
+    echo "</pre>";
   }
   
   public function test_get_transactions_for_proposal($proposal_id){

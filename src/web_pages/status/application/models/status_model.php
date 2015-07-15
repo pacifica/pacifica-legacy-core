@@ -421,6 +421,7 @@ array(2) {
     $results = array('transactions' => array(),'times' => array());
     foreach($transaction_list as $transaction_id){
       $files_obj = $this->get_files_for_transaction($transaction_id);
+      $groups_obj = $this->get_groups_for_transaction($transaction_id);
       // $files_obj = array('treelist' => array(), 'files' => array());
       // var_dump($files_obj);
       if(!empty($files_obj['treelist'])){
@@ -443,6 +444,11 @@ array(2) {
             $results['transactions'][$transaction_id]['status'] = $status_list;
           }else{
             $results['transactions'][$transaction_id]['status'] = array();
+          }
+          if(sizeof($groups_obj) > 0){
+            $results['transactions'][$transaction_id]['groups'] = $groups_obj['groups'][$transaction_id];
+          }else{
+            $results['transactions'][$transaction_id]['groups'] = array();
           }
         }
       }
@@ -497,7 +503,8 @@ array(2) {
       $lookup_field = $lookup_types[$lookup_type];
     }
     if($lookup_field == 'jobid'){
-      $id = $this->get_transaction_id($id);
+      $tx_info = $this->get_transaction_info($id);
+      $id = $tx_info['transaction_id'];
       $lookup_field = 'trans_id';
     }
     
@@ -514,7 +521,7 @@ array(2) {
   
   
   
-  function get_transaction_id($job_id){
+  function get_transaction_info($job_id){
     $DB_myemsl = $this->load->database('default',TRUE);
     $DB_myemsl->trans_start();
     $DB_myemsl->query("set local timezone to '{$this->local_timezone}';");    
@@ -522,9 +529,10 @@ array(2) {
     $DB_myemsl->trans_complete();
     $transaction_id = -1;
     if($query && $query->num_rows()>0){
-      $transaction_id = !empty($query->row()->transaction_id) ? $query->row()->transaction_id : -1; 
+      $transaction_id = !empty($query->row()->transaction_id) ? $query->row()->transaction_id : -1;
+      $current_step = !empty($query->row()->step) ? $query->row()->step : 0;
     }
-    return $transaction_id;
+    return array('transaction_id' => $transaction_id, 'current_step' => $current_step);
   }
   
 

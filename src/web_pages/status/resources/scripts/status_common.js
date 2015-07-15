@@ -62,7 +62,8 @@ var update_breadcrumbs = function(){
             var new_item = $('#bar_holder_' + index);
             new_item.html(trans_entry.bar_text);
             var new_tx_id = trans_entry.transaction_id;
-            if(lookup_type == 'j' && new_tx_id != null){
+            var current_step = trans_entry.current_step;
+            if(lookup_type == 'j' && new_tx_id != null && current_step >= 5){
               window.location = base_url + "index.php/status/view/t/" + new_tx_id;
             }
             var hash = new_item.crypt({method:"sha1"});
