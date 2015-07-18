@@ -116,6 +116,7 @@ var lookup_type = '{$lookup_type}'";
 var initial_instrument_id = '{$instrument_id}';
 var initial_time_period = '{$time_period}';
 var email_address = '{$this->email}';
+var lookup_type = 't';
 var initial_instrument_list = [];";
       
       $this->page_data['proposal_list'] = $proposal_list;

@@ -5,7 +5,7 @@
   <link rel="stylesheet" type="text/css" media="print" href="/resources/stylesheets/shared/print.css" />
   <link rel="stylesheet" type="text/css" media="handheld" href="/resources/stylesheets/shared/handheld.css" />
   <link rel="stylesheet" type="text/css" href="/resources/stylesheets/local.css" />
-  <script type="text/javascript" src="/resources/scripts/jquery/jquery-1.9.1.min.js"></script>
+  <script type="text/javascript" src="/resources/scripts/jquery/jquery-1.9.1.js"></script>
   <script type="text/javascript" src="/resources/scripts/jquery-ui/jquery-ui.min.js"></script>
   <script type="text/javascript" src="/resources/scripts/jquery-dateFormat/jquery-dateFormat.min.js"></script>
   <link rel="stylesheet" type="text/css" href="/resources/scripts/jquery-ui/jquery-ui.min.css" />
