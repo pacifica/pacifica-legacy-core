@@ -709,8 +709,16 @@ div.edit_block p {
   color:#ffffff;
   font-size:1.4em;
   text-shadow: -1px -1px 1px rgba(20, 20, 20, 0.65);
-  margin-top:7px;
+  margin-top:9px;
   margin-left:20px;
+}
+
+#last_update_timestamp {
+  position: absolute;
+  right: 11px;
+  text-shadow: -1px -1px 1px rgba(20, 20, 20, 0.65);
+  top:10px;
+  color: #efefef;
 }
 
 .banner_bar_background{

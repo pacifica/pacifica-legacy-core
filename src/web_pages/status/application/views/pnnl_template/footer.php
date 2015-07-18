@@ -7,7 +7,7 @@
     <a href="http://www.pnl.gov/disclaimer.asp">Security &amp; Privacy</a>
     | <a href="mailto:labweb@pnl.gov">Contact Labweb</a>
   </div>
-  <span class="footerItem">Last Update: <span class="updatedDate"><?= strftime("%B %Y"); ?></span></span>
+  <span class="footerItem">Last Update: <span class="updatedDate"><?= $this->last_update_time->format('F Y') ?></span></span>
   | <span class="footerItem">Pacific Northwest National Laboratory</span>
   | <span class="footerItem">Operated by Battelle for the U.S. Department of Energy</span>
 </div>

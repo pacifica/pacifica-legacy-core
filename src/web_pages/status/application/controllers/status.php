@@ -14,7 +14,7 @@ class Status extends Baseline_controller {
       0 => 'Submitted', 1 => 'Received', 2 => 'Processing',
       3 => 'Verified', 4 => 'Stored', 5 => 'Available', 6 => 'Archived'
     );
-    
+    $this->last_update_time = get_last_update(realpath(BASEPATH.'../'.APPPATH.'/'));
   }
   
   public function index(){
