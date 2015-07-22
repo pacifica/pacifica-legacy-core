@@ -1,6 +1,7 @@
 <Location /myemsl/proposalinfo>
 	Options Indexes FollowSymLinks MultiViews
-	Order allow,deny
+        Order deny,allow
+        Allow from all
 	SetHandler mod_python
 	PythonInterpreter main_interpreter
 	PythonHandler myemsl.handler.proposalinfo
