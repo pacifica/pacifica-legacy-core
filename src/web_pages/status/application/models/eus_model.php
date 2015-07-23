@@ -10,11 +10,11 @@ class Eus_model extends CI_Model {
   
   function __construct(){
     parent::__construct();
-    define("INST_TABLE",'UP_INSTRUMENTS');
-    define("INST_PROPOSAL_XREF", "UP_PROPOSAL_INSTRUMENTS");
-    define("PROPOSALS_TABLE", "UP_PROPOSALS");
-    define("PROPOSAL_MEMBERS", "UP_PROPOSAL_MEMBERS");
-    define("USERS_TABLE", "UP_USERS");
+    define("INST_TABLE",'instruments');
+    define("INST_PROPOSAL_XREF", "proposal_instruments");
+    define("PROPOSALS_TABLE", "proposals");
+    define("PROPOSAL_MEMBERS", "proposal_members");
+    define("USERS_TABLE", "users");
   }
   
   function get_ers_instruments_list($unused_only = false, $filter = ""){

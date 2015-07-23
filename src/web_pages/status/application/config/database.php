@@ -90,16 +90,29 @@ $db['ws_info']['stricton'] = FALSE;
 // $db['default']['cache_on'] = FALSE;
 // $db['default']['cachedir'] = "";
 
-$db['eus_for_myemsl']['hostname'] = "eusi.emsl.pnl.gov";
-$db['eus_for_myemsl']['username'] = "myemsl";
-$db['eus_for_myemsl']['password'] = "Gr7vakon";
-$db['eus_for_myemsl']['database'] = "ERSUP";
-$db['eus_for_myemsl']['dbdriver'] = "mysql";
-$db['eus_for_myemsl']['dbprefix'] = "";
+$db['eus_for_myemsl']['hostname'] = $myemsl_array['metadata']['host'];
+$db['eus_for_myemsl']['username'] = $myemsl_array['metadata']['user'];
+$db['eus_for_myemsl']['password'] = $myemsl_array['metadata']['password'];
+$db['eus_for_myemsl']['database'] = $myemsl_array['metadata']['database'];
+$db['eus_for_myemsl']['dbdriver'] = "postgre";
+$db['eus_for_myemsl']['dbprefix'] = "eus.";
 $db['eus_for_myemsl']['pconnect'] = TRUE;
 $db['eus_for_myemsl']['db_debug'] = TRUE;
 $db['eus_for_myemsl']['cache_on'] = FALSE;
 $db['eus_for_myemsl']['cachedir'] = "";
+
+
+
+// $db['eus_for_myemsl']['hostname'] = "eusi.emsl.pnl.gov";
+// $db['eus_for_myemsl']['username'] = "myemsl";
+// $db['eus_for_myemsl']['password'] = "Gr7vakon";
+// $db['eus_for_myemsl']['database'] = "ERSUP";
+// $db['eus_for_myemsl']['dbdriver'] = "mysql";
+// $db['eus_for_myemsl']['dbprefix'] = "";
+// $db['eus_for_myemsl']['pconnect'] = TRUE;
+// $db['eus_for_myemsl']['db_debug'] = TRUE;
+// $db['eus_for_myemsl']['cache_on'] = FALSE;
+// $db['eus_for_myemsl']['cachedir'] = "";
 
 $db['ers']['hostname'] = "eusi.emsl.pnl.gov";
 $db['ers']['username'] = "auberry_user";
