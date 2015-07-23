@@ -46,6 +46,8 @@ def process(item, filename, req):
 		if x == "false":
 			return apache.HTTP_SERVICE_UNAVAILABLE
 	logger.debug("Returning: %s" %(filename))
+	st = os.stat(filename)
+	req.headers_out['Last-Modified'] = datetime.datetime.fromtimestamp(int(st.st_mtime)).strftime('%a, %d %b %Y %H:%M:%S')
 	req.headers_out['X-SENDFILE'] = filename
 	req.headers_out['Content-Type'] = 'application/octet-stream'
 	req.headers_out['Content-Disposition'] = 'attachment'
