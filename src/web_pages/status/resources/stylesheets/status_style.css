@@ -29,6 +29,12 @@
   height: 27px;
 }
 
+.folder_size_summary{
+  font-size: 0.75em;
+  font-style: italic;
+  color: #666;
+}
+
 .transaction_container h2 {
   margin-bottom:0 !important;
   margin-top:10px;

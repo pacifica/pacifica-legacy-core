@@ -50,7 +50,7 @@
         <div class="disclosure_block">
           <div id="tree_<?= $transaction_id ?>" class="tree_holder">
             <ul id="treeData_<?= $transaction_id ?>" style="display:none;" >
-              <li id="treeData_<?= $transaction_id ?>" class="lazy folder">Uploaded Data</li>
+              <li id="treeData_<?= $transaction_id ?>" class="lazy folder"><span>Uploaded Data <span class='folder_size_summary'>[Total Size: <?= format_bytes($transaction_sizes[$transaction_id]) ?>]</span></span></li>
             </ul>
           </div>
           <div class='full_width_block buttons' id="dl_button_container_<?= $transaction_id ?>" style="margin-top:1em;display:none;">

@@ -310,7 +310,25 @@ class Status_model extends CI_Model {
     return array('transaction_list' => $results, 'time_period_empty' => $is_empty, 'message' => $message);
   }
 
-
+  function get_total_size_for_transactions($transaction_id_list){
+    if(!is_array($transaction_id_list)){
+      $transaction_id_list = explode(',',$transaction_id_list);
+    }
+    $DB_myemsl = $this->load->database('default',TRUE);
+    $select_array = array('transaction as id', 'sum(size) as total_size');
+    $DB_myemsl->select($select_array)->group_by('transaction')->order_by('transaction');
+    
+    $query = $DB_myemsl->where_in('transaction',$transaction_id_list)->get('files');
+    
+    $results = array();
+    
+    if($query && $query->num_rows()>0){
+      foreach($query->result() as $row){
+        $results[$row->id] = $row->total_size;
+      }
+    }
+    return $results;
+  }
 
   function get_groups_for_transaction($transaction_id_list){
     $DB_myemsl = $this->load->database('default',TRUE);
