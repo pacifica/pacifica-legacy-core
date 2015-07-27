@@ -1,4 +1,4 @@
-AC_INIT([myemsl],[2.1.98],[Kevin.Fox@pnl.gov])
+AC_INIT([myemsl],[2.1.99],[Kevin.Fox@pnl.gov])
 AM_INIT_AUTOMAKE([tar-ustar])
 AC_CONFIG_SRCDIR([configure.ac])
 
