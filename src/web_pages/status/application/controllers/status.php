@@ -193,7 +193,11 @@ var initial_instrument_list = [];";
     $this->page_data['cart_data'] = array('carts' => $this->cart->get_active_carts($this->user_id, false));
     $this->page_data['status_list'] = $this->status_list;
     $this->page_data['transaction_data'] = $results['transaction_list'];
-    $this->page_data['transaction_sizes'] = $this->status->get_total_size_for_transactions(array_keys($results['transaction_list']['transactions']));
+    if(array_key_exists('transactions',$results['transaction_list']) && !empty($results['transaction_list']['transactions'])){
+      $this->page_data['transaction_sizes'] = $this->status->get_total_size_for_transactions(array_keys($results['transaction_list']['transactions']));
+    }else{
+      $this->page_data['transaction_sizes'] = array();
+    }
     $this->page_data['informational_message'] = $results['message'];
     $this->page_data['request_type'] = 't';
      

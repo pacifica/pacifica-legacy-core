@@ -317,16 +317,17 @@ class Status_model extends CI_Model {
     $DB_myemsl = $this->load->database('default',TRUE);
     $select_array = array('transaction as id', 'sum(size) as total_size');
     $DB_myemsl->select($select_array)->group_by('transaction')->order_by('transaction');
-    
-    $query = $DB_myemsl->where_in('transaction',$transaction_id_list)->get('files');
-    
     $results = array();
     
-    if($query && $query->num_rows()>0){
-      foreach($query->result() as $row){
-        $results[$row->id] = $row->total_size;
+    if(!empty($transaction_id_list)){
+      $query = $DB_myemsl->where_in('transaction',$transaction_id_list)->get('files');
+      if($query && $query->num_rows()>0){
+        foreach($query->result() as $row){
+          $results[$row->id] = $row->total_size;
+        }
       }
     }
+    
     return $results;
   }
 
