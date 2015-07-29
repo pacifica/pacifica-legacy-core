@@ -21,7 +21,34 @@ class Status extends Baseline_controller {
     redirect('status/overview');
   }
   
-  public function view($lookup_type,$id){
+  public function view($lookup_type,$id = -1){
+    $valid_lookup_types = array(
+      'j' => 'j','job' => 'j','t' => 't','transaction' => 't'
+    );
+    $lookup_type_descriptions = array('j' => 'job', 't' => 'transaction');
+    $this->page_data['load_prototype'] = false;
+    $this->page_data['load_jquery'] = true;
+    $this->page_data['status_list'] = $this->status_list;
+    $inst_id = -1;
+    if(!array_key_exists($lookup_type,$valid_lookup_types)){
+      //not a valid lookup type, so try as job first
+      $this->page_data['lookup_type_desc'] = "Lookup Type";
+      $this->page_data['lookup_type'] = $lookup_type;
+      $this->page_data['error_message'] = "'{$lookup_type}' is not a valid lookup type. Try 't' (for transactions) or 'j' (for jobs)";
+      $this->load->view('status_error_page.html',$this->page_data);
+      // redirect(base_url()."index.php/status/view/{$lookup_type}/{$id}");
+    }
+    
+    $lookup_type_description = array_key_exists($lookup_type,$lookup_type_descriptions) ? $lookup_type_descriptions[$lookup_type] : 'job';
+    if(!is_numeric($id) || $id < 0){
+      //that doesn't look like a real id
+      //send to error page saying so
+      $this->page_data['error_message'] = "No ".ucwords($lookup_type_description)." with the identifier {$id} could be found in the system";
+      $this->page_data['lookup_type_desc'] = $lookup_type_description;
+      $this->page_data['lookup_type'] = $lookup_type;
+      $this->load->view('status_error_page.html', $this->page_data);
+    }    
+    
     $this->page_data['page_header'] = "Upload Report";
     $this->page_data['title'] = "Upload Report";
     $this->page_data['css_uris'] = array(
@@ -38,11 +65,6 @@ class Status extends Baseline_controller {
       "/resources/scripts/moment.min.js",
       "/resources/scripts/single_item_view.js"    
     );
-    $this->page_data['load_prototype'] = false;
-    $this->page_data['load_jquery'] = true;  
-    $lookup_type_description = $lookup_type == 't' ? 'transaction' : 'job';
-    $this->page_data['status_list'] = $this->status_list;
-    $inst_id = -1;
     
     if($lookup_type == 'j' || $lookup_type == 'job'){
       //lookup transaction_id from job
@@ -59,6 +81,7 @@ class Status extends Baseline_controller {
         $this->page_data['transaction_data'] = $job_status_info;
       }
     }else{
+      $this->page_data['transaction_sizes'] = $this->status->get_total_size_for_transactions(array($id));      
       $inst_id = $this->status->get_instrument_for_id('t',$id);
       $transaction_list = array();
       $transaction_list[] = $id;
@@ -205,14 +228,19 @@ var initial_instrument_list = [];";
   }
   
   
-  public function get_files_by_transaction($transaction_id){
-    $treelist = $this->status->get_files_for_transaction($transaction_id);
-    $output_array = format_folder_object_json($treelist['treelist']);
-    // var_dump($output_array);
+  public function get_files_by_transaction($transaction_id = false){
+    if(!isset($transaction_id) || !$transaction_id){
+      $output_array = array();
+    }else{
+      $treelist = $this->status->get_files_for_transaction($transaction_id);
+      $output_array = format_folder_object_json($treelist['treelist']);
+    }
     transmit_array_with_json_header($output_array);
   }
   
-  public function get_latest_transactions($instrument_id,$proposal_id,$latest_id){
+  
+  
+  public function get_latest_transactions($instrument_id = "",$proposal_id = "",$latest_id = ""){
     $group_list = $this->status->get_instrument_group_list($instrument_id);
     $new_transactions = array();
     if(array_key_exists($instrument_id,$group_list['by_inst_id'])){
