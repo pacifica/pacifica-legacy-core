@@ -32,6 +32,6 @@ else
 	mkdir -p "$MPT"
 	chown "$MYEMSL_UNIX_USER"."$MYEMSL_UNIX_USER" "$MPT"
 #FIXME Make nagios person id configurable
-	buhfs -o subdir="$MYEMSL_ARCHIVE_SUBDIR"/47943,no_trash,switch_user="$MYEMSL_UNIX_USER",user="$MYEMSL_ARCHIVE_USER",keytab=/var/hpss/etc/svc-myemsl.keytab,no_multiuser "$MPT"
+	buhfs -o subdir="$MYEMSL_ARCHIVE_SUBDIR"/47943,no_trash,switch_user="$MYEMSL_UNIX_USER",user="$MYEMSL_ARCHIVE_USER",keytab=/var/hpss/etc/$MYEMSL_UNIX_USER.keytab,no_multiuser "$MPT"
 	exit $?
 fi
