@@ -201,12 +201,18 @@ def ingest_metadata(metadata, files, username, transaction, itemlogfilename):
 			try:
 				hashsum = metadata_merged[subdir + '/' + name]['sha1Hash']
 			except:
-				pass
+				try:
+					hashsum = metadata_merged[os.path.join('data',subdir,name)]['sha1Hash']
+				except:
+					pass
 			file_groups = []
 			try:
 				file_groups = metadata_merged[subdir + '/' + name]['groups']
 			except:
-				pass
+				try:
+					file_groups = metadata_merged[os.path.join('data',subdir,name)]['groups']
+				except:
+					pass
 			pgroup = []
 			if proposal:
 				pgroup.append({'name':proposal, 'type':'proposal'})
