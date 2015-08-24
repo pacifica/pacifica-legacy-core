@@ -39,29 +39,6 @@ class Status_model extends CI_Model {
   
   
   
-  function get_job_status($job_id_list, $status_list = false){
-    $status_list = !empty($status_list) ? $status_list : $this->status_list;
-    $DB_myemsl = $this->load->database('default',TRUE);
-    $select_array = array(
-      'jobid', 'min(trans_id) as trans_id', 'max(step) as step', 'max(person_id) as person_id'
-    );
-    $DB_myemsl->select($select_array)->where_in('jobid',$job_id_list)->group_by('jobid');
-    $query = $DB_myemsl->get('ingest_state');
-    $results = array();
-    if($query && $query->num_rows() > 0){
-      foreach($query->result() as $row){
-        $item = array(
-          'state_name' => $status_list[$row->step],
-          'state' => $row->step,
-          'person_id' => $row->person_id
-        );
-        $results[$row->jobid] = $item;
-      }
-    }
-    return $results;
-  }
-  
-//select jobid, min(trans_id) as trans_id, max(step) as step from myemsl.ingest_state group by jobid order by jobid desc limit 50;
 
   
   function get_instrument_group_list($inst_id_filter = ""){
@@ -133,7 +110,7 @@ class Status_model extends CI_Model {
     // echo $DB_myemsl->last_query();
     $DB_myemsl->select($file_select_array)->from('transactions t')->join('files f', 't.transaction = f.transaction');
     $DB_myemsl->where('f.transaction',$transaction_id);
-    $DB_myemsl->order_by('t.stime desc');
+    $DB_myemsl->order_by('f.subdir, f.name');
     $files_query = $DB_myemsl->get();
     $DB_myemsl->trans_complete();
     $files_list = array();
@@ -481,6 +458,29 @@ array(2) {
   
   
   
+  function get_job_status($job_id_list, $status_list = false){
+    $status_list = !empty($status_list) ? $status_list : $this->status_list;
+    $DB_myemsl = $this->load->database('default',TRUE);
+    $select_array = array(
+      'jobid', 'min(trans_id) as trans_id', 'max(step) as step', 'max(person_id) as person_id'
+    );
+    $DB_myemsl->select($select_array)->where_in('jobid',$job_id_list)->group_by('jobid');
+    $query = $DB_myemsl->get('ingest_state');
+    $results = array();
+    if($query && $query->num_rows() > 0){
+      foreach($query->result() as $row){
+        $item = array(
+          'state_name' => $status_list[$row->step],
+          'state' => $row->step,
+          'person_id' => $row->person_id
+        );
+        $results[$row->jobid] = $item;
+      }
+    }
+    return $results;
+  }
+  
+//select jobid, min(trans_id) as trans_id, max(step) as step from myemsl.ingest_state group by jobid order by jobid desc limit 50;
   
 
   function get_status_for_transaction($lookup_type, $id_list){
@@ -505,9 +505,23 @@ array(2) {
     $DB_myemsl->trans_complete();
     if($ingest_query && $ingest_query->num_rows()>0){
       foreach($ingest_query->result_array() as $row){
+        if(intval($row['step']) >= 5 && strtoupper($row['status']) == 'SUCCESS' && $row['trans_id'] != -1){
+          //need to check for validation progress
+          $DB_myemsl->select('transaction')->group_by('transaction');
+          $DB_myemsl->having("every(verified = 't')")->where('transaction', $row['trans_id']);
+          $validation_query = $DB_myemsl->get('files');
+          if($validation_query && $validation_query->num_rows() > 0){
+            //looks like every file has been validated
+            $row['step'] = 6;
+            $row['status'] = 'SUCCESS';
+            $row['message'] = 'verified';
+          }
+        }
         $status_list[$row[$lookup_field]][$row['step']] = $row;
+        
       }
     }
+   
     return $status_list;
   }
   

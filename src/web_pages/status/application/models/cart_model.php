@@ -34,7 +34,7 @@ class Cart_model extends CI_Model {
     );
     $cart_list = array();
     $accepted_states = array(
-      'amalgam','downloading','email'//,
+      'amalgam','downloading','email','admin_notified'
       // 'expiring','expired','download_expiring'
     );
     // if($show_expired){

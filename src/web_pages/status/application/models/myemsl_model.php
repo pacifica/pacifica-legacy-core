@@ -23,7 +23,8 @@ class Myemsl_model extends CI_Model {
     // $url_base =  dirname(dirname($this->myemsl_ini['getuser']['prefix']));
     $url_base = "{$protocol}://localhost";
     $options = array(
-      'verify' => false
+      'verify' => false,
+      'timeout' => 30
     );
     $headers = array();
     

@@ -9,7 +9,7 @@
       $upload_time = new DateTime($upload_time_string);
       $transaction_info = $transaction_data['transactions'][$transaction_id];
       $friendly_upload_time = $upload_time->format('g:ia \o\n D, M j Y');
-      $status_steps = array_pop($transaction_info['status']);
+      $status_steps = !empty($transaction_info['status']) ? array_pop($transaction_info['status']) : array('0' => array('trans_id' => $transaction_id, 'step' => '0')); 
       krsort($status_steps);
       $latest_step_info =  array_pop(array_slice($status_steps, 0,1, true));
       $latest_step = $latest_step_info['step'];

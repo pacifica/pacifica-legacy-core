@@ -131,7 +131,9 @@ var lookup_type = '{$lookup_type}'";
       $proposal_list = array();
       
       foreach($full_user_info['proposals'] as $prop_id => $prop_info){
+        if(array_key_exists('title', $prop_info)){
         $proposal_list[$prop_id] = $prop_info['title'];
+      }
       }
       krsort($proposal_list);
       
@@ -351,7 +353,16 @@ var initial_instrument_list = [];";
     asort($instruments);
     
     format_array_for_select2(array('items' => $instruments));
+  }
+  
+  public function get_instrument_info($eus_instrument_id = 0){
+    $results = array();
+    if($eus_instrument_id){
+      $results = $this->eus->get_instrument_name($eus_instrument_id);
+    }
+    transmit_array_with_json_header($results);
   }  
+  
   
   public function test_get_instrument_list(){
     var_dump($this->status->get_instrument_group_list());

@@ -277,5 +277,16 @@ class Eus_model extends CI_Model {
     
   }
   
+  function get_instrument_name($eus_instrument_id){
+    $DB_ers = $this->load->database('eus_for_myemsl',TRUE);
+    $select_array = array('eus_display_name','instrument_name','name_short as short_name','instrument_id');
+    $query = $DB_ers->select($select_array)->get_where(INST_TABLE,array('instrument_id' => $eus_instrument_id),1);
+    $results = array();
+    if($query && $query->num_rows()){
+      $results = $query->row_array();
+    }
+    return $results;
+  }
+  
   
 }

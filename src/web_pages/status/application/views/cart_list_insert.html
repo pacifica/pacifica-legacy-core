@@ -1,6 +1,6 @@
 <?php
   $carts = isset($carts) && !empty($carts) ? $carts : array();
-  $classes = array('available','building','expired');
+  $classes = array('available' => "Ready For Download",'building' => "In Preparation",'expired' => "Expired Carts",'admin' => "In Administrative Hold");
 ?>
 
 <div id="cart_item_container">
@@ -10,7 +10,7 @@
     <?php endif; ?>
     <?php $cart_list = $carts[$classification] ?>
     <div id="<?= $classification ?>_cart_container" class="cart_tree form_container">
-      <h2><?= ucwords($classification) ?></h2>
+      <h2><?= $class_description ?></h2>
       <table style="width:100%;">
         <thead>
           <tr>
