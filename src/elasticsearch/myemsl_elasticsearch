@@ -26,6 +26,7 @@ start() {
 	status -p $PID_FILE $prog >/dev/null
 	RETVAL=$?
 	[ "$RETVAL" = 0 ] && return 0
+	RETVAL=0
 	/usr/bin/service-poke-server -p $PID_FILE -D -f /var/tmp/myemsl_elasticsearch -i /usr/share/myemsl/elasticsearch-service-poke.ini
 	[ "$?" != 0 ] && return 1
 	chown "$MYEMSL_UNIX_USER".apache /var/tmp/myemsl_elasticsearch
