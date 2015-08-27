@@ -5,7 +5,7 @@ SUBDIRS =
 
 install-am:
 	for i in $(SUBDIRS) ; do \
-	  mkdir -p $(DESTDIR)/${pkgmyemslresourcesdir}/resources/scripts/spinner/$$i ; \
+	  $(mkinstalldirs) $(DESTDIR)/${pkgmyemslresourcesdir}/resources/scripts/spinner/$$i ; \
 	done ; \
 	for i in $(EXTRA_DIST) ; do \
 	  install -m 0644 $$i $(DESTDIR)/${pkgmyemslresourcesdir}/resources/scripts/spinner/ ; \

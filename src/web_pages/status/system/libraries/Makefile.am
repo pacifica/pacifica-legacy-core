@@ -31,7 +31,7 @@ javascript
 
 install-am:
 	for i in $(SUBDIRS) ; do \
-	  mkdir -p $(DESTDIR)/${pkgmyemslstatusdir}/system/libraries/$$i ; \
+	  $(mkinstalldirs) $(DESTDIR)/${pkgmyemslstatusdir}/system/libraries/$$i ; \
 	done ; \
 	for i in $(EXTRA_DIST) ; do \
 	  install -m 0644 $$i $(DESTDIR)/${pkgmyemslstatusdir}/system/libraries/ ; \

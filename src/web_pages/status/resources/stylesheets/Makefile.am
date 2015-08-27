@@ -11,7 +11,7 @@ shared
 
 install-am:
 	for i in $(SUBDIRS) ; do \
-	  mkdir -p $(DESTDIR)/${pkgmyemslresourcesdir}/resources/stylesheets/$$i ; \
+	  $(mkinstalldirs) $(DESTDIR)/${pkgmyemslresourcesdir}/resources/stylesheets/$$i ; \
 	done ; \
 	for i in $(EXTRA_DIST) ; do \
 	  install -m 0644 $$i $(DESTDIR)/${pkgmyemslresourcesdir}/resources/stylesheets/ ; \

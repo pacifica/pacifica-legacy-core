@@ -11,11 +11,11 @@ SUBDIRS = application system resources
 
 install-am:
 	for i in $(SUBDIRS) ; do \
-	  mkdir -p $(DESTDIR)/${pkgmyemslstatusdir}/$$i ; \
+	  $(mkinstalldirs) $(DESTDIR)/${pkgmyemslstatusdir}/$$i ; \
 	done ; \
 	for i in $(EXTRA_DIST) ; do \
 	  install -m 0644 $$i $(DESTDIR)/${pkgmyemslstatusdir}/ ; \
 	done ; \
-	mkdir -p $(DESTDIR)/${sysconfdir}/php.d ; \
-	mkdir -p $(DESTDIR)/${pkgmyemslresourcesdir}/resources ; \
+	$(mkinstalldirs) $(DESTDIR)/${sysconfdir}/php.d ; \
+	$(mkinstalldirs) $(DESTDIR)/${pkgmyemslresourcesdir}/resources ; \
 	install -m 0644 php_myemsl.ini $(DESTDIR)/${sysconfdir}/php.d/

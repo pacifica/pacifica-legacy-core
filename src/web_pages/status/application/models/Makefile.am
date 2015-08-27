@@ -11,7 +11,7 @@ SUBDIRS =
 
 install-am:
 	for i in $(SUBDIRS) ; do \
-	  mkdir -p $(DESTDIR)/${pkgmyemslstatusdir}/application/models/$$i ; \
+	  $(mkinstalldirs) $(DESTDIR)/${pkgmyemslstatusdir}/application/models/$$i ; \
 	done ; \
 	for i in $(EXTRA_DIST) ; do \
 	  install -m 0644 $$i $(DESTDIR)/${pkgmyemslstatusdir}/application/models/ ; \

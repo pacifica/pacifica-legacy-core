@@ -26,7 +26,7 @@ SUBDIRS =
 
 install-am:
 	for i in $(SUBDIRS) ; do \
-	  mkdir -p $(DESTDIR)/${pkgmyemslstatusdir}/system/helpers/$$i ; \
+	  $(mkinstalldirs) $(DESTDIR)/${pkgmyemslstatusdir}/system/helpers/$$i ; \
 	done ; \
 	for i in $(EXTRA_DIST) ; do \
 	  install -m 0644 $$i $(DESTDIR)/${pkgmyemslstatusdir}/system/helpers/ ; \
