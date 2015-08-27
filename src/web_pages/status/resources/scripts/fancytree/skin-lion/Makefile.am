@@ -1,4 +1,6 @@
 EXTRA_DIST = \
+icons.gif \
+loading.gif \
 ui.fancytree.css \
 ui.fancytree.less \
 ui.fancytree.min.css
