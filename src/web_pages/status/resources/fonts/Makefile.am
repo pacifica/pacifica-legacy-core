@@ -1,6 +1,7 @@
 EXTRA_DIST =
 
 SUBDIRS = \
+arimo \
 opensans \
 oxygen \
 sourcesanspro

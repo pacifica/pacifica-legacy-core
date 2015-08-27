@@ -1,4 +1,7 @@
 EXTRA_DIST = \
+emsl_chrome.css \
+emsl_style.css \
+upload_style.css \
 bread_crumbs.css \
 file_directory_styling.css \
 local.css \

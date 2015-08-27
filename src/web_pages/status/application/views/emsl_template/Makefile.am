@@ -1,17 +1,12 @@
 EXTRA_DIST = \
-cart_list_insert.html \
-emsl_mgmt_view.php \
-index.html \
-single_item_view.php \
-status_breadcrumb_insert_view.html \
-status_error_page.html \
-upload_item_view.html \
-upload_item_view_backup.html \
-welcome_message.php
+globals.php \
+intranet_banner.php \
+top.php \
+view_footer.php \
+view_footer_old.php \
+view_header.php
 
-SUBDIRS = \
-emsl_template \
-pnnl_template
+SUBDIRS = 
 
 installdirs-am:
 	for i in $(SUBDIRS) ; do \
