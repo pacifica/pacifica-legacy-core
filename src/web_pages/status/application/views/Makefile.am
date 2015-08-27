@@ -12,10 +12,11 @@ welcome_message.php
 SUBDIRS = \
 pnnl_template
 
-install-am:
+installdirs-am:
 	for i in $(SUBDIRS) ; do \
 	  $(mkinstalldirs) $(DESTDIR)/${pkgmyemslstatusdir}/application/views/$$i ; \
-	done ; \
+	done
+install-am:
 	for i in $(EXTRA_DIST) ; do \
 	  install -m 0644 $$i $(DESTDIR)/${pkgmyemslstatusdir}/application/views/ ; \
 	done

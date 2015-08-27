@@ -6,10 +6,11 @@ transactions_156858.json
 
 SUBDIRS =
 
-install-am:
+installdirs-am:
 	for i in $(SUBDIRS) ; do \
 	  $(mkinstalldirs) $(DESTDIR)/${pkgmyemslresourcesdir}/resources/json_files/$$i ; \
-	done ; \
+	done
+install-am:
 	for i in $(EXTRA_DIST) ; do \
 	  install -m 0644 $$i $(DESTDIR)/${pkgmyemslresourcesdir}/resources/json_files/ ; \
 	done

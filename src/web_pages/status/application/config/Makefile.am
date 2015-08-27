@@ -17,10 +17,11 @@ SUBDIRS = \
 database \
 production
 
-install-am:
+installdirs-am:
 	for i in $(SUBDIRS) ; do \
 	  $(mkinstalldirs) $(DESTDIR)/${pkgmyemslstatusdir}/application/config/$$i ; \
-	done ; \
+	done
+install-am:
 	for i in $(EXTRA_DIST) ; do \
 	  install -m 0644 $$i $(DESTDIR)/${pkgmyemslstatusdir}/application/config/ ; \
 	done

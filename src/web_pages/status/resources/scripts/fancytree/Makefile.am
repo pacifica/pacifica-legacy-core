@@ -18,10 +18,11 @@ skin-win8-xxl \
 skin-xp \
 src
 
-install-am:
+installdirs-am:
 	for i in $(SUBDIRS) ; do \
 	  $(mkinstalldirs) $(DESTDIR)/${pkgmyemslresourcesdir}/resources/scripts/fancytree/$$i ; \
-	done ; \
+	done
+install-am:
 	for i in $(EXTRA_DIST) ; do \
 	  install -m 0644 $$i $(DESTDIR)/${pkgmyemslresourcesdir}/resources/scripts/fancytree/ ; \
 	done

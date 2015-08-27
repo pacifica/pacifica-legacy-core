@@ -15,10 +15,11 @@ upload_lang.php
 
 SUBDIRS =
 
-install-am:
+installdirs-am:
 	for i in $(SUBDIRS) ; do \
 	  $(mkinstalldirs) $(DESTDIR)/${pkgmyemslstatusdir}/system/language/english/$$i ; \
-	done ; \
+	done
+install-am:
 	for i in $(EXTRA_DIST) ; do \
 	  install -m 0644 $$i $(DESTDIR)/${pkgmyemslstatusdir}/system/language/english/ ; \
 	done
