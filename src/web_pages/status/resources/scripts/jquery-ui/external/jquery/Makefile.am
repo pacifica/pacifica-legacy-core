@@ -1,0 +1,12 @@
+EXTRA_DIST = \
+jquery.js
+
+SUBDIRS =
+
+install-am:
+	for i in $(SUBDIRS) ; do \
+	  mkdir -p $(DESTDIR)/${pkgmyemslresourcesdir}/resources/scripts/jquery-ui/external/jquery/$$i ; \
+	done ; \
+	for i in $(EXTRA_DIST) ; do \
+	  install -m 0644 $$i $(DESTDIR)/${pkgmyemslresourcesdir}/resources/scripts/jquery-ui/external/jquery/ ; \
+	done
