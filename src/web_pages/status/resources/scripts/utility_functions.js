@@ -1,27 +1,9 @@
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
  * Utility functions
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-if(window.Prototype){
-  function disable_element(el){
-    if(el){
-      el.setAttribute('disabled', 'disabled');
-      if (!el.hasClassName('disabled_button')) {
-          el.addClassName('disabled_button');
-      }    
-    }
-  }
-  
-  function enable_element(el){
-    if(el){
-      el.removeAttribute('disabled');
-      if (el.hasClassName('disabled_button')) {
-          el.removeClassName('disabled_button');
-      }    
-    }
-  }
-}
 
-if(window.jQuery && jQuery.fn.jquery > "1.8"){
+
+if(window.jQuery){
   
   $.fn.disable = function(){
     this.attr("disabled","disabled");
@@ -166,7 +148,7 @@ function isBlank(str) {
 */
 
 //  items executed when the DOM is ready, before the page is displayed
-$(function() {
-  $('label[for=q]').labelOver('over-apply');
-});
+// $(function() {
+  // $('label[for=q]').labelOver('over-apply');
+// });
 

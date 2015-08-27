@@ -368,7 +368,7 @@ $config['site_color'] = 'orange';
 
 $config['myemsl_config_file_path'] = "/etc/myemsl/";
 
-
+$config['template'] = "emsl";
 
 /* End of file config.php */
 /* Location: ./application/config/config.php */

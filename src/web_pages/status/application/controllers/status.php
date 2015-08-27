@@ -52,14 +52,19 @@ class Status extends Baseline_controller {
     $this->page_data['page_header'] = "Upload Report";
     $this->page_data['title'] = "Upload Report";
     $this->page_data['css_uris'] = array(
-      "/resources/scripts/fancytree/skin-lion/ui.fancytree.css",
+      "/resources/scripts/fancytree/skin-lion/ui.fancytree.min.css",
+      "/resources/scripts/select2/select2.css",
       "/resources/stylesheets/status.css",
       "/resources/stylesheets/status_style.css",
-      "/resources/stylesheets/file_directory_styling.css"
+      "/resources/stylesheets/file_directory_styling.css",
+      "/resources/stylesheets/bread_crumbs.css"
     );
     $this->page_data['script_uris'] = array(
       "/resources/scripts/spinner/spin.min.js",
       "/resources/scripts/fancytree/jquery.fancytree-all.js",
+      "/resources/scripts/jquery-dateFormat/jquery-dateFormat.min.js",
+      "/resources/scripts/jquery-crypt/jquery.crypt.js",
+      "/resources/scripts/select2/select2.min.js",
       "/resources/scripts/myemsl_file_download.js",
       "/resources/scripts/status_common.js",
       "/resources/scripts/moment.min.js",
@@ -116,11 +121,13 @@ var lookup_type = '{$lookup_type}'";
         "/resources/stylesheets/status.css",
         "/resources/stylesheets/status_style.css",
         "/resources/scripts/select2/select2.css",
-        "/resources/stylesheets/file_directory_styling.css"
+        "/resources/stylesheets/file_directory_styling.css",
+        "/resources/stylesheets/bread_crumbs.css"      
       );
       $this->page_data['script_uris'] = array(
         "/resources/scripts/spinner/spin.min.js",
         "/resources/scripts/fancytree/jquery.fancytree-all.js",
+        "/resources/scripts/jquery-crypt/jquery.crypt.js",
         "/resources/scripts/myemsl_file_download.js",
         "/resources/scripts/status_common.js",
         "/resources/scripts/emsl_mgmt_view.js",
@@ -129,11 +136,13 @@ var lookup_type = '{$lookup_type}'";
       );
       $full_user_info = $this->myemsl->get_user_info();
       $proposal_list = array();
-      
+      // echo "<pre>";
+      // var_dump($full_user_info);
+      // echo "</pre>";
       foreach($full_user_info['proposals'] as $prop_id => $prop_info){
         if(array_key_exists('title', $prop_info)){
-        $proposal_list[$prop_id] = $prop_info['title'];
-      }
+          $proposal_list[$prop_id] = $prop_info['title'];
+        }
       }
       krsort($proposal_list);
       
@@ -361,7 +370,7 @@ var initial_instrument_list = [];";
       $results = $this->eus->get_instrument_name($eus_instrument_id);
     }
     transmit_array_with_json_header($results);
-  }  
+  }
   
   
   public function test_get_instrument_list(){

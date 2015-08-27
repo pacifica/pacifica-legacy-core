@@ -27,7 +27,7 @@
 <?php $hash_list[$transaction_id] = sha1($bar_text); ?>
       <div class="bar_holder" id="bar_holder_<?= $transaction_id ?>"><?= $bar_text ?></div>
       <div class="full_width_block">
-        <h2><span>Metadata Uploaded</span><span id='metadata_<?= $transaction_id ?>_dc' class="disclosure_button dc_up"></span></h2>
+        <h3><span>Metadata Uploaded</span><span id='metadata_<?= $transaction_id ?>_dc' class="disclosure_button dc_up"></span></h3>
         <ul class="metadata_container">
           <li>
             <span class="metadata_term">Transaction ID: </span>
@@ -46,7 +46,7 @@
       </div>
       <?php if($request_type == 't'): ?>
       <div class="full_width_block" style="width:95%;">
-        <h2>File List</h2>
+        <h3>File List</h3>
         <div class="disclosure_block">
           <div id="tree_<?= $transaction_id ?>" class="tree_holder">
             <ul id="treeData_<?= $transaction_id ?>" style="display:none;" >

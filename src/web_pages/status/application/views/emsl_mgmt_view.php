@@ -1,18 +1,19 @@
 <?php
   $table_object = !empty($table_object) ? $table_object : "";
-  $this->load->view('pnnl_template/view_header'); 
+  $this->template_version = $this->config->item('template');
+  $this->load->view("{$this->template_version}_template/view_header"); 
   $js = isset($js) ? $js : "";
   
 ?>
-<body class="col1">
-  <?php $this->load->view('pnnl_template/intranet_banner'); ?>
-  <div id="page">
-    <?php $this->load->view('pnnl_template/top',$navData['current_page_info']); ?>
-    <div id="container">
-      <div id="main">
-        
-        <h1 class="underline"><?= $page_header ?></h1>
-        <div style="position:relative;">
+
+      <div id="container">
+        <div id="main">
+          <div id="header_container">
+            <h1 class="underline"><?= $page_header ?></h1>
+            <div id="login_id_container">
+              <em><?= $this->nav_info['current_page_info']['logged_in_user'] ?></em>
+            </div>
+          </div>
           <div class="form_container">
             
             <form id="instrument_selection" class="themed">
@@ -71,13 +72,10 @@
             <span class="spinner">&nbsp;&nbsp;&nbsp;</span>
             <span id="loading_status_text">Loading...</span>
           </div>
-
           <div class="themed" id="item_info_container" style="margin-top:20px;"></div>
         </div>
-
       </div>
-    </div>
-    <?php $this->load->view('pnnl_template/view_footer'); ?>
+    <?php $this->load->view("{$this->template_version}_template/view_footer"); ?>
   </div>
 <script type='text/javascript'>
 //<![CDATA[

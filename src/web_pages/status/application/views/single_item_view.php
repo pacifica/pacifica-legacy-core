@@ -1,5 +1,6 @@
 <?php
-  $this->load->view('pnnl_template/view_header'); 
+  $this->template_version = $this->config->item('template');
+  $this->load->view("{$this->template_version}_template/view_header"); 
   $js = isset($js) ? 
 "<script type='text/javascript'>
 //<![CDATA[
@@ -7,14 +8,14 @@
 //]]>
 </script>" : '';  
 ?>
-<body class="col1">
-  <?php $this->load->view('pnnl_template/intranet_banner'); ?>
-  <div id="page">
-    <?php $this->load->view('pnnl_template/top',$navData['current_page_info']); ?>
     <div id="container">
       <div id="main">
-        
-        <h1 class="underline"><?= $page_header ?></h1>
+        <div id="header_container">
+          <h1 class="underline"><?= $page_header ?></h1>
+          <div id="login_id_container">
+            <em><?= $this->nav_info['current_page_info']['logged_in_user'] ?></em>
+          </div>
+        </div>
         <div style="position:relative;">
           <div class="loading_progress_container status_messages" id="loading_status" style="display:none;">
             <span class="spinner">&nbsp;&nbsp;&nbsp;</span>
@@ -31,8 +32,7 @@
 
       </div>
     </div>
-    <?php $this->load->view('pnnl_template/view_footer'); ?>
-  </div>
+    <?php $this->load->view("{$this->template_version}_template/view_footer"); ?>
 <?= $js ?>  
 </body>
 </html>
