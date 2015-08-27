@@ -1,9 +1,3 @@
-<?php
-  // = $uri == "./" ? $this->config->item('main_banner_filename') : $this->config->item('small_banner_filename');
-  //$banner_path = site_url()."images/".$banner_file;
-  //$banner_size_info = getimagesize(dirname($_SERVER['SCRIPT_FILENAME'])."/images/".$banner_file);
-  //$banner_dimensions = $banner_size_info[3];
-?>
 <div id="topBanner">
   <a id="pnnlLogo" href="http://www.pnl.gov/">Pacific Northwest National Laboratory</a>
   <a id="skipNav" href="#main"><span>Skip to Main Content</span></a>
