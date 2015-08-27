@@ -183,11 +183,14 @@ AC_OUTPUT([
 		src/web_pages/status/application/third_party/Makefile
 		src/web_pages/status/application/views/Makefile
 		src/web_pages/status/application/views/pnnl_template/Makefile
+		src/web_pages/status/application/views/emsl_template/Makefile
 		src/web_pages/status/resources/fonts/Makefile
+		src/web_pages/status/resources/fonts/arimo/Makefile
 		src/web_pages/status/resources/fonts/opensans/Makefile
 		src/web_pages/status/resources/fonts/oxygen/Makefile
 		src/web_pages/status/resources/fonts/sourcesanspro/Makefile
 		src/web_pages/status/resources/images/Makefile
+		src/web_pages/status/resources/images/social/Makefile
 		src/web_pages/status/resources/json_files/Makefile
 		src/web_pages/status/resources/Makefile
 		src/web_pages/status/resources/scripts/fancytree/Makefile
