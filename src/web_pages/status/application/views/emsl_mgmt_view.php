@@ -75,7 +75,7 @@
           <div class="themed" id="item_info_container" style="margin-top:20px;"></div>
         </div>
       </div>
-    <?php $this->load->view("{$this->template_version}_template/view_footer"); ?>
+    <?php $this->load->view("{$this->template_version}_template/view_footer_short"); ?>
   </div>
 <script type='text/javascript'>
 //<![CDATA[

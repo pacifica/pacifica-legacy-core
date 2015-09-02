@@ -2,9 +2,8 @@
   $carts = isset($carts) && !empty($carts) ? $carts : array();
   $classes = array('available' => "Ready For Download",'building' => "In Preparation",'expired' => "Expired Carts",'admin' => "In Administrative Hold");
 ?>
-
 <div id="cart_item_container">
-  <?php foreach($classes as $classification): ?>
+  <?php foreach($classes as $classification => $class_description): ?>
     <?php if(!array_key_exists($classification,$carts)): ?>
       <?php continue; ?>
     <?php endif; ?>
@@ -69,8 +68,7 @@
                   class="cart_delete_button"
                   title="Delete this queued download" 
                   <?php endif; ?>
-                  value="X" 
-                />
+                  value="X" />
               </div>
             </td>
           </tr>

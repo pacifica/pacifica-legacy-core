@@ -32,7 +32,7 @@
 
       </div>
     </div>
-    <?php $this->load->view("{$this->template_version}_template/view_footer"); ?>
+    <?php $this->load->view("{$this->template_version}_template/view_footer_short"); ?>
 <?= $js ?>  
 </body>
 </html>
