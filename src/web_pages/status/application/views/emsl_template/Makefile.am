@@ -3,6 +3,7 @@ globals.php \
 intranet_banner.php \
 top.php \
 view_footer.php \
+view_footer_short.php \
 view_footer_old.php \
 view_header.php
 
