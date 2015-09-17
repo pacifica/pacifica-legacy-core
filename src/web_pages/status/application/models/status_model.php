@@ -543,7 +543,14 @@ array(2) {
     
     $DB_myemsl = $this->load->database('default',TRUE);
     $inst_id = false;
-    $query = $DB_myemsl->select('group_id as instrument_id')->get_where('v_transactions_by_group_id', array('transaction_id' => $id),1);
+    $select_array = array(
+      'MAX(f.transaction) as transaction_id',
+      'MAX(gi.group_id) as instrument_id'
+    );
+    $DB_myemsl->select($select_array)->from('group_items gi')->join('files f', 'gi.item_id = f.item_id');
+    $query = $DB_myemsl->where('MAX(f.transaction)',$id)->group_by('f.transaction')->order_by('f.transaction DESC')->limit(1);
+    
+    // $query = $DB_myemsl->select('group_id as instrument_id')->get_where('v_transactions_by_group_id', array('transaction_id' => $id),1);
     if($query && $query->num_rows() > 0){
       $inst_id = $query->row()->instrument_id;
     }
