@@ -41,7 +41,10 @@ var update_breadcrumbs = function(){
     var this_tx_id = parseInt(m[1],10);
     latest_tx_id = this_tx_id > latest_tx_id ? this_tx_id : latest_tx_id;
     if(!(this_tx_id in trans_id_list)){
-      var hash = $(el).crypt({method:"sha1"});
+      var hash = "";
+      if(!$(el).empty()){
+        var hash = $(el).crypt({method:"sha1"});
+      }
       trans_id_list[this_tx_id] = hash;
     }
   });

@@ -167,7 +167,7 @@ var initial_instrument_list = [];";
     }
     // $this->page_data['informational_message'] = "";
     // if($proposal_id && $instrument_id && $time_period){
-    if(isset($instrument_id) && isset($time_period) && $time_period > 0){
+    if(isset($instrument_id) && $instrument_id > 0 && isset($time_period) && $time_period > 0){
       $inst_lookup_id = $instrument_id >= 0 ? $instrument_id : "";
       $group_lookup_list = $this->status->get_instrument_group_list($instrument_id);
       if(array_key_exists($instrument_id,$group_lookup_list['by_inst_id']) ){

@@ -24,7 +24,8 @@ class Myemsl_model extends CI_Model {
     $url_base = "{$protocol}://localhost";
     $options = array(
       'verify' => false,
-      'timeout' => 30
+      'timeout' => 60,
+      'connect_timeout' => 30
     );
     $headers = array();
     
@@ -35,10 +36,14 @@ class Myemsl_model extends CI_Model {
     $headers = array('Cookie' => implode(';',$headers));
     $session = new Requests_Session($url_base, $headers, array(), $options);
     
-    $response = $session->get('/myemsl/userinfo');
+    try{
+      $response = $session->get('/myemsl/userinfo');
+      $user_info = json_decode($response->body,true);
+    }catch(Exception $e){
+      $user_info = array('error' => 'Unable to retrieve User Information');
+      return $user_info;
+    }
 
-    $user_info = json_decode($response->body,true);
-    
     $DB_myemsl = $this->load->database('default',true);
     
     //go retrieve the instrument/group lookup table
