@@ -372,6 +372,9 @@ var initial_instrument_list = [];";
     transmit_array_with_json_header($results);
   }
   
+  public function test_get_status($job_id){
+    var_dump($this->status->get_status_for_transaction('j',$job_id));
+  }
   
   public function test_get_instrument_list(){
     var_dump($this->status->get_instrument_group_list());

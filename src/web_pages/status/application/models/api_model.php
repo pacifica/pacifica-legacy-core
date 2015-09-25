@@ -31,7 +31,15 @@ class API_model extends CI_Model {
     return $results;
   }
 
-  function search_by_metadata($metadata_pairs){
+  function search_by_metadata($metadata_pairs, $search_operator = "AND"){
+    // check for valid search operator
+    $search_operator = strtoupper($search_operator);
+    $valid_operators = array('AND','OR');
+    if(!in_array($search_operator,$valid_operators)){
+      $search_operator = "AND";
+    }
+    
+    
     //check for valid types
     $clean_pairs = $this->clean_up_metadata_pairs($metadata_pairs);
     $compiled_info = array('results_count' => 0);
@@ -76,8 +84,14 @@ class API_model extends CI_Model {
         
         $item_list = array_shift($item_results);
         $item_list = $item_list['items'];
-        foreach($item_results as $filter){
-          $item_list = array_intersect($item_list, $filter['items']);
+        if($search_operator == "AND"){
+          foreach($item_results as $filter){
+            $item_list = array_merge($item_list,$filter['items']);
+          }
+        }else{
+          foreach($item_results as $filter){
+            $item_list = array_intersect($item_list, $filter['items']);
+          }
         }
         $file_info = $this->get_transaction_info($item_list);
         $compiled_info = $this->get_metadata_entries($file_info);
@@ -88,6 +102,29 @@ class API_model extends CI_Model {
     //now that we have a list of items shared amongst the selection criteria
     // let's get the info for all of them
   }
+
+  function get_item_info($item_id){
+    $select_array = array(
+      'files.item_id as itemid', "CONCAT(files.subdir,'/',files.name) as full_path",
+      'files.name as filename', 'files.size', "transactions.stime AT TIME ZONE 'US/Pacific' as stime",
+      'hashsums.hashsum', 'files.verified', 'files.aged'
+    );
+    $fi_row = array('error_message' => 'Could not find item.');
+    $this->db->select($select_array)->where("files.item_id",$item_id);
+    $this->db->from('files')->join('hashsums', 'files.item_id = hashsums.item_id');
+    $this->db->join('transactions','transactions.transaction = files.transaction');
+    $file_info_query = $this->db->limit(1)->get();
+    if($file_info_query && $file_info_query->num_rows()>0){
+      $fi_row = $file_info_query->row_array();
+      $fi_row['type'] = 'file';
+      $fi_row['checksum'] = array('sha1' => $fi_row['hashsum']);
+      unset($fi_row['hashsum']);
+      // $file_info = array('myemsl' => $fi_row);
+    }
+    
+    return $fi_row;
+  }
+
 
   private function get_transaction_info($item_list){
     //get a list of transactions for this list of item_id's
@@ -101,6 +138,7 @@ class API_model extends CI_Model {
     $file_info = array();
     if(!empty($transaction_list)){
       //first, get the submission times for each transaction
+      $this->db->select(array("stime AT TIME ZONE 'US/Pacific' as stime", "transaction"));
       $stime_query = $this->db->where_in('transaction', array_keys($transaction_list))->get('transactions');
       if($stime_query && $stime_query->num_rows()>0){
         foreach($stime_query->result() as $stime_row){
@@ -112,7 +150,7 @@ class API_model extends CI_Model {
       $select_array = array(
         'f.item_id', "CONCAT(f.subdir,'/',f.name) as full_path",
         'f.name as filename', 'f.size as size_in_bytes',
-        'f.transaction', 'h.hashsum'
+        'f.transaction', 'h.hashsum', 'f.verified', 'f.aged'
       );
       $file_info = array();
       $this->db->select($select_array)->where_in('transaction',array_keys($transaction_list));
