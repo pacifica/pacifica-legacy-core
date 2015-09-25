@@ -521,7 +521,7 @@ array(2) {
         
       }
     }
-   
+    
     return $status_list;
   }
   
@@ -548,7 +548,7 @@ array(2) {
       'MAX(gi.group_id) as instrument_id'
     );
     $DB_myemsl->select($select_array)->from('group_items gi')->join('files f', 'gi.item_id = f.item_id');
-    $DB_myemsl->where('MAX(f.transaction)',$id)->group_by('f.transaction')->order_by('f.transaction DESC')->limit(1);
+    $DB_myemsl->having('f.transaction',$id)->group_by('f.transaction')->order_by('f.transaction DESC')->limit(1);
     $query = $DB_myemsl->get();
     
     // $query = $DB_myemsl->select('group_id as instrument_id')->get_where('v_transactions_by_group_id', array('transaction_id' => $id),1);
