@@ -1,7 +1,7 @@
 EXTRA_DIST = \
+api_model.php \
 cart_model.php \
 eus_model.php \
-index.html \
 myemsl_model.php \
 navigation_info_model.php \
 status_model.php \

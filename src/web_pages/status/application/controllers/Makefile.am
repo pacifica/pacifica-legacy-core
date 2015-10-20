@@ -3,7 +3,8 @@ baseline_controller.php \
 cart.php \
 index.html \
 status.php \
-welcome.php
+welcome.php \
+api.php
 
 SUBDIRS =
 
