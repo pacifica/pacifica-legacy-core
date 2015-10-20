@@ -1,8 +1,12 @@
 var bearer_token = "";
+var url_base = '/myemsl/status/index.php';
 var token_url_base = '/myemsl/itemauth/';
-var token_url_base = '/myemsl/status/index.php/cart/get_cart_token/';
+var token_url_base = url_base + '/cart/get_cart_token/';
 var cart_url_base = '/myemsl/api/2/cart/';
-var cart_info_url = '/myemsl/status/index.php/cart/listing/';
+var cart_info_url = url_base + '/cart/listing/';
+var max_size = 1024 * 1024 * 1024 * 10; //10 GB (base 2)
+var friendly_max_size = '';
+var exceed_max_size_allow = false;
 
 var setup_file_download_links = function(parent_item) {
   parent_item = $(parent_item);
@@ -76,11 +80,15 @@ var submit_cart_for_download = function(tx_id, cart_id){
   .done(function(data){
     $('#cart_id_' + tx_id).val(cart_id);
     var dialog_message = $('<div><p>A new download cart has been created for this data.</p><p>Status info will appear in the Download Queue shortly</p></div>');
+    $('#dl_button_' + tx_id).fadeOut();
+    $('#tree_' + tx_id).fancytree('getTree').visit(function(node){
+        node.setSelected(false);
+    });
     dialog_message.dialog({
       modal:true,
       buttons: {
         Ok: function(){
-          check_cart_status();
+          check_cart_status(cart_id);
           $(this).dialog("close");
         }
       }
@@ -110,6 +118,17 @@ var cart_delete = function(cart_id){
   })
   .fail(function(jq, textStatus, errormsg){
     var error = errormsg;
+  });
+};
+
+var dead_cart_delete = function(cart_id){
+  if (cart_id == null) {
+    return;
+  }
+  var url = url_base + '/cart/delete/' + cart_id;
+  $.get(url, function(data){
+    $('#cart_listing').html(data);
+    get_cart_count();
   });
 };
 
@@ -155,24 +174,14 @@ var get_selected_files = function(tree_container){
         selFiles = get_file_sizes(tree_container);
         update_download_status(tree_container,selCount);
         return selFiles;
-        // selFiles = $.map(tree.getSelectedNodes(), function(node){
-          // if(!node.folder){
-            // return parseInt(node.key.replace('ft_item_',''),10);
-          // }
-        // });
       });
     }else{
       selFiles = get_file_sizes(tree_container);
       update_download_status(tree_container,selCount);
       return selFiles;
-
-      // selFiles = $.map(tree.getSelectedNodes(), function(node){
-        // if(!node.folder){
-          // return parseInt(node.key.replace('ft_item_',''),10);
-        // }
-      // });
     }
   }else{
+    selFiles = get_file_sizes(tree_container);
     update_download_status(tree_container,selCount);
   }
 };
@@ -198,6 +207,33 @@ var get_file_sizes = function(tree_container){
     sizes[item] = item_info.size;
     total_size += parseInt(item_info.size,10);
   });
+  var message_container = tree_container.parents('.transaction_container').find('.error');
+  friendly_max_size = friendly_max_size.length == 0 ? myemsl_size_format(max_size) : friendly_max_size;
+  var friendly_total_size = myemsl_size_format(total_size);
+  var dl_button = tree_container.parents('.transaction_container').find('.dl_button');
+  var mc_html = '';
+  dl_button.show();
+  if(total_size > max_size){
+    mc_html = '<div style="text-align:center;">';
+    mc_html += '<p>The total size of the files you have selected';
+    mc_html += ' (' + friendly_total_size + ') ';
+    mc_html += 'is greater than the ';
+    mc_html += friendly_max_size;
+    mc_html += ' limit <br>imposed for unrestricted downloads from the system.</p>';
+    if(exceed_max_size_allow){
+      mc_html += '<p>Downloads exceeding the size cutoff are allowed, ';
+      mc_html += 'but will be placed in an <em>Administrative Hold</em> state ';
+      mc_html += 'pending approval from a MyEMSL administrator</p>';
+      mc_html += '</div>';
+      dl_button.enable();
+    }else{
+      dl_button.disable();
+    }
+    message_container.html(mc_html).parent().show();
+  }else{
+    dl_button.enable();
+    message_container.html('').parent().hide();
+  }
   return {'total_size' : total_size, 'sizes' : sizes};
 };
 

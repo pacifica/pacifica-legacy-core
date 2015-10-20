@@ -14,11 +14,19 @@ class Status extends Baseline_controller {
       0 => 'Submitted', 1 => 'Received', 2 => 'Processing',
       3 => 'Verified', 4 => 'Stored', 5 => 'Available', 6 => 'Archived'
     );
+    $this->valid_search_term_types = array(
+            
+    );
+    
     $this->last_update_time = get_last_update(realpath(BASEPATH.'../'.APPPATH.'/'));
   }
   
   public function index(){
     redirect('status/overview');
+  }
+  
+  public function xml($search_term_type,$filter){
+    
   }
   
   public function view($lookup_type,$id = -1){
@@ -98,9 +106,14 @@ class Status extends Baseline_controller {
       }
       $this->page_data['transaction_data'] = $transaction_info;
     }
+    
+    $this->page_data['cart_data'] = array('carts' => $this->cart->get_active_carts($this->user_id, false));
+    
     $this->page_data['request_type'] = $lookup_type;
     $this->page_data['js'] = "var initial_inst_id = '{$inst_id}';
-var lookup_type = '{$lookup_type}'";
+var lookup_type = '{$lookup_type}';
+var email_address = '{$this->email}';
+";
     $this->page_data['show_instrument_data'] = true;
     $this->load->view('single_item_view',$this->page_data);
 

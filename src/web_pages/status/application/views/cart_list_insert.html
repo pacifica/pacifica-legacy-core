@@ -52,20 +52,23 @@
               &mdash;&mdash;&mdash;
               <?php endif; ?>
             </td>
-            <td><?= $info['display_item_count'] ?> [<?= $info['display_size'] ?>]</td>
+            <?php
+              $display_size_text = $info['size_bytes'] ? "[{$info['display_size']}]" : "";
+            ?>
+            <td><?= $info['display_item_count'] ?><br /><span style="font-size:0.85em;"><?= $display_size_text ?></span></td>
             <td><?= $info['transaction_id'] ?></td>
             <td>
               <div class="buttons">
                 <input 
-                  type="button" 
+                  type="button"
                   id="delete_button_<?= $cart_id ?>" 
                   name="delete_button_<?= $cart_id ?>" 
-                  <?php if($classification != 'available'): ?>                    
-                  class="cart_delete_button disabled_button"
+                  <?php if($classification == 'bowling'): ?>                    
+                  class="cart_delete_button state_<?= $classification ?>"
                   disabled="disabled"
                   title="Delete functionality not enabled until download moves to 'available' state"
                   <?php else: ?>
-                  class="cart_delete_button"
+                  class="cart_delete_button state_<?= $classification ?>"
                   title="Delete this queued download" 
                   <?php endif; ?>
                   value="X" />
@@ -78,6 +81,7 @@
     </div>
   <?php endforeach; ?>
 </div>
+<div id="cart_list_messages" class="cart_list_message_container"></div>
 <script type="application/javascript">
   $(function(){
     var del_buttons = $('.cart_delete_button');
@@ -91,7 +95,11 @@
           modal:true,
           buttons: {
             Delete: function(){
-              cart_delete(cart_id);
+              if(el.hasClass('state_available')){
+                cart_delete(cart_id);
+              }else if(el.hasClass('state_admin') || el.hasClass('state_building')){
+                dead_cart_delete(cart_id);
+              }
               $(this).dialog("close");
             },
             Cancel: function(){

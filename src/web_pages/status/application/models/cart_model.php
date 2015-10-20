@@ -9,7 +9,9 @@ class Cart_model extends CI_Model {
   function __construct(){
     parent::__construct();
     $this->local_timezone = "US/Pacific";
-    $this->load->helper(array('item','time'));
+    $this->load->helper(array('user','item','time'));
+    $this->user_id = get_user();
+    
     define("CART_TABLE", 'cart');
     define("ITEMS_TABLE", 'cart_items');
     define("CART_URL_BASE", '/myemsl/cart/download/');
@@ -25,6 +27,7 @@ class Cart_model extends CI_Model {
     $state_array = array(
       'admin_notified' => 'admin',
       'ingest' => 'unsubmitted',
+      'submitted' => 'building',
       'amalgam' => 'building',
       'downloading' => 'building',
       'email' => 'available',
@@ -34,7 +37,7 @@ class Cart_model extends CI_Model {
     );
     $cart_list = array();
     $accepted_states = array(
-      'amalgam','downloading','email','admin_notified'
+      'amalgam','downloading','email','admin_notified','submitted'
       // 'expiring','expired','download_expiring'
     );
     // if($show_expired){
@@ -126,6 +129,48 @@ class Cart_model extends CI_Model {
     return $cart_list;
   }
   
+  
+  
+  
+  function delete_dead_cart($cart_id){
+    $DB_myemsl = $this->load->database('default',true);
+    $success_info = array('success' => FALSE, 'message' => '');
+    //make sure that this cart even exists.....
+    $get_query = $DB_myemsl->get_where(CART_TABLE,array('cart_id' => $cart_id, 'state !=' => 'expired'),1);
+    if($get_query && $get_query->num_rows() > 0){
+      $cart_info = $get_query->row();
+      $cart_create_time = new DateTime($cart_info->submit_time);
+            
+      //...and that we own the rights to it
+      if($cart_info->person_id == $this->user_id){
+        //looks like it's ours...
+        if($cart_info->state != 'email'){
+          //...and it's in a limbo-like state (admin_notified or ingest)
+          $now_time = new DateTime();
+          $new_data = array('state' => 'expired', 'last_mtime' => $now_time->format('Y-m-d H:i:s'));
+          $delete_query = $DB_myemsl->where('cart_id',$cart_id)->where('person_id', $this->user_id)->update(CART_TABLE,$new_data);
+          if($DB_myemsl->affected_rows() > 0){
+            $success_info['success'] = TRUE;
+            $success_info['message'] = "Cart #{$cart_id} (Submitted by User {$cart_info->person_id} on {$cart_create_time->format('d M Y g:ia')}) was successfully expired";
+          }else{
+            $success_info['message'] = "Cart #{$cart_id} could not be deleted because an error occurred";
+          }
+        }else{
+          //...but it's in an inappropriate state that can't be deleted from here
+          //  pass it along to the myemsl api???
+          $success_info['message'] = "Cart #{$cart_id} could not be deleted using this mechanism. Use the Myemsl API.";
+        }
+      }else{
+        //...but it's not ours
+        //  throw an appropriate error
+        $success_info['message'] = "Cart #{$cart_id} cannot be deleted, because it is not yours to delete";
+      }
+    }else{
+      //cart either doesn't exist, or is already expired
+      $success_info['message'] = "Cart #{$cart_id} cannot be deleted, because it is either doesn't exist, or is already expired";
+    }
+    return $success_info;
+  }
   
   
 }

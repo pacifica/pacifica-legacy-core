@@ -17,6 +17,16 @@
           </div>
         </div>
         <div style="position:relative;">
+          <?php $hide_cart_data = empty($cart_data['carts']) ? "display:none;" : ""; ?>
+          <div id="cart_listing_container" class="themed" style="<?= $hide_cart_data ?>margin-top:1em;">
+            <fieldset id="cart_listing_fieldset">
+              <legend>Download Queue</legend>
+              <div id="cart_listing">
+                <?php $this->load->view('cart_list_insert.html', $cart_data); ?>
+              </div>
+            </fieldset>
+          </div>
+          
           <div class="loading_progress_container status_messages" id="loading_status" style="display:none;">
             <span class="spinner">&nbsp;&nbsp;&nbsp;</span>
             <span id="loading_status_text">Loading...</span>

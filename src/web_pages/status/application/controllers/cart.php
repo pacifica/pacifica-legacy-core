@@ -21,10 +21,18 @@ class Cart extends Baseline_controller {
   }
   
   
-  public function listing($new_tx_id = false){
+  public function listing($optional_message = ""){
     $cart_list = $this->cart->get_active_carts($this->user_id);
+    $cart_list['optional_message'] = $optional_message;
     $this->load->view('cart_list_insert.html',array('carts' => $cart_list));
   }
+  
+  
+  public function delete($cart_id){
+    $success_info = $this->cart->delete_dead_cart($cart_id);
+    $this->listing($success_info['message']);
+  }
+  
   
   
   public function test_generate_cart_token(){

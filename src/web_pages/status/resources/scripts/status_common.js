@@ -40,9 +40,9 @@ var update_breadcrumbs = function(){
     var m = $(el).prop('id').match(pattern);
     var this_tx_id = parseInt(m[1],10);
     latest_tx_id = this_tx_id > latest_tx_id ? this_tx_id : latest_tx_id;
-    if(!(this_tx_id in trans_id_list)){
+    if(!(this_tx_id in trans_id_list) || (trans_id_list[this_tx_id].length) == 0){
       var hash = "";
-      if(!$(el).empty()){
+      if(!$(el).html().length == 0){
         var hash = $(el).crypt({method:"sha1"});
       }
       trans_id_list[this_tx_id] = hash;
@@ -69,7 +69,10 @@ var update_breadcrumbs = function(){
             if(lookup_type == 'j' && new_tx_id != null && current_step >= 5){
               window.location = base_url + "index.php/status/view/t/" + new_tx_id;
             }
-            var hash = new_item.crypt({method:"sha1"});
+            if(!new_item.html().length == 0 || (trans_id_list[new_tx_id].length) == 0){
+              var hash = new_item.crypt({method:"sha1"});
+            }
+            
             trans_id_list[index] = hash;
           });
           setup_hover_info();
