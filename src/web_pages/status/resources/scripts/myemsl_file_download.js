@@ -4,7 +4,7 @@ var token_url_base = '/myemsl/itemauth/';
 var token_url_base = url_base + '/cart/get_cart_token/';
 var cart_url_base = '/myemsl/api/2/cart/';
 var cart_info_url = url_base + '/cart/listing/';
-var max_size = 1024 * 1024 * 1024 * 10; //10 GB (base 2)
+var max_size = 1024 * 1024 * 1024 * 50; //50 GB (base 2)
 var friendly_max_size = '';
 var exceed_max_size_allow = false;
 
