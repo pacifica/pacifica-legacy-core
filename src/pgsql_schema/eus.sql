@@ -15,10 +15,17 @@
  Date: 01/28/2011 11:56:09 AM
 */
 
+
+CREATE SCHEMA eus;
+ALTER SCHEMA eus OWNER TO metadata_admins;
+SET search_path = eus;
+
+
+
 -- ----------------------------
 --  Table structure for "users"
 -- ----------------------------
-DROP TABLE "users";
+DROP TABLE IF EXISTS "users";
 CREATE TABLE "users" (
 	"person_id" int4 NOT NULL,
 	"network_id" varchar(96),
@@ -34,7 +41,7 @@ GRANT SELECT ON "users" to "metadata_readers";
 -- ----------------------------
 --  Table structure for "instruments"
 -- ----------------------------
-DROP TABLE "instruments";
+DROP TABLE IF EXISTS "instruments";
 CREATE TABLE "instruments" (
 	"instrument_id" int4 NOT NULL,
 	"instrument_name" varchar NOT NULL,
@@ -49,7 +56,7 @@ GRANT SELECT ON "instruments" to "metadata_readers";
 -- ----------------------------
 --  Table structure for "proposal_instruments"
 -- ----------------------------
-DROP TABLE "proposal_instruments";
+DROP TABLE IF EXISTS "proposal_instruments";
 CREATE TABLE "proposal_instruments" (
 	"proposal_instrument_id" int4 NOT NULL,
 	"instrument_id" int4 NOT NULL,
@@ -63,7 +70,7 @@ GRANT SELECT ON "proposal_instruments" to "metadata_readers";
 -- ----------------------------
 --  Table structure for "proposal_members"
 -- ----------------------------
-DROP TABLE "proposal_members";
+DROP TABLE IF EXISTS "proposal_members";
 CREATE TABLE "proposal_members" (
 	"proposal_member_id" int4 NOT NULL,
 	"proposal_id" varchar(10) NOT NULL DEFAULT 0,
@@ -78,7 +85,7 @@ GRANT SELECT ON "proposal_members" to "metadata_readers";
 -- ----------------------------
 --  Table structure for "proposals"
 -- ----------------------------
-DROP TABLE "proposals";
+DROP TABLE IF EXISTS "proposals";
 CREATE TABLE "proposals" (
 	"proposal_id" varchar(10) NOT NULL,
 	"title" varchar,

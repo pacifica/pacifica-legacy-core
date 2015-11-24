@@ -1,8 +1,10 @@
+CREATE DATABASE myemsl_metadata;
+
 CREATE SCHEMA myemsl;
 ALTER SCHEMA myemsl OWNER TO metadata_admins;
 SET search_path = myemsl, eus, pg_catalog;
 
-DROP TABLE "groups";
+DROP TABLE IF EXISTS "groups";
 CREATE TABLE "groups" (
 	"group_id" SERIAL PRIMARY KEY,
 	"name" varchar(128),
@@ -13,7 +15,7 @@ ALTER TABLE "groups" ADD CONSTRAINT name_type UNIQUE (name, type);
 ALTER TABLE "groups" OWNER TO "metadata_admins";
 GRANT SELECT ON "groups" to "metadata_readers";
 
-DROP TABLE "subgroups";
+DROP TABLE IF EXISTS "subgroups";
 CREATE TABLE "subgroups" (
 	"parent_id" int references groups(group_id),
 	"child_id" int references groups(group_id)
@@ -30,7 +32,7 @@ ALTER TABLE "subgroups" ADD CONSTRAINT parent_child_id UNIQUE (parent_id, child_
 ALTER TABLE "subgroups" OWNER TO "metadata_admins";
 GRANT SELECT ON "subgroups" to "metadata_readers";
 
-DROP TABLE "group_perm_users";
+DROP TABLE IF EXISTS "group_perm_users";
 CREATE TABLE "group_perm_users" (
 	"group_id" int references groups(group_id),
 	"person_id" int references eus.users(person_id),
@@ -47,7 +49,7 @@ ALTER TABLE "group_perm_users" ADD CONSTRAINT parent_child_id UNIQUE (parent_id,
 ALTER TABLE "group_perm_users" OWNER TO "metadata_admins";
 GRANT SELECT ON "group_perm_users" to "metadata_readers";
 
-DROP TABLE "group_perm_groups";
+DROP TABLE IF EXISTS "group_perm_groups";
 CREATE TABLE "group_perm_groups" (
 	"group_id" int references groups(group_id),
 	"name" text,
@@ -64,7 +66,7 @@ WITHOUT OIDS;
 ALTER TABLE "group_perm_groups" OWNER TO "metadata_admins";
 GRANT SELECT ON "group_perm_groups" to "metadata_readers";
 
-DROP TABLE "items";
+DROP TABLE IF EXISTS "items";
 CREATE TABLE "items" (
 	"item_id" SERIAL PRIMARY KEY,
 	"transaction" int,
@@ -74,7 +76,7 @@ WITHOUT OIDS;
 ALTER TABLE "items" OWNER TO "metadata_admins";
 GRANT SELECT ON "items" to "metadata_readers";
 
-DROP TABLE "group_items";
+DROP TABLE IF EXISTS "group_items";
 CREATE TABLE "group_items" (
 	"group_id" INT references groups(group_id),
 	"item_id" INT references items(item_id)
@@ -84,7 +86,7 @@ ALTER TABLE "group_items" OWNER TO "metadata_admins";
 GRANT SELECT ON "group_items" to "metadata_readers";
 CREATE INDEX item_id_idx ON group_items USING btree (item_id);
 
-DROP TABLE "actions";
+DROP TABLE IF EXISTS "actions";
 CREATE TABLE "actions" (
 	"action_id" SERIAL PRIMARY KEY,
 	"type" varchar(64)
@@ -93,7 +95,7 @@ WITHOUT OIDS;
 ALTER TABLE "actions" OWNER TO "metadata_admins";
 GRANT SELECT ON "actions" to "metadata_readers";
 
-DROP TABLE "action_input_items";
+DROP TABLE IF EXISTS "action_input_items";
 CREATE TABLE "action_input_items" (
 	"action_id" INT references actions(action_id),
 	"item_id" INT references items(item_id)
@@ -103,7 +105,7 @@ ALTER TABLE "action_input_items" ADD CONSTRAINT action_input_items_id UNIQUE (ac
 ALTER TABLE "action_input_items" OWNER TO "metadata_admins";
 GRANT SELECT ON "action_input_items" to "metadata_readers";
 
-DROP TABLE "action_output_items";
+DROP TABLE IF EXISTS "action_output_items";
 CREATE TABLE "action_output_items" (
 	"action_id" INT references actions(action_id),
 	"item_id" INT references items(item_id)
@@ -113,7 +115,7 @@ ALTER TABLE "action_output_items" ADD CONSTRAINT action_output_items_id UNIQUE (
 ALTER TABLE "action_output_items" OWNER TO "metadata_admins";
 GRANT SELECT ON "action_output_items" to "metadata_readers";
 
-DROP TABLE "transactions";
+DROP TABLE IF EXISTS "transactions";
 CREATE TABLE "transactions" (
 	"transaction" bigserial PRIMARY KEY,
 	"submitter" int references eus.users(person_id),
@@ -126,7 +128,7 @@ GRANT SELECT ON "transactions" to "metadata_readers";
 CREATE UNIQUE INDEX transaction_idx ON transactions USING btree (transaction);
 CREATE INDEX submitter_idx ON transactions USING btree (submitter);
 
-DROP TABLE "files";
+DROP TABLE IF EXISTS "files";
 CREATE TABLE "files" (
 	"name" text,
 	"subdir" text,
@@ -144,7 +146,7 @@ ALTER TABLE "files" ADD CONSTRAINT filename_unique UNIQUE (name, subdir, transac
 ALTER TABLE "files" OWNER TO "metadata_admins";
 GRANT SELECT ON "files" to "metadata_readers";
 
-DROP TABLE "hashsums";
+DROP TABLE IF EXISTS "hashsums";
 CREATE TABLE hashsums (
         item_id BIGINT REFERENCES files(item_id),
         hashtime TIMESTAMP WITHOUT TIME ZONE,
@@ -156,7 +158,7 @@ ALTER TABLE "hashsums" ADD CONSTRAINT hashsum_hash_unique UNIQUE (item_id, hasht
 ALTER TABLE "hashsums" OWNER TO "metadata_admins";
 GRANT SELECT ON "hashsums" to "metadata_readers";
 
-DROP TABLE "dirs";
+DROP TABLE IF EXISTS "dirs";
 CREATE TABLE "dirs" (
 	"name" text,
 	"subdir" text
@@ -166,7 +168,7 @@ ALTER TABLE "dirs" ADD CONSTRAINT dirs_unique UNIQUE (name, subdir);
 ALTER TABLE "dirs" OWNER TO "metadata_admins";
 GRANT SELECT ON "dirs" to "metadata_readers";
 
-DROP TABLE "qrs_history";
+DROP TABLE IF EXISTS "qrs_history";
 CREATE TABLE "qrs_history" (
 	"person_id" int references eus.users(person_id),
 	"type" text,
@@ -179,7 +181,7 @@ GRANT SELECT ON "qrs_history" to "metadata_readers";
 
 CREATE TYPE cart_state AS ENUM ('ingest', 'submitted', 'admin', 'admin_notified', 'downloading', 'amalgam', 'email', 'download_expiring', 'expiring', 'expired');
 
-DROP TABLE "cart";
+DROP TABLE IF EXISTS "cart";
 CREATE TABLE "cart" (
 	"cart_id" SERIAL PRIMARY KEY,
 	"person_id" int references eus.users(person_id),
@@ -197,7 +199,7 @@ WITHOUT OIDS;
 ALTER TABLE "cart" OWNER TO "metadata_admins";
 GRANT SELECT ON "cart" to "metadata_readers";
 
-DROP TABLE "cart_items";
+DROP TABLE IF EXISTS "cart_items";
 CREATE TABLE "cart_items" (
 	"cart_id" int references myemsl.cart(cart_id),
 	"item_id" bigint references myemsl.items(item_id),
@@ -209,7 +211,7 @@ ALTER TABLE cart_items ADD CONSTRAINT cart_item_unique UNIQUE (cart_id, item_id)
 ALTER TABLE "cart_items" OWNER TO "metadata_admins";
 GRANT SELECT ON "cart_items" to "metadata_readers";
 
-DROP TABLE "system";
+DROP TABLE IF EXISTS "system";
 CREATE TABLE "system" (
 	"key" text PRIMARY KEY,
 	"value" text
@@ -220,7 +222,7 @@ GRANT SELECT ON "system" to "metadata_readers";
 insert into system(key, value) values('schema_version', '1.7');
 
 
-DROP TABLE "notification";
+DROP TABLE IF EXISTS "notification";
 CREATE TABLE "notification" (
 	"person_id" integer references eus.users(person_id) on delete cascade, 
 	"proposal_id" character varying(10) references eus.proposals(proposal_id) on delete cascade
@@ -231,7 +233,7 @@ GRANT SELECT ON "notification" to "metadata_readers";
 
 CREATE TYPE ingest_status AS ENUM ('SUCCESS', 'UNKNOWN', 'ERROR');
 
-DROP TABLE "ingest_state";
+DROP TABLE IF EXISTS "ingest_state";
 CREATE TABLE "ingest_state" (
 	"host" character varying(64),
 	"jobid" bigint,
@@ -249,7 +251,7 @@ CREATE INDEX jobhost_idx on ingest_state using btree(host, jobid);
 
 CREATE SEQUENCE predicate_id_seq;
 
-DROP TABLE "local_predicate";
+DROP TABLE IF EXISTS "local_predicate";
 CREATE TABLE "local_predicate" (
 	"id" BIGINT DEFAULT NEXTVAL('predicate_id_seq'),
 	"desc" text default NULL,
@@ -261,7 +263,7 @@ ALTER TABLE "local_predicate" OWNER TO "metadata_admins";
 GRANT SELECT ON "local_predicate" to "metadata_readers";
 ALTER TABLE "local_predicate" ADD CONSTRAINT local_predicate_uniq UNIQUE (id, ver);
 
-DROP TABLE "reprocessors";
+DROP TABLE IF EXISTS "reprocessors";
 CREATE TABLE "reprocessors" (
 	"name" character varying(64),
         "person_id" integer references eus.users(person_id) on delete cascade,
