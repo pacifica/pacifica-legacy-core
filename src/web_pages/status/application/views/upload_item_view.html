@@ -16,6 +16,7 @@
 ?>
     <fieldset id="fieldset_<?= $transaction_id ?>" class="transaction_container">
       <legend>Uploaded at <?= $friendly_upload_time ?> [Upload ID <?= $transaction_id ?>]</legend>
+<?php if($enable_breadcrumbs): ?>
 <?php
   $bar_info = array(
     'latest_step' => $latest_step,
@@ -26,6 +27,7 @@
 <?php $bar_text = trim($this->load->view('status_breadcrumb_insert_view.html',$bar_info, true)); ?>
 <?php $hash_list[$transaction_id] = sha1($bar_text); ?>
       <div class="bar_holder" id="bar_holder_<?= $transaction_id ?>"><?= $bar_text ?></div>
+<?php endif; ?>
       <div class="full_width_block">
         <h3><span>Metadata Uploaded</span><span id='metadata_<?= $transaction_id ?>_dc' class="disclosure_button dc_up"></span></h3>
         <ul class="metadata_container">

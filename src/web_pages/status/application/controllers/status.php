@@ -110,6 +110,7 @@ class Status extends Baseline_controller {
     $this->page_data['cart_data'] = array('carts' => $this->cart->get_active_carts($this->user_id, false));
     
     $this->page_data['request_type'] = $lookup_type;
+    $this->page_data['enable_breadcrumbs'] = true;
     $this->page_data['js'] = "var initial_inst_id = '{$inst_id}';
 var lookup_type = '{$lookup_type}';
 var email_address = '{$this->email}';
@@ -178,10 +179,9 @@ var initial_instrument_list = [];";
     }else{
       $view_name = 'upload_item_view.html';
     }
-    // $this->page_data['informational_message'] = "";
-    // if($proposal_id && $instrument_id && $time_period){
-    if(isset($instrument_id) && $instrument_id > 0 && isset($time_period) && $time_period > 0){
-      $inst_lookup_id = $instrument_id >= 0 ? $instrument_id : "";
+
+    if(isset($instrument_id) && isset($time_period) && $time_period > 0){
+      // $inst_lookup_id = $instrument_id >= 0 ? $instrument_id : "";
       $group_lookup_list = $this->status->get_instrument_group_list($instrument_id);
       if(array_key_exists($instrument_id,$group_lookup_list['by_inst_id']) ){
         $results = $this->status->get_transactions_for_group(
@@ -190,6 +190,9 @@ var initial_instrument_list = [];";
           $proposal_id
         );
       }elseif($instrument_id < 0){
+        //this should be the "all instruments" trigger
+        //  get all the instruments for this proposal
+        
         $results = array(
           'transaction_list' => array(),
           'time_period_empty' => false,
@@ -238,6 +241,7 @@ var initial_instrument_list = [];";
       // $results = array('transaction_list' => array(), 'time_period_empty' => true, 'message' => "Select an EUS Proposal and Instrument to load data");
     // }
     $this->page_data['cart_data'] = array('carts' => $this->cart->get_active_carts($this->user_id, false));
+    $this->page_data['enable_breadcrumbs'] = false;
     $this->page_data['status_list'] = $this->status_list;
     $this->page_data['transaction_data'] = $results['transaction_list'];
     if(array_key_exists('transactions',$results['transaction_list']) && !empty($results['transaction_list']['transactions'])){

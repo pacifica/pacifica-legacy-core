@@ -34,52 +34,54 @@ $(function(){
 });
 
 var update_breadcrumbs = function(){
-  inst_id = $('#instrument_selector').length > 0 ? $('#instrument_selector').val() : initial_inst_id;
-  $('.bar_holder').each(function(index,el){
-    var pattern = /\w+_\w+_(\d+)/i;
-    var m = $(el).prop('id').match(pattern);
-    var this_tx_id = parseInt(m[1],10);
-    latest_tx_id = this_tx_id > latest_tx_id ? this_tx_id : latest_tx_id;
-    if(!(this_tx_id in trans_id_list) || (trans_id_list[this_tx_id].length) == 0){
-      var hash = "";
-      if(!$(el).html().length == 0){
-        var hash = $(el).crypt({method:"sha1"});
-      }
-      trans_id_list[this_tx_id] = hash;
-    }
-  });
-  var data_obj = {
-    'item_list' : trans_id_list,
-    'instrument_id' : inst_id
-  };
-  if(inst_id && Object.keys(trans_id_list).length > 0){
-    var ts = moment().format('YYYYMMDDHHmmss');
-    var url = base_url + 'index.php/status/get_status/' + lookup_type + '/bc_' + ts;
-    $.ajax({
-      type: "POST",
-      url: url,
-      data: data_obj,
-      success: function(data){
-        if(data != 0){
-          $.each(data, function(index,trans_entry){
-            var new_item = $('#bar_holder_' + index);
-            new_item.html(trans_entry.bar_text);
-            var new_tx_id = trans_entry.transaction_id;
-            var current_step = trans_entry.current_step;
-            if(lookup_type == 'j' && new_tx_id != null && current_step >= 5){
-              window.location = base_url + "index.php/status/view/t/" + new_tx_id;
-            }
-            if(!new_item.html().length == 0 || (trans_id_list[new_tx_id].length) == 0){
-              var hash = new_item.crypt({method:"sha1"});
-            }
-            
-            trans_id_list[index] = hash;
-          });
-          setup_hover_info();
+  if($('.bar_holder')){
+    inst_id = $('#instrument_selector').length > 0 ? $('#instrument_selector').val() : initial_inst_id;
+    $('.bar_holder').each(function(index,el){
+      var pattern = /\w+_\w+_(\d+)/i;
+      var m = $(el).prop('id').match(pattern);
+      var this_tx_id = parseInt(m[1],10);
+      latest_tx_id = this_tx_id > latest_tx_id ? this_tx_id : latest_tx_id;
+      if(!(this_tx_id in trans_id_list) || (trans_id_list[this_tx_id].length) == 0){
+        var hash = "";
+        if(!$(el).html().length == 0){
+          var hash = $(el).crypt({method:"sha1"});
         }
-      },
-      dataType: 'json'
+        trans_id_list[this_tx_id] = hash;
+      }
     });
+    var data_obj = {
+      'item_list' : trans_id_list,
+      'instrument_id' : inst_id
+    };
+    if(inst_id && Object.keys(trans_id_list).length > 0){
+      var ts = moment().format('YYYYMMDDHHmmss');
+      var url = base_url + 'index.php/status/get_status/' + lookup_type + '/bc_' + ts;
+      $.ajax({
+        type: "POST",
+        url: url,
+        data: data_obj,
+        success: function(data){
+          if(data != 0){
+            $.each(data, function(index,trans_entry){
+              var new_item = $('#bar_holder_' + index);
+              new_item.html(trans_entry.bar_text);
+              var new_tx_id = trans_entry.transaction_id;
+              var current_step = trans_entry.current_step;
+              if(lookup_type == 'j' && new_tx_id != null && current_step >= 5){
+                window.location = base_url + "index.php/status/view/t/" + new_tx_id;
+              }
+              if(!new_item.html().length == 0 || (trans_id_list[new_tx_id].length) == 0){
+                var hash = new_item.crypt({method:"sha1"});
+              }
+              
+              trans_id_list[index] = hash;
+            });
+            setup_hover_info();
+          }
+        },
+        dataType: 'json'
+      });
+    }
   }
   
 };

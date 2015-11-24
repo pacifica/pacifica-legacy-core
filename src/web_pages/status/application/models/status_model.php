@@ -45,11 +45,11 @@ class Status_model extends CI_Model {
     $DB_myemsl = $this->load->database('default',TRUE);
     
     $DB_myemsl->select(array('group_id','name','type'));
-    if(!empty($inst_id_filter) && intval($inst_id_filter) >= 0){
-      $where_clause = "(type = 'omics.dms.instrument' or type ilike 'instrument.%') and name not in ('foo') and (group_id = '{$inst_id_filter}' or type like 'Instrument.{$inst_id_filter}')";
-    }else{
+    // if(!empty($inst_id_filter) && intval($inst_id_filter) >= 0){
+      // $where_clause = "(type = 'omics.dms.instrument' or type ilike 'instrument.%') and name not in ('foo') and (group_id = '{$inst_id_filter}' or type like 'Instrument.{$inst_id_filter}')";
+    // }else{
       $where_clause = "(type = 'omics.dms.instrument' or type ilike 'instrument.%') and name not in ('foo')";
-    }
+    // }
     
     $DB_myemsl->where($where_clause);
     $query = $DB_myemsl->order_by('name')->get('groups');
@@ -121,16 +121,14 @@ class Status_model extends CI_Model {
       }
       $file_tree = array();
       
-      
       $dirs = array();
       foreach($files_list as $item_id => $item_info){
-        $subdir = $item_info['subdir'];
+        $subdir = preg_replace('|^proposal\s[^/]+/[^/]+/\d{4}\.\d{1,2}\.\d{1,2}/?|i','',$item_info['subdir']);
         $filename = $item_info['name'];
         $path = !empty($subdir) ? "{$subdir}/{$filename}" : $filename;
         $path_array = explode('/',$path);
         build_folder_structure($dirs, $path_array, $item_info);
       }
-      
       return array('treelist' => $dirs, 'files' => $files_list);
     }
   }
@@ -225,7 +223,7 @@ class Status_model extends CI_Model {
     $DB_myemsl->query("set local timezone to '{$this->local_timezone}';");    
     $DB_myemsl->select($select_array)->from('group_items gi')->join('files f', 'gi.item_id = f.item_id');
     $DB_myemsl->group_by('f.transaction')->order_by('f.transaction desc');
-    if($group_id && $group_id != 0){
+    if($group_id && $group_id > 0){
       if(is_array($group_id)){
         $DB_myemsl->where_in('gi.group_id',$group_id);
       }else{
