@@ -222,6 +222,7 @@ os.write(bfdesc, "#SBATCH -o /dev/null\n")
 os.write(bfdesc, "#SBATCH -e /dev/null\n")
 os.write(bfdesc, "srun -n 1 find /var/log/pacifica/ingest -maxdepth 1 -name 'output."+str(options.jobid)+"' -exec rm -f {} \\;\n")
 os.write(bfdesc, "srun -n 1 find /var/log/pacifica/ingest -maxdepth 1 -name 'error."+str(options.jobid)+"' -exec rm -f {} \\;\n")
+os.write(bfdesc, "srun -n 1 rm -f "+str(options.bundle))
 os.close(bfdesc)
 if os.system("/usr/bin/sbatch "+bfname) != 0:
 	pass
