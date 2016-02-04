@@ -164,7 +164,7 @@ def get_permission_ingest(metadata, userid):
 
 	if user is memeber of proposal
 	  return True
-	elif user is custodian of the instrument and the proposal has instrument 
+	elif user is custodian of the instrument and the proposal is valid
 	  return True
 	fi
 	return False
@@ -185,9 +185,8 @@ def get_permission_ingest(metadata, userid):
 	if custodian instrument list is empty and questionable_proposals is not empty
 	  return False
 	else
-	  get list of proposals from custodian instrument list
 	  for all proposals in questionable_proposals
-	    if proposal in questionable_proposals
+	    if proposal in valid proposals
 	      remove proposal from questionable_proposals
 	if questionable_proposals is empty
 	  return True
@@ -212,13 +211,8 @@ def get_permission_ingest(metadata, userid):
 	if len(questionable_proposals) == 0:
 		return True
 
-	instrument_proposals = {}
-	for instrument in get_custodian_instruments(userid):
-		for prop in get_proposals_from_instrument(instrument):
-			instrument_proposals[prop] = 1
-
-	for prop in instrument_proposals.keys():
-		if prop in questionable_proposals:
+	for prop in questionable_proposals:
+		if 'title' in get_proposal_info(prop):
 			questionable_proposals.remove(prop)
 
 	if len(questionable_proposals) == 0:
