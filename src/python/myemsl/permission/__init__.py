@@ -7,7 +7,7 @@ from myemsl.getconfig import getconfig_secret
 config = getconfig_secret()
 
 from myemsl.logging import getLogger
-from myemsl.metadata import get_proposals_from_user, get_custodian_instruments, get_proposals_from_instrument
+from myemsl.metadata import get_proposals_from_user, get_custodian_instruments, get_proposals_from_instrument, get_proposal_info
 
 logger = getLogger(__name__)
 
