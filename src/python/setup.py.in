@@ -67,6 +67,7 @@ PACKAGES = [
     "myemsl.service.userproposalstats",
     "myemsl.service.userinfo",
     "myemsl.service.proposalinfo",
+    "myemsl.service.instrumentinfo",
     "myemsl.service.notification",
     "myemsl.service.admin",
     "myemsl.service.admin.switchuser",
