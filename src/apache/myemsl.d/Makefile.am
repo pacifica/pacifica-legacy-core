@@ -16,7 +16,8 @@ EXTRA_DIST = eushandoff.conf.in getuser.conf.in reprocess.conf.in \
              predicate.conf.in test.conf.in elasticsearch-proxy.conf.in \
              cart-local.conf.in cart-proxy.conf.in cart-proxy-ssl.conf.in \
              dmspath.conf.in admin.conf.in rmds.conf.in rmds2.conf.in \
-             userproposalstats.conf.in userinfo.conf.in proposalinfo.conf.in
+             userproposalstats.conf.in userinfo.conf.in proposalinfo.conf.in \
+             instrumentinfo.conf.in
 
 pkgmyemslweb_DATA = web/ingest.conf web/query.conf web/testauth.conf \
                     web/iteminfo.conf web/status.conf web/outage.conf \
@@ -29,7 +30,8 @@ pkgmyemslweb_DATA = web/ingest.conf web/query.conf web/testauth.conf \
                     web/predicate.conf web/test.conf web/admin.conf \
                     web/elasticsearch-proxy.conf web/cart-local.conf \
                     web/cart-proxy.conf web/dmspath.conf web/reprocess.conf \
-                    web/userinfo.conf web/proposalinfo.conf
+                    web/userinfo.conf web/proposalinfo.conf \
+                    web/instrumentinfo.conf
 
 
 pkgmyemslssl_DATA = ssl/ingest.conf ssl/query.conf ssl/query-raw.conf \
@@ -47,7 +49,8 @@ pkgmyemslssl_DATA = ssl/ingest.conf ssl/query.conf ssl/query-raw.conf \
                     ssl/elasticsearch-proxy.conf ssl/cart-local.conf \
                     ssl/cart-proxy-ssl.conf ssl/dmspath.conf ssl/rmds2.conf \
                     ssl/reprocess.conf ssl/userproposalstats.conf \
-                    ssl/userinfo.conf ssl/proposalinfo.conf
+                    ssl/userinfo.conf ssl/proposalinfo.conf \
+                    ssl/instrumentinfo.conf
 
 $(pkgmyemslweb_DATA):
 	$(mkdir_p) web
