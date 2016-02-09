@@ -99,6 +99,7 @@ PACKAGES = [
     "myemsl.handler.userproposalstats",
     "myemsl.handler.userinfo",
     "myemsl.handler.proposalinfo",
+    "myemsl.handler.instrumentinfo",
     "myemsl.handler.sstp.finish",
     "myemsl.handler.sstp.preallocate",
     "myemsl.handler.notification",
