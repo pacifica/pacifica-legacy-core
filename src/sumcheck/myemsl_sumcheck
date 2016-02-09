@@ -5,4 +5,10 @@ then
 	echo Failed to get user.
 	exit 1
 fi
-su - $USER -s /usr/libexec/myemsl/sumcheck/sumcheck
+OUTPUT=$(squeue -a)
+JOB_RC=$?
+echo $OUTPUT | grep -q CHECKSUM
+RUNNING_RC=$?
+if [[ $JOB_RC == 0 && $RUNNING_RC != 0 ]] ; then
+  su - $USER -s /usr/libexec/myemsl/sumcheck/sumcheck
+fi
