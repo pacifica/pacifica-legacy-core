@@ -42,39 +42,22 @@ def formatdata(dtype, data, writer):
     else:
         error(dtype, "Unsupported Accept Type", writer)
 
-def proposalinfo(proposal_id, dtype, writer):
+def instrumentinfo(instrument_id, dtype, writer):
     """
     This does the bulk of the SQL to gather the appropriate data to send back to the user.
     Currently it consists of the:
-     * EUS proposal information
-     * EUS users in the proposal
-     * EUS instruments in the proposal
+     * EUS instrument information
     """
-    if not proposal_id:
-        data = myemsl.metadata.get_all_proposals()
-        formatdata(dtype, data, writer)
-        return 0
     ##
     # get proposal information from EUS
     ##
-    data = myemsl.metadata.get_proposal_info(proposal_id)
-    ##
-    # get members of the propsal and return their info
-    ##
-    data["members"] = {}
-    user_list = myemsl.metadata.get_users_from_proposal(proposal_id)
-    for person_id in user_list:
-        data["members"][str(person_id)] = myemsl.metadata.get_user_info(person_id)
-    ##
-    # get instrument information from EUS for instruments
-    ##
-    data["instruments"] = {}
-    inst_list = myemsl.metadata.get_instruments_from_proposal(proposal_id)
-    for instrument_id in inst_list:
-        data["instruments"][str(instrument_id)] = myemsl.metadata.get_instrument_info(instrument_id)
+    if not instrument_id:
+        data = myemsl.metadata.get_all_instruments()
+    else:
+        data = myemsl.metadata.get_instrument_info(instrument_id)
     formatdata(dtype, data, writer)
     return 0
 
 if __name__ == '__main__':
-    sys.exit(proposalinfo(sys.argv[1], sys.argv[2], sys.stdout))
+    sys.exit(instrumentinfo(sys.argv[1], sys.argv[2], sys.stdout))
 

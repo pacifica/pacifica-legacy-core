@@ -1034,11 +1034,13 @@ rm -rf %{buildroot}
 %defattr(0644,root,root)
 %{_prefix}/lib/myemsl/apache/myemsl.d/userinfo.conf
 %{_prefix}/lib/myemsl/apache/myemsl.d/proposalinfo.conf
+%{_prefix}/lib/myemsl/apache/myemsl.d/instrumentinfo.conf
 
 %files web-userinfo-ssl
 %defattr(0644,root,root)
 %{_prefix}/lib/myemsl/apache/myemsl-ssl.d/userinfo.conf
 %{_prefix}/lib/myemsl/apache/myemsl-ssl.d/proposalinfo.conf
+%{_prefix}/lib/myemsl/apache/myemsl-ssl.d/instrumentinfo.conf
 
 %files web-userinfo-common
 %{_defaultdocdir}/myemsl/userinfo
@@ -1049,6 +1051,8 @@ rm -rf %{buildroot}
 /%{python_sitelib}/myemsl/handler/userinfo*
 /%{python_sitelib}/myemsl/service/proposalinfo*
 /%{python_sitelib}/myemsl/handler/proposalinfo*
+/%{python_sitelib}/myemsl/service/instrumentinfo*
+/%{python_sitelib}/myemsl/handler/instrumentinfo*
 %defattr(0755,root,root)
 
 %files web-iteminfo

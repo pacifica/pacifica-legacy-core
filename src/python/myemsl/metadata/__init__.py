@@ -401,3 +401,45 @@ WHERE
         }
     return data
 
+def get_all_instruments():
+    sql = """
+SELECT
+  instrument_id,
+  instrument_name,
+  name_short
+FROM
+  eus.instruments
+    """
+    cnx = myemsldb_connect(myemsl_schema_versions=['1.8'])
+    cursor = cnx.cursor()
+    cursor.execute(sql)
+    rows = cursor.fetchall()
+    ret = []
+    for row in rows:
+        ret.append({
+            "instrument_id": row[0],
+            "instrument_name": row[1],
+            "name_short": row[2]
+        })
+    return ret
+
+def get_all_proposals():
+    sql = """
+SELECT
+  proposal_id,
+  title
+FROM
+  eus.proposals
+    """
+    cnx = myemsldb_connect(myemsl_schema_versions=['1.8'])
+    cursor = cnx.cursor()
+    cursor.execute(sql)
+    rows = cursor.fetchall()
+    ret = []
+    for row in rows:
+        ret.append({
+            "proposal_id": row[0],
+            "title": row[1]
+        })
+    return ret
+

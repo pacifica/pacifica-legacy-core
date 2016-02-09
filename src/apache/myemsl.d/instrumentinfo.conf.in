@@ -1,0 +1,9 @@
+<Location /myemsl/instrumentinfo>
+	Options Indexes FollowSymLinks MultiViews
+        Order deny,allow
+        Allow from all
+	SetHandler mod_python
+	PythonInterpreter main_interpreter
+	PythonHandler myemsl.handler.instrumentinfo
+</Location>
+

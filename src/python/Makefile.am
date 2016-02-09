@@ -102,6 +102,7 @@ myemsl/service/reprocess/__init__.py \
 myemsl/service/userproposalstats/__init__.py \
 myemsl/service/userinfo/__init__.py \
 myemsl/service/proposalinfo/__init__.py \
+myemsl/service/instrumentinfo/__init__.py \
 myemsl/service/sstp/finish.py \
 myemsl/service/sstp/status.py \
 myemsl/service/sstp/preallocate.py \
@@ -143,6 +144,7 @@ myemsl/handler/notification/__init__.py \
 myemsl/handler/userproposalstats/__init__.py \
 myemsl/handler/userinfo/__init__.py \
 myemsl/handler/proposalinfo/__init__.py \
+myemsl/handler/instrumentinfo/__init__.py \
 myemsl/handler/admin/__init__.py \
 myemsl/handler/admin/switchuser/__init__.py \
 myemsl/handler/rmds/add.py \
