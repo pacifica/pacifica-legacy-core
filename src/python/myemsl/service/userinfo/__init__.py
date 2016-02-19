@@ -79,7 +79,7 @@ def userinfo(user, dtype, writer):
         data["proposals"][str(proposal_id)] = myemsl.metadata.get_proposal_info(proposal_id)
         inst_list = myemsl.metadata.get_instruments_from_proposal(proposal_id)
         inst_list.extend(custodian_instruments)
-        data["proposals"][str(proposal_id)]["instruments"] = inst_list
+        data["proposals"][str(proposal_id)]["instruments"] = sorted(set(inst_list))
         for instrument_id in inst_list:
             global_instruments[instrument_id] = 1
     ##
