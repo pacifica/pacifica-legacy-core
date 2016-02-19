@@ -262,6 +262,22 @@ WHERE
     cursor.execute(sql, {'person_id':userid})
     return [ i[0] for i in cursor.fetchall() ]
 
+def get_proposals_from_instrument_user(userid):
+    sql = """
+SELECT DISTINCT
+  proposal_id
+FROM
+  eus.proposal_instruments as EPI,
+  eus.emsl_staff_inst as ESI
+WHERE
+  EPI.instrument_id = ESI.instrument_id AND
+  ESI.person_id = %(person_id)s
+    """
+    cnx = myemsldb_connect(myemsl_schema_versions=['1.8'])
+    cursor = cnx.cursor()
+    cursor.execute(sql, {'person_id':userid})
+    return [ i[0] for i in cursor.fetchall() ]
+
 def get_proposals_from_instrument(instid):
     sql = """
 SELECT

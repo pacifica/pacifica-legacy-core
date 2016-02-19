@@ -57,14 +57,16 @@ def userinfo(user, dtype, writer):
     data = myemsl.metadata.get_user_info(user)
     global_instruments = {}
     global_proposals = {}
+    custodian_instruments = []
     ##
     # apply all proposals attached to instruments that the user is a
     # custodian on.
     ##
-    for instrument_id in myemsl.metadata.get_custodian_instruments(user):
+    custodian_instruments = myemsl.metadata.get_custodian_instruments(user)
+    for instrument_id in custodian_instruments:
         global_instruments[instrument_id] = 1
-        for proposal_id in myemsl.metadata.get_proposals_from_instrument(instrument_id):
-            global_proposals[proposal_id] = 1
+    for proposal_id in myemsl.metadata.get_proposals_from_instrument_user(user):
+        global_proposals[proposal_id] = 1
     ##
     # Get the proposals the user is on
     ##
@@ -76,6 +78,7 @@ def userinfo(user, dtype, writer):
     for proposal_id in global_proposals.keys():
         data["proposals"][str(proposal_id)] = myemsl.metadata.get_proposal_info(proposal_id)
         inst_list = myemsl.metadata.get_instruments_from_proposal(proposal_id)
+        inst_list.extend(custodian_instruments)
         data["proposals"][str(proposal_id)]["instruments"] = inst_list
         for instrument_id in inst_list:
             global_instruments[instrument_id] = 1
@@ -88,5 +91,5 @@ def userinfo(user, dtype, writer):
     return 0
 
 if __name__ == '__main__':
-    sys.exit(userinfo(sys.argv[1], sys.argv[2], sys.stdout))
+    sys.exit(userinfo(int(sys.argv[1]), sys.argv[2], sys.stdout))
 
