@@ -19,6 +19,6 @@ def handler(req):
             dtype = accept_types[0]
     else:
         dtype = "application/json"
-    instrumentinfo.instrumentinfo(int(req.path_info[1:]), dtype, req)
+    instrumentinfo.instrumentinfo(str(req.path_info[1:]), dtype, req)
     return apache.OK
 

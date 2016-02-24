@@ -54,7 +54,7 @@ def instrumentinfo(instrument_id, dtype, writer):
     if not instrument_id:
         data = myemsl.metadata.get_all_instruments()
     else:
-        data = myemsl.metadata.get_instrument_info(instrument_id)
+        data = myemsl.metadata.get_instrument_info(str(instrument_id))
     formatdata(dtype, data, writer)
     return 0
 
