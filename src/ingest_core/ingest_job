@@ -141,6 +141,7 @@ while he:
 			file.write(d)
 			d = archive.read_data()
 		file.close()
+		os.utime(filename, (None, he.mtime()))
 	he = archive.next_header()
 
 timingfile.write("ingest_job_extract:e:%s\n" %(time.time()))
