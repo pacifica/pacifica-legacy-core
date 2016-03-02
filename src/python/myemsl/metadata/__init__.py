@@ -86,7 +86,7 @@ RETURNING
 		res = res[0][0]
 	return res
 
-def insert_file(trans, subdir, name, size, hashsum, groups, cursor=None):
+def insert_file(trans, subdir, name, size, mtime, ctime, hashsum, groups, cursor=None):
 	"""Insert file into database. Returns the item_id of the file inserted."""
 	insert_item('file', cursor)
 	sql = """
@@ -97,7 +97,9 @@ INSERT INTO
     transaction,
     subdir,
     name,
-    size
+    size,
+    mtime,
+    ctime
   )
 VALUES
   (
@@ -105,7 +107,9 @@ VALUES
     %(trans)i,
     %(subdir)s,
     %(name)s,
-    %(size)i
+    %(size)i,
+    %(mtime)i,
+    %(ctime)i
 );
 INSERT INTO
   myemsl.hashsums
@@ -129,7 +133,7 @@ SELECT
 	if not cursor:
 		cnx = myemsldb_connect(myemsl_schema_versions=['1.3'])
 		cursor = cnx.cursor()
-	cursor.execute(sql, params={'trans':int(trans), 'subdir':str(subdir), 'name':str(name), 'size':int(size), 'type':'sha1', 'sum':hashsum})
+	cursor.execute(sql, params={'trans':int(trans), 'subdir':str(subdir), 'name':str(name), 'size':int(size), 'mtime':int(mtime), 'ctime':int(ctime), 'type':'sha1', 'sum':hashsum})
 	found = False
 	rows = cursor.fetchall()
 	for row in rows:

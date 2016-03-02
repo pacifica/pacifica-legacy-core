@@ -34,5 +34,7 @@ ALTER TABLE "myemsl"."ingest_state"
 	
 CREATE INDEX  idx_is_job_id ON "ingest_state" USING btree(jobid ASC);
 
+ALTER TABLE "myemsl"."files"
+  ADD COLUMN "mtime" TIMESTAMP WITHOUT TIME ZONE;
 
-UPDATE "myemsl"."system" set value = '1.95' where key = 'schema_version';
+UPDATE "myemsl"."system" set value = '1.10' where key = 'schema_version';

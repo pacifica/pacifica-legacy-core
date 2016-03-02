@@ -155,11 +155,13 @@ f = []
 for (root, dirs, files) in os.walk("."):
 	if root == '.':
 		d += ["%s" %(i) for i in dirs]
-		f += [("%s" %(i),os.lstat(i).st_size) for i in files]
+                st = os.lstat(i)
+		f += [("%s" %(i),st.st_size,st.st_mtime,st.st_ctime) for i in files]
 	else:
 		root = root[2:]
 		d += ["%s/%s" %(root, i) for i in dirs]
-		f += [("%s/%s" %(root, i),os.lstat("%s/%s" %(root, i)).st_size) for i in files]
+                st = os.lstat("%s/%s" %(root, i))
+		f += [("%s/%s" %(root, i),st.st_size,st.st_mtime,st.st_ctime) for i in files]
 mygid = os.getgid()
 myuid = os.getuid()
 for i in d:

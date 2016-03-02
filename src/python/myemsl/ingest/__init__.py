@@ -189,7 +189,7 @@ def ingest_metadata(metadata, files, username, transaction, itemlogfilename):
 			if "groups" in file:
 				metadata_merged[i]['groups'] = file['groups']
 		itemlogfile = open(itemlogfilename, 'w')
-		for file,size in files:
+		for file,size,mtime,ctime in files:
 			subdir = file.rsplit('/', 1)
 			if len(subdir) < 2:
 				name = subdir[0]
@@ -216,7 +216,7 @@ def ingest_metadata(metadata, files, username, transaction, itemlogfilename):
 			pgroup = []
 			if proposal:
 				pgroup.append({'name':proposal, 'type':'proposal'})
-			item_id = insert_file(transaction, subdir, name, size, hashsum, groups+file_groups+pgroup, cursor)
+			item_id = insert_file(transaction, subdir, name, size, mtime, ctime, hashsum, groups+file_groups+pgroup, cursor)
 			move_item_to_final(item_id, prefix, username, transaction, subdir, name, itemlogfile)
 		itemlogfile.close()
 		bundledir = "%s/%s/bundle/%s" %(prefix, username, transaction)
