@@ -108,8 +108,8 @@ VALUES
     %(subdir)s,
     %(name)s,
     %(size)i,
-    %(mtime)i,
-    %(ctime)i
+    TIMESTAMP WITH TIME ZONE 'epoch' + %(mtime)i * INTERVAL '1 second',
+    TIMESTAMP WITH TIME ZONE 'epoch' + %(ctime)i * INTERVAL '1 second'
 );
 INSERT INTO
   myemsl.hashsums

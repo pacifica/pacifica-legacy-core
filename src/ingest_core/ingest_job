@@ -179,7 +179,7 @@ for i in d:
 		name = subdir[1]
 		subdir = subdir[0]
 print f
-for i,size in f:
+for i,size,mtime,ctime in f:
 #	os.chown(i, myuid, mygid)
 #FIXME Close off later, fix exe's.
 #	os.chmod(i, stat.S_IRUSR)
