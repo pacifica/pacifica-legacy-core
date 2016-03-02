@@ -11,4 +11,4 @@ CREATE INDEX emsl_staff_inst_p_idx on "eus"."emsl_staff_inst" using btree(person
 ALTER TABLE "eus"."emsl_staff_inst" OWNER TO "metadata_admins";
 GRANT SELECT ON "eus"."emsl_staff_inst" to "metadata_readers";
 
-update myemsl.system set value = '1.8' where key = 'schema_version';
+update myemsl.system set value = '1.9' where key = 'schema_version';
