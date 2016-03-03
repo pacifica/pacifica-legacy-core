@@ -33,7 +33,6 @@ int myemsl_archive_read_data(struct archive *a, char *d, int *s)
 %}
 
 %include <cstring.i>
-%include <time.h>
 typedef long time_t;
 %include <archive.h>
 %include <archive_entry.h>
