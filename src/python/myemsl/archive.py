@@ -47,7 +47,7 @@ def init():
 		def new_func(func):
 			return lambda self: func(self._a)
 		setattr(ArchiveReader, sym, new_func(func))
-	aefuncs = ['size', 'pathname', 'mtime_nsec', 'ctime_nsec']
+	aefuncs = ['size', 'pathname', 'mtime', 'ctime']
 	for sym in aefuncs:
 		func = getattr(_myemsl_archive, 'archive_entry_' + sym)
 		def new_func(func):

@@ -102,6 +102,7 @@ if not metadata:
 timingfile.write("ingest_job_metadata_process:e:%s\n" %(time.time()))
 timingfile.write("ingest_job_extract:s:%s\n" %(time.time()))
 
+mtimes = {}
 he = archive.next_header()
 while he:
 	name = he.pathname()
@@ -141,7 +142,7 @@ while he:
 			file.write(d)
 			d = archive.read_data()
 		file.close()
-		os.utime(filename, (None, he.mtime()))
+		mtimes[filename] = he.mtime()
 	he = archive.next_header()
 
 timingfile.write("ingest_job_extract:e:%s\n" %(time.time()))
@@ -158,13 +159,16 @@ for (root, dirs, files) in os.walk("."):
 		d += ["%s" %(i) for i in dirs]
                 for i in files:
                 	st = os.lstat(i)
-			f += [("%s" %(i),st.st_size,st.st_mtime,st.st_ctime)]
+			mtime = mtimes[i]
+			f += [("%s" %(i),st.st_size,mtime,st.st_ctime)]
 	else:
 		root = root[2:]
 		d += ["%s/%s" %(root, i) for i in dirs]
                 for i in files:
-                	st = os.lstat("%s/%s" %(root, i))
-			f += [("%s/%s" %(root, i),st.st_size,st.st_mtime,st.st_ctime)]
+			fn = "%s/%s" %(root, i)
+                	st = os.lstat(fn)
+			mtime = mtimes[fn]
+			f += [(fn,st.st_size,mtime,st.st_ctime)]
 mygid = os.getgid()
 myuid = os.getuid()
 for i in d:
