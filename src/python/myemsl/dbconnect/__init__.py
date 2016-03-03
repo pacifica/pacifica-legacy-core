@@ -31,7 +31,7 @@ def myemsldb_connect(dbconf = None, myemsl_schema_versions=None):
 		schema_version = row[0]
 	(major, minor) = schema_version.split('.')
 	if major in versions:
-		if minor < versions[major]:
+		if int(minor) < int(versions[major]):
 			err = "Schema version too old. Got %s.%s, support %s" %(major, minor, str(versions))
 			logger.error(err)
 			raise Exception(err)
