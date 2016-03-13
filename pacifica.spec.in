@@ -867,19 +867,15 @@ rm -rf %{buildroot}
 
 %files web-ingestor-common
 %{_defaultdocdir}/myemsl/ingestor
-%{_localstatedir}/www/myemsl/status/*
-%{_localstatedir}/www/resources/*
 %defattr(0644,root,root)
 %{_prefix}/lib/myemsl/apache/outage.d/sstp.d/ingest
 /%{python_sitelib}/myemsl/authzpersondir/stage.*
 /%{python_sitelib}/myemsl/service/sstp/*
 /%{python_sitelib}/myemsl/handler/sstp/*
-%{_sysconfdir}/php.d/*
 %attr(4111,root,root) %{_bindir}/myemsl_mkstagedir
 %defattr(-,root,root)
 %dir %{_localstatedir}/www/myemsl
 %dir %{_localstatedir}/www/myemsl/cgi-bin
-%dir %{_localstatedir}/www/myemsl/status
 %{_localstatedir}/www/myemsl/cgi-bin/*
 %defattr(0755,apache,apache)
 %dir %{_localstatedir}/www/myemsl/staging
