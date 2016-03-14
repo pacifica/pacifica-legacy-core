@@ -28,8 +28,8 @@ ALTER TABLE "myemsl"."cart_items" CLUSTER ON "idx_ci_carts";
 
 
 ALTER TABLE "myemsl"."ingest_state" 
-  ADD COLUMN "created" timestamptz NOT NULL DEFAULT now(),
-	ADD COLUMN "updated" timestamptz NOT NULL;
+  ADD COLUMN "created" timestamptz DEFAULT now(),
+	ADD COLUMN "updated" timestamptz;
 	
 	
 CREATE INDEX  idx_is_job_id ON "myemsl"."ingest_state" USING btree(jobid ASC);
