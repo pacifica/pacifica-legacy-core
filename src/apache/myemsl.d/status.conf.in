@@ -1,5 +1,5 @@
 Alias /myemsl/status /var/www/myemsl/status
-
+SetEnv CI_ENV development
 <Directory /var/www/myemsl/status>
 	Options Indexes FollowSymLinks MultiViews
 	AllowOverride None
