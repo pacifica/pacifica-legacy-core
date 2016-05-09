@@ -1,6 +1,6 @@
-DROP TABLE "eus"."proposal_pocs";
+DROP TABLE IF EXISTS "eus"."proposal_pocs";
 CREATE TABLE "eus"."proposal_pocs" (
-        "proposal_poc_id int4 NOT NULL,
+        "proposal_poc_id" int4 NOT NULL,
         "poc_employee_id" varchar(10) NOT NULL,
         "proposal_id" varchar(10) NOT NULL,
         "last_change_date" timestamptz NOT NULL DEFAULT now()
