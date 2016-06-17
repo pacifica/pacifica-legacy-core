@@ -78,8 +78,7 @@ END;
 	CALLED ON NULL INPUT
 	SECURITY INVOKER
 	VOLATILE;
-commit;
-begin transaction;
+
 CREATE TABLE "myemsl"."item_time_cache_by_transaction" (
 	"item_id" int4 NOT NULL,
 	"transaction" int8,
@@ -92,8 +91,7 @@ CREATE TABLE "myemsl"."item_time_cache_by_transaction" (
 	"group_type" text COLLATE "default"
 )
 WITH (OIDS=FALSE);
-commit;
-begin transaction;
+
 CREATE INDEX  "idx_ing_person" ON "myemsl"."ingest_state" USING btree(person_id "pg_catalog"."int4_ops" ASC NULLS LAST);
 CREATE INDEX  "idx_ing_trans_id" ON "myemsl"."ingest_state" USING btree(trans_id "pg_catalog"."int8_ops" ASC NULLS LAST);
 CREATE INDEX  "idx_ing_trans_id_sub" ON "myemsl"."ingest_state" USING btree(trans_id "pg_catalog"."int8_ops" ASC NULLS LAST, person_id "pg_catalog"."int4_ops" ASC NULLS LAST);
@@ -121,5 +119,7 @@ CREATE INDEX  "idx_stime_transaction" ON "myemsl"."item_time_cache_by_transactio
 CREATE INDEX  "idx_submitter" ON "myemsl"."item_time_cache_by_transaction" USING btree(submitter "pg_catalog"."int4_ops" ASC NULLS LAST);
 CREATE INDEX  "idx_submitter_mtime" ON "myemsl"."item_time_cache_by_transaction" USING btree(submitter "pg_catalog"."int4_ops" ASC NULLS LAST, modified_date "pg_catalog"."date_ops" ASC NULLS LAST);
 CREATE INDEX  "idx_submitter_stime" ON "myemsl"."item_time_cache_by_transaction" USING btree(submitter "pg_catalog"."int4_ops" ASC NULLS LAST, submit_date "pg_catalog"."date_ops" ASC NULLS LAST);
+UPDATE "myemsl"."system" set value = '1.12' where key = 'schema_version';
 
+alter table "eus"."users" add emsl_employee character varying(1);
 commit;
