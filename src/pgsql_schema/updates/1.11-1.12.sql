@@ -22,10 +22,10 @@ BEGIN
 				when (g.type = 'proposal') THEN 'proposal'
 			END
 			as group_type
-		 FROM transactions t
-			 JOIN files f ON f.transaction = t.transaction
-			 JOIN group_items gi ON gi.item_id = f.item_id
-			 JOIN groups g on g.group_id = gi.group_id
+		 FROM myemsl.transactions t
+			 JOIN myemsl.files f ON f.transaction = t.transaction
+			 JOIN myemsl.group_items gi ON gi.item_id = f.item_id
+			 JOIN myemsl.groups g on g.group_id = gi.group_id
 		 WHERE 	(g.type in(
 			'omics.dms.instrument_id',
 			'EMSL User',
@@ -56,19 +56,19 @@ DECLARE
 BEGIN
 	SELECT INTO transaction_count
 		COUNT("transaction")
-		FROM transactions
-	WHERE "transaction" NOT IN (SELECT "transaction" FROM item_time_cache_by_transaction);
+		FROM myemsl.transactions
+	WHERE "transaction" NOT IN (SELECT "transaction" FROM myemsl.item_time_cache_by_transaction);
 
 	RAISE NOTICE 'Found % transactions for processing',transaction_count;
 
 	FOR item_entry in SELECT "transaction"
-		FROM transactions
-		WHERE "transaction" NOT IN (SELECT "transaction" FROM item_time_cache_by_transaction)
+		FROM myemsl.transactions
+		WHERE "transaction" NOT IN (SELECT "transaction" FROM myemsl.item_time_cache_by_transaction)
 		ORDER BY "transaction"
 		LIMIT 50
 	LOOP
 		trans_id = item_entry.transaction;
-		SELECT fill_item_time_cache_by_transaction(trans_id) INTO item_row_count;
+		SELECT myemsl.fill_item_time_cache_by_transaction(trans_id) INTO item_row_count;
 		RAISE NOTICE 'Processed % rows from transaction %',item_row_count,trans_id;
 	END LOOP;
 
