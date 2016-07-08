@@ -1,12 +1,13 @@
-begin transaction;
+BEGIN TRANSACTION;
 
+DROP FUNCTION IF EXISTS "fill_item_time_cache_by_transaction";
 CREATE FUNCTION "fill_item_time_cache_by_transaction"(IN transaction_id int8) RETURNS "int4"
 	AS $BODY$
 DECLARE
 	inserted_record_count int;
 BEGIN
 	RAISE NOTICE 'Loading file info for transaction % into item_time_cache_by_transaction table', transaction_id;
-	INSERT INTO item_time_cache_by_transaction_copy
+	INSERT INTO item_time_cache_by_transaction
 	SELECT f.item_id,
 			t.transaction,
 			date_trunc('day'::text, t.stime)::date AS submit_date,
@@ -39,7 +40,9 @@ $BODY$
 	CALLED ON NULL INPUT
 	SECURITY DEFINER
 	VOLATILE;
-
+	
+	
+DROP FUNCTION IF EXISTS "fill_item_cache_from_txn_table";
 CREATE FUNCTION "fill_item_cache_from_txn_table"() RETURNS "int4"
 	AS $BODY$
 DECLARE
@@ -54,13 +57,13 @@ BEGIN
 	SELECT INTO transaction_count
 		COUNT("transaction")
 		FROM transactions
-	WHERE "transaction" NOT IN (SELECT "transaction" FROM item_time_cache_by_transaction_copy);
+	WHERE "transaction" NOT IN (SELECT "transaction" FROM item_time_cache_by_transaction);
 
 	RAISE NOTICE 'Found % transactions for processing',transaction_count;
 
 	FOR item_entry in SELECT "transaction"
 		FROM transactions
-		WHERE "transaction" NOT IN (SELECT "transaction" FROM item_time_cache_by_transaction_copy)
+		WHERE "transaction" NOT IN (SELECT "transaction" FROM item_time_cache_by_transaction)
 		ORDER BY "transaction"
 		LIMIT 50
 	LOOP
@@ -121,5 +124,6 @@ CREATE INDEX  "idx_submitter_mtime" ON "myemsl"."item_time_cache_by_transaction"
 CREATE INDEX  "idx_submitter_stime" ON "myemsl"."item_time_cache_by_transaction" USING btree(submitter "pg_catalog"."int4_ops" ASC NULLS LAST, submit_date "pg_catalog"."date_ops" ASC NULLS LAST);
 UPDATE "myemsl"."system" set value = '1.12' where key = 'schema_version';
 
-alter table "eus"."users" add emsl_employee character varying(1);
-commit;
+ALTER TABLE "eus"."users" ADD "emsl_employee" character varying(1);
+
+COMMIT;
