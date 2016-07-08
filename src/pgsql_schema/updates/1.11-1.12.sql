@@ -1,7 +1,7 @@
 BEGIN TRANSACTION;
 
 DROP FUNCTION IF EXISTS fill_item_time_cache_by_transaction(bigint);
-CREATE FUNCTION "fill_item_time_cache_by_transaction"(IN transaction_id int8) RETURNS "int4"
+CREATE FUNCTION "myemsl"."fill_item_time_cache_by_transaction"(IN transaction_id int8) RETURNS "int4"
 	AS $BODY$
 DECLARE
 	inserted_record_count int;
@@ -43,7 +43,7 @@ $BODY$
 	
 	
 DROP FUNCTION IF EXISTS fill_item_cache_from_txn_table();
-CREATE FUNCTION "fill_item_cache_from_txn_table"() RETURNS "int4"
+CREATE FUNCTION "myemsl"."fill_item_cache_from_txn_table"() RETURNS "int4"
 	AS $BODY$
 DECLARE
 	item_entry RECORD;
