@@ -1,6 +1,6 @@
 BEGIN TRANSACTION;
 
-DROP FUNCTION IF EXISTS fill_item_time_cache_by_transaction(bigint);
+DROP FUNCTION IF EXISTS myemsl.fill_item_time_cache_by_transaction(bigint);
 CREATE FUNCTION "myemsl"."fill_item_time_cache_by_transaction"(IN transaction_id int8) RETURNS "int4"
 	AS $BODY$
 DECLARE
@@ -42,7 +42,7 @@ $BODY$
 	VOLATILE;
 	
 	
-DROP FUNCTION IF EXISTS fill_item_cache_from_txn_table();
+DROP FUNCTION IF EXISTS myemsl.fill_item_cache_from_txn_table();
 CREATE FUNCTION "myemsl"."fill_item_cache_from_txn_table"() RETURNS "int4"
 	AS $BODY$
 DECLARE
