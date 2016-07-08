@@ -7,7 +7,7 @@ DECLARE
 	inserted_record_count int;
 BEGIN
 	RAISE NOTICE 'Loading file info for transaction % into item_time_cache_by_transaction table', transaction_id;
-	INSERT INTO item_time_cache_by_transaction
+	INSERT INTO myemsl.item_time_cache_by_transaction
 	SELECT f.item_id,
 			t.transaction,
 			date_trunc('day'::text, t.stime)::date AS submit_date,
