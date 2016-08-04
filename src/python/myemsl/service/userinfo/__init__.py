@@ -43,7 +43,7 @@ def formatdata(dtype, data, writer):
     else:
         error(dtype, "Unsupported Accept Type", writer)
 
-def userinfo(user, dtype, writer):
+def userinfo(userid, dtype, writer):
     """
     This does the bulk of the SQL to gather the appropriate data to send back to the user.
     Currently it consists of the:
