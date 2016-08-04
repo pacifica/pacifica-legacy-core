@@ -80,6 +80,7 @@ myemsl/authzpersondir/cart.py \
 myemsl/authzpersondir/stage.py \
 myemsl/authzpersondir/__init__.py \
 myemsl/ingest/__init__.py \
+myemsl/policy/__init__.py \
 myemsl/service/__init__.py \
 myemsl/service/qrs/__init__.py \
 myemsl/service/auth/__init__.py \

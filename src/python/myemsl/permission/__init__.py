@@ -159,62 +159,36 @@ def create_permission(gid, cls, psid):
 	return
 
 def get_permission_ingest(metadata, userid):
-	"""
-	pseudo code to manage ingest permissions
-
-	if user is memeber of proposal
-	  return True
-	elif user is custodian of the instrument and the proposal is valid
-	  return True
-	fi
-	return False
-
-	This has to be made generic for multiple formats of metadata.
-	So to be more specific...
-
-	get list of proposals user is a member of
-	get list of proposals in the metadata
-	for all proposals in metadata
-	  if proposal is not in proposals for user
-	    questionable_proposals += proposal
-	
-	if questionable_proposals is empty
-	  return True
-
-	get list of instruments user is custodian on
-	if custodian instrument list is empty and questionable_proposals is not empty
-	  return False
-	else
-	  for all proposals in questionable_proposals
-	    if proposal in valid proposals
-	      remove proposal from questionable_proposals
-	if questionable_proposals is empty
-	  return True
-	return False
-	"""
-	my_proposals = get_proposals_from_user(userid)
-	requested_proposals = {}
-	if 'eusInfo' in metadata:
-		if 'proposalID' in metadata['eusInfo']:
-			requested_proposals[metadata['eusInfo']['proposalID']] = 1
-	if 'file' in metadata:
-		for file in metadata['file']:
-			if 'groups' in file and file['groups']:
-				for group in file['groups']:
-					if group['type'] == 'proposal':
-						requested_proposals[group['name']] = 1
-	questionable_proposals = []
-	for prop in requested_proposals.keys():
-		if not prop in my_proposals:
-			questionable_proposals.append(prop)
-
-	if len(questionable_proposals) == 0:
-		return True
-
-	for prop in questionable_proposals:
-		if 'title' in get_proposal_info(prop):
-			questionable_proposals.remove(prop)
-
-	if len(questionable_proposals) == 0:
-		return True
-	return False
+    """
+    get user info from policy call then determine if proposal/instrument
+    is in their list of stuff.
+    """
+    from myemsl.policy import get_policy_userinfo
+    import re
+    my_data = get_policy_userinfo(userid)
+    my_proposals = [ x['proposal_id'] for x in my_data['proposals'] ]
+    my_instruments = [ x['instrument_id'] for x in my_data['instruments'] ]
+    requested_proposals = {}
+    requested_instruments = {}
+    inst_re = re.compile(r'Instrument\.([0-9][0-9])')
+    if 'eusInfo' in metadata:
+        if 'proposalID' in metadata['eusInfo']:
+            requested_proposals[metadata['eusInfo']['proposalID']] = 1
+    if 'file' in metadata:
+        for file in metadata['file']:
+            if 'groups' in file and file['groups']:
+                for group in file['groups']:
+                    if inst_match = inst_re.match(group['type']):
+                        requested_instruments[inst_match.group(1)] = 1
+                    if group['type'] == 'proposal':
+                        requested_proposals[group['name']] = 1
+    # we should at least have one proposal
+    if len(requested_proposals.keys()) == 0:
+        return False
+    for prop in requested_proposals.keys():
+        if not prop in my_proposals:
+            return False
+    for inst in requested_instruments.keys():
+        if not inst in my_instruments:
+            return False
+    return True

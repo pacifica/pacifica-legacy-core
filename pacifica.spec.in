@@ -1371,6 +1371,7 @@ chkconfig --add notification-service
 /%{python_sitelib}/myemsl/getservices/__init__.py*
 /%{python_sitelib}/myemsl/dbconnect/__init__.py*
 /%{python_sitelib}/myemsl/metadata/__init__.py*
+/%{python_sitelib}/myemsl/policy/__init__.py*
 /%{python_sitelib}/myemsl/inoutage/__init__.py*
 /%{python_sitelib}/myemsl/service/auth/__init__.py*
 /%{python_sitelib}/myemsl/handler/__init__.py*

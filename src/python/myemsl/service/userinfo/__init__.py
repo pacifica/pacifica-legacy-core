@@ -9,6 +9,7 @@ import urllib
 import myemsl.metadata
 from myemsl.dbconnect import myemsldb_connect
 from myemsl.brand import brand
+from myemsl.policy import get_policy_userinfo
 
 def error(dtype, message, writer):
     """
@@ -54,39 +55,7 @@ def userinfo(user, dtype, writer):
     ##
     # get user information from EUS
     ##
-    data = myemsl.metadata.get_user_info(user)
-    global_instruments = {}
-    global_proposals = {}
-    custodian_instruments = []
-    ##
-    # apply all proposals attached to instruments that the user is a
-    # custodian on.
-    ##
-    custodian_instruments = myemsl.metadata.get_custodian_instruments(user)
-    for instrument_id in custodian_instruments:
-        global_instruments[instrument_id] = 1
-    for proposal_id in myemsl.metadata.get_proposals_from_instrument_user(user):
-        global_proposals[proposal_id] = 1
-    ##
-    # Get the proposals the user is on
-    ##
-    for proposal_id in myemsl.metadata.get_proposals_from_user(user):
-        global_proposals[proposal_id] = 1
-    ##
-    # get proposal information from EUS for proposals
-    ##
-    for proposal_id in global_proposals.keys():
-        data["proposals"][str(proposal_id)] = myemsl.metadata.get_proposal_info(proposal_id)
-        inst_list = myemsl.metadata.get_instruments_from_proposal(proposal_id)
-        inst_list.extend(custodian_instruments)
-        data["proposals"][str(proposal_id)]["instruments"] = sorted(set(inst_list))
-        for instrument_id in inst_list:
-            global_instruments[instrument_id] = 1
-    ##
-    # get instrument information from EUS for instruments
-    ##
-    for instrument_id in global_instruments.keys():
-        data["instruments"][str(instrument_id)] = myemsl.metadata.get_instrument_info(instrument_id)
+    data = get_policy_userinfo(userid)
     formatdata(dtype, data, writer)
     return 0
 

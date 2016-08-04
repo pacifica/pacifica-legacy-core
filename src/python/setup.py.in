@@ -17,6 +17,7 @@ PACKAGES = [
     "myemsl.bundler",
     "myemsl.dbconnect",
     "myemsl.metadata",
+    "myemsl.policy",
     "myemsl.eus2login",
     "myemsl.eus2myemsl",
     "myemsl.eushandoff",

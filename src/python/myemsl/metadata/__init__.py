@@ -223,7 +223,8 @@ SELECT
   first_name,
   last_name,
   email_address,
-  last_change_date
+  last_change_date,
+  emsl_employee
 FROM
   eus.users
 WHERE
@@ -235,7 +236,7 @@ WHERE
     rows = cursor.fetchall()
     if len(rows) != 1:
         error(dtype, "multiple users with (%s)"%(userid), writer)
-    (person_id, network_id, first_name, last_name, email_address, last_change_date) = rows[0]
+    (person_id, network_id, first_name, last_name, email_address, last_change_date, emsl_employee) = rows[0]
     data = {
         "person_id": person_id,
         "network_id": network_id,
@@ -243,6 +244,7 @@ WHERE
         "last_name": last_name,
         "email_address": email_address,
         "last_change_date": last_change_date,
+        "emsl_employee": emsl_employee,
         "proposals": {},
         "instruments": {}
     }
