@@ -165,7 +165,7 @@ def get_permission_ingest(metadata, userid):
     """
     from myemsl.policy import get_policy_userinfo
     import re
-    my_data = get_policy_userinfo(userid)
+    my_data = get_policy_userinfo(int(userid))
     my_proposals = [ x['proposal_id'] for x in my_data['proposals'] ]
     my_instruments = [ x['instrument_id'] for x in my_data['instruments'] ]
     requested_proposals = {}
@@ -178,7 +178,8 @@ def get_permission_ingest(metadata, userid):
         for file in metadata['file']:
             if 'groups' in file and file['groups']:
                 for group in file['groups']:
-                    if inst_match = inst_re.match(group['type']):
+                    inst_match = inst_re.match(group['type'])
+                    if inst_match:
                         requested_instruments[inst_match.group(1)] = 1
                     if group['type'] == 'proposal':
                         requested_proposals[group['name']] = 1

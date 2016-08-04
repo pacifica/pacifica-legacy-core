@@ -232,9 +232,9 @@ def ingest_metadata(metadata, files, username, transaction, itemlogfilename):
 		cnx.close()
 		raise Exception('Unable to insert file metadata (%s).'%(str(e)))
         sql = """
-        select fill_item_time_cache_by_transaction(%(trans)s);
+        select myemsl.fill_item_time_cache_by_transaction(%(trans)d);
         """
-        do_sql_select(sql, True, myemsl_schema_versions=['1.12'], params={'trans':str(transaction)})
+        do_sql_select(sql, 0, myemsl_schema_versions=['1.12'], params={'trans':int(transaction)})
 	cnx.close()
 
 def get_transaction(user):
