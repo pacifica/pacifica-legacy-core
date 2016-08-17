@@ -21,16 +21,28 @@ def get_policy_userinfo(userid):
     """
     user_info = get_user_info(userid)
     if user_info['emsl_employee'] == 'Y':
-        user_info['proposals'] = get_all_proposals()
-        user_info['instruments'] = get_all_instruments()
+        props = {}
+        for prop in get_all_proposals():
+            props[str(prop['proposal_id'])] = prop
+        insts = {}
+        for inst in get_all_instruments():
+            insts[str(inst['instrument_id'])] = inst
+        user_info['proposals'] = props
+        user_info['instruments'] = insts
     else:
-        user_info['proposals'] = [ get_proposal_info(prop) for prop in get_proposals_from_user(userid) ]
+        props = {}
+        for prop in get_proposals_from_user(userid):
+            props[str(prop['proposal_id'])] = get_proposal_info(prop)
+        user_info['proposals'] = props
         inst_ids = []
         for prop in get_proposals_from_user(userid):
             for instid in get_instruments_from_proposal(prop):
                 if not instid in inst_ids:
                     inst_ids.append(instid)
-        user_info['instruments'] = [ get_instrument_info(inst) for inst in inst_ids ]
+        insts = {}
+        for inst in inst_ids:
+            insts[str(inst)] = get_instrument_info(inst)
+        user_info['instruments'] = insts
     return user_info
 
 if __name__ == '__main__':
