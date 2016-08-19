@@ -5,7 +5,7 @@ upload permissions and what they can see when interacting with the
 uploader.
 """
 
-from myemsl.metadata import get_user_info, get_all_proposals, get_all_instruments, get_proposals_from_user, get_proposal_info, get_instruments_from_proposal, get_instrument_info
+from myemsl.metadata import get_user_info, get_all_proposals, get_all_instruments, get_proposals_from_user, get_proposal_info, get_instruments_from_proposal, get_instrument_info, get_all_proposal_instruments
 from sys import argv
 
 def get_policy_userinfo(userid):
@@ -20,10 +20,13 @@ def get_policy_userinfo(userid):
         see instruments attached to those proposals
     """
     user_info = get_user_info(userid)
+    prop_inst_list = get_all_proposal_instruments()
     if user_info['emsl_employee'] == 'Y':
         props = {}
         for prop in get_all_proposals():
-            props[str(prop['proposal_id'])] = prop
+            prop_id = prop['proposal_id']
+            prop['instruments'] = prop_inst_list[prop_id] if prop_id in prop_inst_list else []
+            props[str(prop_id)] = prop
         insts = {}
         for inst in get_all_instruments():
             insts[str(inst['instrument_id'])] = inst
@@ -31,8 +34,10 @@ def get_policy_userinfo(userid):
         user_info['instruments'] = insts
     else:
         props = {}
-        for prop in get_proposals_from_user(userid):
-            props[str(prop['proposal_id'])] = get_proposal_info(prop)
+        for prop_id in get_proposals_from_user(userid):
+            prop = get_proposal_info(prop_id)
+            prop['instruments'] = prop_inst_list[prop_id] if prop_id in prop_inst_list else []
+            props[str(prop_id)] = prop
         user_info['proposals'] = props
         inst_ids = []
         for prop in get_proposals_from_user(userid):

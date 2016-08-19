@@ -465,3 +465,20 @@ FROM
         })
     return ret
 
+def get_all_proposal_instruments():
+    sql = """
+SELECT
+  proposal_id,
+  array_agg(instrument_id) as instrument_id_list
+FROM
+  eus.proposal_instruments
+GROUP BY
+  proposal_id;
+"""
+    cnx = myemsldb_connect(myemsl_schema_versions=['1.8'])
+    cursor = cnx.cursor()
+    cursor.execute(sql)
+    ret = {}
+    for i in cursor.fetchall():
+        ret[i[0]] = [ int(x) for x in i[1][1:-1].split(',') ]
+    return ret
