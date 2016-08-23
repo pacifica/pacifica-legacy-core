@@ -166,8 +166,8 @@ def get_permission_ingest(metadata, userid):
     from myemsl.policy import get_policy_userinfo
     import re
     my_data = get_policy_userinfo(int(userid))
-    my_proposals = [ x['proposal_id'] for x in my_data['proposals'] ]
-    my_instruments = [ x['instrument_id'] for x in my_data['instruments'] ]
+    my_proposals = my_data['proposals'].keys()
+    my_instruments = my_data['instruments'].keys()
     requested_proposals = {}
     requested_instruments = {}
     inst_re = re.compile(r'Instrument\.([0-9][0-9])')
